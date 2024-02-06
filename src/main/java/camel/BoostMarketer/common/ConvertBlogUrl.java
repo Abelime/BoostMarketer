@@ -19,7 +19,7 @@ public class ConvertBlogUrl {
         // 매칭된 경우 값 추출
         if (m.find()) {
             blogInfo.put("blogId", m.group(1));
-            blogInfo.put("blogPostId", m.group(2));
+            blogInfo.put("postNo", m.group(2));
         }
 
         return blogInfo;

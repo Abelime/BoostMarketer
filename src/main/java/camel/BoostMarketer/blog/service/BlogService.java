@@ -1,6 +1,6 @@
 package camel.BoostMarketer.blog.service;
 
-import camel.BoostMarketer.blog.api.ApiSearchBlog;
+import camel.BoostMarketer.blog.api.CrawlerRank;
 import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.repository.MemoryBlogRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,10 +12,12 @@ public class BlogService {
 
     private final MemoryBlogRepository blogRepository;
 
-    private final ApiSearchBlog apiSearchBlog;
+    private final CrawlerRank crawlerRank;
+
     public void create(BlogDto blogDto) {
         blogRepository.save(blogDto);
-        apiSearchBlog.apiAccess(blogDto);
+//        apiSearchBlog.apiAccess(blogDto);
+        crawlerRank.getRank(blogDto);
 
     }
 
