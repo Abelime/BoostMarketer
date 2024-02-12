@@ -1,6 +1,6 @@
 package camel.BoostMarketer.blog.controller;
 
-import camel.BoostMarketer.blog.dto.BlogDto;
+import camel.BoostMarketer.blog.dto.*;
 import camel.BoostMarketer.blog.service.BlogService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -19,13 +19,9 @@ public class BlogController {
     private final BlogService blogService;
 
     @PostMapping(value = "/blog/new")
-    public ResponseEntity<?> createBlog(BlogDto blogDto) throws Exception {
-        blogService.create(blogDto);
-        logger.trace("Trace Level 테스트");
-        logger.debug("DEBUG Level 테스트");
-        logger.info("INFO Level 테스트");
-        logger.warn("Warn Level 테스트");
-        logger.error("ERROR Level 테스트");
+    public ResponseEntity<?> createBlog(RequestBlogDto requestBlogDto) throws Exception {
+        logger.debug(requestBlogDto.toString());
+        blogService.create(requestBlogDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

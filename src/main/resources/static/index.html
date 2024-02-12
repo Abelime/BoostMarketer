@@ -1,17 +1,162 @@
 <!DOCTYPE html>
-<html lang="kr">
+<html lang="en">
 <head>
-  <title>Form with Two Input Boxes</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>폼 제출</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #inputForm {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .inputRow {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .inputRow label {
+      margin-right: 10px;
+    }
+
+    #keywordInputs {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
 </head>
 <body>
-  <form action="/blog/new" method="post">
-    <label for="blogUrl">blog url</label>
-    <input type="text" id="blogUrl" name="blogUrl"><br><br>
-    
-    <label for="keyWord">keyword</label>
-    <input type="text" id="keyWord" name="keyWord"><br><br>
-    
-    <input type="submit" value="Submit">
-  </form>
+
+<form id="inputForm">
+  <div>
+    <label for="urlInput">URL :</label>
+    <input type="text" id="urlInput" name="blogUrl" style="width: 400px;"><br><br>
+  </div>
+
+  <div id="keywordInputs">
+    <label for="keyWord">Keyword 1:</label>
+    <input type="text" id="keyWord" name="keyWord" style="width: 150px;">
+  </div>
+
+  <div>
+    <button type="button" onclick="addKeywordInput()">키워드 추가</button>
+    <button type="button" onclick="removeKeywordInput()">키워드 제거</button><br><br>
+  </div>
+  <button type="button" onclick="submitForm()">저장</button>
+</form>
+
+<script>
+  function addKeywordInput() {
+    const keywordInputs = document.getElementById('keywordInputs');
+    const numInputs = keywordInputs.getElementsByTagName('input').length;
+
+    if (numInputs < 5) {
+      const newInputNumber = numInputs + 1;
+      const newLabel = document.createElement('label');
+      newLabel.setAttribute('for', 'keywordInput' + newInputNumber);
+      newLabel.textContent = 'Keyword ' + newInputNumber + ':';
+
+      const newInput = document.createElement('input');
+      newInput.setAttribute('type', 'text');
+      newInput.setAttribute('id', 'keywordInput' + newInputNumber);
+      newInput.setAttribute('name', 'keyWord');
+      newInput.style.width = '150px'; // 넓이 설정
+
+      keywordInputs.appendChild(newLabel);
+      keywordInputs.appendChild(newInput);
+      keywordInputs.appendChild(document.createTextNode(' ')); // 키워드 사이의 공백 추가
+    } else {
+      alert('최대 5개의 키워드만 추가할 수 있습니다.');
+    }
+  }
+
+  function removeKeywordInput() {
+    const keywordInputs = document.getElementById('keywordInputs');
+    const numInputs = keywordInputs.getElementsByTagName('input').length;
+
+    if (numInputs > 1) { // 최소 두 개의 입력을 유지합니다.
+      keywordInputs.removeChild(keywordInputs.lastElementChild); // 입력 제거
+      keywordInputs.removeChild(keywordInputs.lastElementChild); // 라벨 제거
+      keywordInputs.removeChild(keywordInputs.lastChild); // 공백 제거
+    } else {
+      alert('최소 하나의 키워드는 있어야 합니다.');
+    }
+  }
+
+  function submitForm() {
+    const form = document.getElementById('inputForm');
+    const formData = new FormData(form);
+    const blogUrl = formData.get('blogUrl');
+
+    // 정규식을 사용하여 블로그 ID와 포스트 번호 추출
+    const regex = /\/(\w+)\/(\d+)/;
+    const matches = blogUrl.match(regex);
+
+    if (matches && matches.length === 3) {
+      const blogId = matches[1];
+      const postNo = matches[2];
+
+      // FormData에 블로그 ID와 포스트 번호 추가
+      formData.append('blogId', blogId);
+      formData.append('postNo', postNo);
+
+      fetch('/blog/new', {
+        method: 'POST',
+        body: formData
+      })
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error('서버 오류: ' + response.status);
+                }
+                console.log('블로그가 성공적으로 생성되었습니다.');
+                alert('저장되었습니다');
+                window.location.reload(); // 화면 reload
+              })
+              .catch(error => {
+                console.error('에러 발생:', error);
+              });
+    } else {
+      alert('올바른 URL 형식이 아닙니다.');
+    }
+  }
+
+
+
+</script>
+
 </body>
 </html>

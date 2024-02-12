@@ -1,6 +1,6 @@
 package camel.BoostMarketer.blog.api;// 네이버 검색 API 예제 - 블로그 검색
 
-import camel.BoostMarketer.blog.dto.BlogDto;
+import camel.BoostMarketer.blog.dto.RequestBlogDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,16 +23,12 @@ public class ApiSearchBlog {
     private final String clientId = "WL1M5lNM2971fY_nLeOY"; //애플리케이션 클라이언트 아이디
     private final String clientSecret = "aYYZtJiEbb"; //애플리케이션 클라이언트 시크릿
 
-    public void apiAccess(BlogDto blogDto) {
-        Map<String, String> blogMap = convertUrl(blogDto.getBlogUrl());
+    public void apiAccess(RequestBlogDto requestBlogDto) {
+        Map<String, String> blogMap = convertUrl(requestBlogDto.getBlogUrl());
 
-        String text = blogDto.getKeyWord();
-
-        try {
-            text = URLEncoder.encode(text, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("검색어 인코딩 실패", e);
-        }
+//        String text = blogDto.getKeyWord();
+        String text = "";
+        text = URLEncoder.encode(text, StandardCharsets.UTF_8);
 
 
         String apiURL = "https://openapi.naver.com/v1/search/blog?query=" + text;    // JSON 결과
