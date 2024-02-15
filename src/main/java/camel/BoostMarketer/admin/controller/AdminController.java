@@ -21,11 +21,6 @@ public class AdminController {
 
     @PostMapping(value = "/admin")
     public ResponseEntity<?> registerUser(@RequestBody AdminDto adminDto) throws Exception {
-        logger.trace("Trace Level 테스트");
-        logger.debug("DEBUG Level 테스트");
-        logger.info("INFO Level 테스트");
-        logger.warn("Warn Level 테스트");
-        logger.error("ERROR Level 테스트");
         adminService.register(adminDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
