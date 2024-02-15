@@ -27,7 +27,7 @@ public class BlogController {
     @GetMapping(value = "/blog/new")
     public String createForm() throws Exception {
         logger.debug("여긴가");
-        return "/blog/createBlogForm";
+        return "blog/createBlogForm";
     }
 
     @PostMapping(value = "/blog/new")
@@ -44,7 +44,7 @@ public class BlogController {
         model.addAttribute("postList", blogPostDtoList);
         model.addAttribute("keywordList", keywordDtoList);
 
-        return "/blog/blogList";
+        return "blog/blogList";
     }
 
 
