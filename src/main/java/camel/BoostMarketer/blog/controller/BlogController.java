@@ -24,13 +24,9 @@ public class BlogController {
 
     private final BlogService blogService;
 
-    @GetMapping(value = "/")
-    public String home() throws Exception {
-        return "home";
-    }
-
     @GetMapping(value = "/blog/new")
     public String createForm() throws Exception {
+        logger.debug("여긴가");
         return "/blog/createBlogForm";
     }
 
