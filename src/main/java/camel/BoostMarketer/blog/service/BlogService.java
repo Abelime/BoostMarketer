@@ -1,8 +1,10 @@
 package camel.BoostMarketer.blog.service;
 
-import camel.BoostMarketer.blog.api.Crawler;
-import camel.BoostMarketer.blog.dto.*;
-import camel.BoostMarketer.blog.repository.MemoryBlogRepository;
+import camel.BoostMarketer.blog.dto.BlogPostDto;
+import camel.BoostMarketer.blog.dto.RequestBlogDto;
+import camel.BoostMarketer.blog.dto.keywordDto;
+import camel.BoostMarketer.blog.mapper.BlogMapper;
+import camel.BoostMarketer.common.api.Crawler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,7 +16,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class BlogService {
 
-    private final MemoryBlogRepository blogRepository;
+    private final BlogMapper blogMapper;
 
     public void create(RequestBlogDto requestBlogDto) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
@@ -32,15 +34,27 @@ public class BlogService {
         postInfo.put("postNo", postNo);
         BlogPostDto blogPostDto = mapper.convertValue(postInfo, BlogPostDto.class);
 
+        blogMapper.insertBlogPost(blogPostDto);
+
 
         List<Integer> rankList = Crawler.rankCrawler(requestBlogDto); //키워드 랭킹
-        KeyWordDto keyWordDto = new KeyWordDto(requestBlogDto.getKeyWord(), rankList);
 
-        System.out.println("성공 자자");
+        keywordDto keywordDto;
+//        List<keywordDto> keyWordDtoList = new ArrayList<>();
 
-
-
+        for(int i=0; i<rankList.size(); i++){
+            keywordDto = new keywordDto(requestBlogDto.getPostNo(),requestBlogDto.getKeyWord().get(i), rankList.get(i));
+            blogMapper.insertKeyword(keywordDto);
+            blogMapper.insertKeywordRank(keywordDto);
+//            keyWordDtoList.add(keywordDto);
+        }
     }
 
+    public List<BlogPostDto> selectPostList() throws Exception {
+        return blogMapper.selectPostList();
+    }
 
+    public List<keywordDto> selectKeyWordRank(List<BlogPostDto> blogPostDtoList) throws Exception {
+        return blogMapper.selectKeyWordRank(blogPostDtoList);
+    }
 }

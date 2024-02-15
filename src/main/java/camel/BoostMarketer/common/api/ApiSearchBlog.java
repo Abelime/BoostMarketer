@@ -1,4 +1,4 @@
-package camel.BoostMarketer.blog.api;// 네이버 검색 API 예제 - 블로그 검색
+package camel.BoostMarketer.common.api;// 네이버 검색 API 예제 - 블로그 검색
 
 import camel.BoostMarketer.blog.dto.RequestBlogDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,7 +23,7 @@ public class ApiSearchBlog {
     private final String clientId = "WL1M5lNM2971fY_nLeOY"; //애플리케이션 클라이언트 아이디
     private final String clientSecret = "aYYZtJiEbb"; //애플리케이션 클라이언트 시크릿
 
-    public void apiAccess(RequestBlogDto requestBlogDto) {
+    public int apiAccess(RequestBlogDto requestBlogDto) {
         Map<String, String> blogMap = convertUrl(requestBlogDto.getBlogUrl());
 
 //        String text = blogDto.getKeyWord();
@@ -62,8 +62,7 @@ public class ApiSearchBlog {
             throw new RuntimeException(e);
         }
 
-        System.out.println("순위 : " + rank);
-
+        return rank;
     }
 
 

@@ -1,4 +1,4 @@
-package camel.BoostMarketer.blog.api;
+package camel.BoostMarketer.common.api;
 
 import camel.BoostMarketer.blog.dto.RequestBlogDto;
 import camel.BoostMarketer.common.HttpUtil;
@@ -72,10 +72,6 @@ public class Crawler {
             }
 
             rankList.add(rank);
-
-            // 찾은 순위를 출력합니다.
-            logger.debug(" Keyword: {}", keyword);
-            logger.debug(" Rank: {}", rank);
 
             // 순위와 크롤러 URL을 초기화합니다.
             crawlerUrl = "";

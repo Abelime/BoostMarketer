@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>키워드 랭킹 페이지</title>
+    <style>
+        /* CSS 스타일링 추가 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column; /* 수직 정렬을 위해 column으로 설정 */
+            min-height: 100vh; /* 최소 높이 설정 */
+        }
+
+        .container {
+            flex: 1; /* 컨테이너가 컨텐츠만큼 확장되도록 설정 */
+            position: relative; /* 부모 요소 설정 */
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 800px; /* 전체적인 크기 조정 */
+            width: 100%;
+            overflow-x: auto; /* 키워드가 너무 길 경우 가로 스크롤 생성 */
+            overflow-y: auto; /* 필요 시 수직 스크롤 생성 */
+            margin: 0 auto; /* 중앙 정렬을 위해 수정 */
+        }
+
+        .post-title a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .post-date {
+            color: #888;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .post-hashtag .hashtag {
+            background-color: dimgrey; /* 해시태그 백그라운드 컬러 변경 */
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            margin-right: 5px;
+            display: inline-block;
+            font-size: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px; /* 테이블 위 여백 추가 */
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .history-keyword {
+            margin-top: 10px;
+        }
+
+        .keyword,
+        .rank {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .keyword {
+            background-color: #f2f2f2;
+            color: #333;
+            padding: 5px 10px;
+            border-radius: 20px;
+            margin-bottom: 5px;
+            font-size: 14px;
+            white-space: nowrap; /* 키워드가 길어질 경우 줄바꿈 방지 */
+        }
+
+        .rank {
+            font-weight: bold;
+            font-size: 16px;
+            padding: 8px 12px; /* 패딩 조정 */
+            border-radius: 20px;
+            margin-bottom: 5px;
+        }
+
+        .history-rank {
+            margin-top: 10px;
+        }
+
+        .item-rank {
+            margin-bottom: 5px;
+        }
+
+        /* 버튼 스타일 */
+        .register-blog-button {
+            position: fixed; /* 화면 고정 */
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 버튼 호버 효과 */
+        .register-blog-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>키워드 랭킹 페이지</h2>
+    <table>
+        <tr>
+            <th>글정보</th>
+            <th>키워드</th>
+            <th>랭킹</th>
+        </tr>
+        <!-- 게시물 반복문 시작 -->
+        <tr class="item-post-tr" th:each="post : ${postList}">
+            <td>
+                <div class="post-title"><a href="/blog/detail" target="_blank" th:text="${post.postTitle}"></a></div>
+                <div class="post-date" th:text="${post.postDate}"></div>
+                <div class="post-hashtag">
+                    <div class="hashtag select" th:each="tag : ${#strings.arraySplit(post.hashtag, ',')}" th:text="'#' + ${tag.trim()}" style="margin-top: 5px; margin-bottom: 5px;"></div>
+                </div>
+            </td>
+            <td>
+                <!-- 키워드 반복문 시작 -->
+                <div class="history-keyword" th:each="keyword : ${keywordList}" th:if="${post.postNo == keyword.postNo}">
+                    <span class="keyword" th:text="${keyword.keywordName}"></span>
+                </div>
+                <!-- 키워드 반복문 종료 -->
+            </td>
+            <td>
+                <!-- 랭킹 반복문 시작 -->
+                <div class="history-rank" th:each="keyword : ${keywordList}" th:if="${post.postNo == keyword.postNo}">
+                    <div class="item-rank">
+                        <span class="rank" th:text="${keyword.keywordRank}"></span>
+                    </div>
+                </div>
+                <!-- 랭킹 반복문 종료 -->
+            </td>
+        </tr>
+        <!-- 게시물 반복문 종료 -->
+    </table>
+</div>
+<!-- 블로그 등록 버튼 -->
+<button class="register-blog-button" onclick="window.location.href = '/blog/new'">블로그 등록</button>
+</body>
+</html>

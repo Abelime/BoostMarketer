@@ -27,11 +27,13 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-//	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
-//	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
 	implementation 'org.springframework.boot:spring-boot-devtools'
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.0'
 	implementation 'org.jsoup:jsoup:1.17.2'
+	implementation 'org.mariadb.jdbc:mariadb-java-client:2.7.3'
+
 
 }
 

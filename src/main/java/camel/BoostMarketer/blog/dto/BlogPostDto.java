@@ -2,10 +2,10 @@ package camel.BoostMarketer.blog.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.ibatis.type.Alias;
 
 
-//@Alias("BlogDto")
-
+@Alias("BlogPostDto")
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class BlogPostDto extends CommonBlogDto{
