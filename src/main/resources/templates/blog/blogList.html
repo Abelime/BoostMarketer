@@ -157,7 +157,7 @@
                 <!-- 랭킹 반복문 시작 -->
                 <div class="history-rank" th:each="keyword : ${keywordList}" th:if="${post.postNo == keyword.postNo}">
                     <div class="item-rank">
-                        <span class="rank" th:text="${keyword.keywordRank}"></span>
+                        <span class="rank" th:text="${keyword.keywordRank == 0 ? '미확인' : keyword.keywordRank}" style="white-space: nowrap;"></span>
                     </div>
                 </div>
                 <!-- 랭킹 반복문 종료 -->
