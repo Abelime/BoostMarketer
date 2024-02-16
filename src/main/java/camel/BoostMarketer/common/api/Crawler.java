@@ -34,10 +34,6 @@ public class Crawler {
         List<String> keyWordList = requestBlogDto.getKeyWord();
         List<Integer> rankList = new ArrayList<>();
 
-        // 순위와 크롤러 URL을 초기화합니다.
-        int rank = 0;
-        String crawlerUrl = "";
-
         // 키워드 리스트를 순회하며 크롤링을 수행합니다.
         for (String keyword : keyWordList) {
             // 검색어를 UTF-8 형식으로 인코딩합니다.
@@ -58,27 +54,18 @@ public class Crawler {
             Elements aTag = doc.select(".title_area a");
 
             // 링크를 순회하며 블로그 URL과 일치하는지 확인합니다.
-            for (Element title : aTag) {
-                rank++;
-                crawlerUrl = title.attr("href");
-
-                // 블로그 URL과 일치하면 반복문을 종료합니다.
-                if (crawlerUrl.equals(requestBlogDto.getBlogUrl())) break;
+            for (int i = 0; i < aTag.size(); i++) {
+                String crawlerUrl = aTag.get(i).attr("href");
+                if (crawlerUrl.equals(requestBlogDto.getBlogUrl())) {
+                    rankList.add(++i);
+                    break;
+                } else if (i == aTag.size()-1) { //마지막 까지 일치하지 않으면
+                    rankList.add(0);
+                }
             }
 
-            // 순위가 30위인데 블로그 URL이 일치하지 않는 경우 -1을 반환합니다.
-            if (rank == 30 && !crawlerUrl.equals(requestBlogDto.getBlogUrl())) {
-                rank = -1;
-            }
-
-            rankList.add(rank);
-
-            // 순위와 크롤러 URL을 초기화합니다.
-            crawlerUrl = "";
-            rank = 0;
         }
 
-        // 마지막에 순위를 반환합니다. (마지막 키워드의 순위만 반환됩니다)
         return rankList;
     }
 
@@ -122,7 +109,7 @@ public class Crawler {
         if (postView != null) {
             JsonNode postList = postView.get("postList");
             for (JsonNode post : postList) {
-                if(post.get("logNo").asText().equals(postNo)){
+                if (post.get("logNo").asText().equals(postNo)) {
                     String postTitle = URLDecoder.decode(post.get("filteredEncodedTitle").asText(), StandardCharsets.UTF_8);
                     String postDate = post.get("addDate").asText();
                     int commentCnt = post.get("commentCount").asInt();
