@@ -1,10 +1,10 @@
 package camel.BoostMarketer.common.api;
 
 import camel.BoostMarketer.blog.dto.RequestBlogDto;
-import camel.BoostMarketer.common.HttpUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,14 +13,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static camel.BoostMarketer.common.HttpUtil.sendHttpRequest;
 
 
 public class Crawler {
@@ -29,45 +31,128 @@ public class Crawler {
 
     private final static Logger logger = LoggerFactory.getLogger(Crawler.class);
 
-    //블로그 순위 크롤링
-    public static List<Integer> rankCrawler(RequestBlogDto requestBlogDto) {
-        List<String> keyWordList = requestBlogDto.getKeyWord();
+//    public static List<Integer> rankCrawler(RequestBlogDto requestBlogDto) {
+//        Instant startTime = Instant.now(); // 시작 시간 기록
+//        List<String> keyWordList = requestBlogDto.getKeyWord();
+//        List<Integer> rankList = new ArrayList<>();
+//
+//        // 키워드 리스트를 순회하며 크롤링을 수행합니다.
+//        for (String keyword : keyWordList) {
+//            try {
+//                // 검색어를 UTF-8 형식으로 인코딩합니다.
+//                String text = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+//                // URL을 생성합니다.
+//                String url = "https://search.naver.com/search.naver?ssc=tab.blog.all&query=" + text;
+//
+//                // 예외 처리를 추가하여 Jsoup을 사용하여 웹페이지를 가져옵니다.
+//                Document doc;
+//                doc = Jsoup.connect(url).get();
+//                // 블로그 검색 결과에서 링크를 가져옵니다.
+//                Elements aTag = doc.select(".title_area a");
+//
+//                // 링크를 순회하며 블로그 URL과 일치하는지 확인합니다.
+//                for (int i = 0; i < aTag.size(); i++) {
+//                    String crawlerUrl = aTag.get(i).attr("href");
+//                    if (crawlerUrl.equals(requestBlogDto.getBlogUrl())) {
+//                        rankList.add(++i);
+//                        break;
+//                    } else if (i == aTag.size() - 1) { //마지막 까지 일치하지 않으면
+//                        rankList.add(0);
+//                    }
+//                }
+//                Thread.sleep(500);
+//            } catch (Exception e) {
+//                logger.error("Error occurred while fetching keyword ranks for keyword: " + keyword, e);
+//                // 예외가 발생한 경우 해당 키워드의 순위를 -1로 설정합니다.
+//                rankList.add(-1);
+//            }
+//
+//        }
+//        Instant endTime = Instant.now(); // 종료 시간 기록
+//        Duration duration = Duration.between(startTime, endTime); // 걸린 시간 계산
+//        logger.debug("rankList: {} ", rankList);
+//        logger.debug("검색어 순위 계산에 소요된 시간: {} 밀리초", duration.toMillis());
+//
+//        return rankList;
+//    }
+
+    public static List<Integer> rankCrawler(RequestBlogDto requestBlogDto) throws IOException {
         List<Integer> rankList = new ArrayList<>();
+        Instant startTime = Instant.now(); // 시작 시간 기록
 
-        // 키워드 리스트를 순회하며 크롤링을 수행합니다.
-        for (String keyword : keyWordList) {
-            // 검색어를 UTF-8 형식으로 인코딩합니다.
-            String text = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+        // 프록시 서버의 호스트와 포트를 설정합니다.
+        String proxyHost = "brd.superproxy.io";
+        int proxyPort = 22225; // 프록시 서버 포트
 
-            // URL을 생성합니다.
-            String url = "https://search.naver.com/search.naver?ssc=tab.blog.all&query=" + text;
+        // System 프로퍼티를 이용하여 전역 프록시 설정을 합니다.
+        System.setProperty("http.proxyHost", proxyHost);
+        System.setProperty("http.proxyPort", String.valueOf(proxyPort));
 
-            // 예외 처리를 추가하여 Jsoup을 사용하여 웹페이지를 가져옵니다.
-            Document doc;
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
+
+        // 병렬로 각 키워드에 대한 순위를 계산합니다.
+        requestBlogDto.getKeyWord().parallelStream().forEach(keyword -> {
             try {
-                doc = Jsoup.connect(url).get();
-            } catch (IOException e) {
-                throw new RuntimeException("Error occurred while connecting to the URL: " + url, e);
-            }
+                // 검색어를 UTF-8 형식으로 인코딩합니다.
+                String text = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
 
-            // 블로그 검색 결과에서 링크를 가져옵니다.
-            Elements aTag = doc.select(".title_area a");
+                // URL을 생성합니다.
+                String url = "http://search.naver.com/search.naver?ssc=tab.blog.all&query=" + text;
 
-            // 링크를 순회하며 블로그 URL과 일치하는지 확인합니다.
-            for (int i = 0; i < aTag.size(); i++) {
-                String crawlerUrl = aTag.get(i).attr("href");
-                if (crawlerUrl.equals(requestBlogDto.getBlogUrl())) {
-                    rankList.add(++i);
-                    break;
-                } else if (i == aTag.size()-1) { //마지막 까지 일치하지 않으면
-                    rankList.add(0);
+                // Jsoup 연결 객체 생성 및 사용자 에이전트 설정
+                Connection conn = Jsoup.connect(url)
+                        .referrer("https://www.naver.com/") // Set a referrer
+                        .proxy(proxy)
+                        .headers(getHeaders()); // Set custom headers
+
+
+                // 웹페이지를 가져옵니다.
+                Document doc = conn.get();
+
+                // 블로그 검색 결과에서 링크를 가져옵니다.
+                Elements aTag = doc.select(".title_area a");
+
+                // 링크를 순회하며 블로그 URL과 일치하는지 확인합니다.
+                for (int i = 0; i < aTag.size(); i++) {
+                    String crawlerUrl = aTag.get(i).attr("href");
+                    if (crawlerUrl.equals(requestBlogDto.getBlogUrl())) {
+                        rankList.add(i + 1);
+                        return; // 순회를 중단하고 람다 표현식을 빠져나갑니다.
+                    }
                 }
+                // 블로그 URL과 일치하는 링크를 찾지 못한 경우
+                rankList.add(0);
+            } catch (Exception e) {
+                logger.error("Error occurred while fetching keyword ranks for keyword: " + keyword, e);
+                // 예외가 발생한 경우 해당 키워드의 순위를 -1로 설정합니다.
+                rankList.add(-1);
             }
+        });
 
-        }
-
+        Instant endTime = Instant.now(); // 종료 시간 기록
+        Duration duration = Duration.between(startTime, endTime); // 걸린 시간 계산
+        logger.debug("rankList: {} ", rankList);
+        logger.debug("검색어 순위 계산에 소요된 시간: {} 밀리초", duration.toMillis());
         return rankList;
     }
+
+    private static Map<String, String> getHeaders() {
+        // 인증 정보 설정
+        String authUser = "brd-customer-hl_79e5bff5-zone-web_unlocker1";
+        String authPassword = "il48wb3obr1n";
+        String base64Auth = java.util.Base64.getEncoder().encodeToString((authUser + ":" + authPassword).getBytes());
+
+        Map<String, String> headers = new HashMap<>();
+//        headers.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");
+//        headers.put("Accept-Encoding", "gzip, deflate, br");
+        headers.put("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7");
+//        headers.put("Referer", "https://search.naver.com/search.naver?");
+        headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36");
+        headers.put("Proxy-Authorization", "Basic " + base64Auth);
+
+        return headers;
+    }
+
 
     //블로그 정보 및 게시글 크롤링(jsoup)
     public static int blogInfoCrawler(RequestBlogDto requestBlogDto) throws IOException {
@@ -102,7 +187,7 @@ public class Crawler {
         Map<String, Object> resultMap = new HashMap<>();
         String url = "https://blog.naver.com/PostViewBottomTitleListAsync.naver?" + paramUrl;
 
-        String resultStr = HttpUtil.sendHttpRequest(url);
+        String resultStr = sendHttpRequest(url);
 
         JsonNode postView = mapper.readTree(resultStr);
 
@@ -134,7 +219,7 @@ public class Crawler {
     public static String postTagCrawler(String paramUrl) throws Exception {
         String tagName = "";
         String url = "https://blog.naver.com/BlogTagListInfo.naver?" + paramUrl;
-        String resultStr = HttpUtil.sendHttpRequest(url);
+        String resultStr = sendHttpRequest(url);
 
         JsonNode tag = mapper.readTree(resultStr);
 
@@ -150,7 +235,7 @@ public class Crawler {
     public static int visitorCntCrawler(String blogId) throws Exception {
         String url = "https://blog.naver.com/NVisitorgp4Ajax.naver?blogId=" + blogId;
 
-        String result = HttpUtil.sendHttpRequest(url);
+        String result = sendHttpRequest(url);
 
         // XML을 JsonNode로 변환
         XmlMapper xmlMapper = new XmlMapper();

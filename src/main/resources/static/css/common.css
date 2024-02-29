@@ -1,0 +1,210 @@
+/* 1번 CSS */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    flex: 1;
+    position: relative;
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 960px;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    margin: 0 auto;
+}
+
+.post-title a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.post-date {
+    color: #888;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.post-hashtag .hashtag {
+    background-color: dimgrey;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    margin-right: 5px;
+    display: inline-block;
+    font-size: 12px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.history-keyword {
+    margin-top: 10px;
+}
+
+.keyword,
+.rank {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.keyword {
+    background-color: #f2f2f2;
+    color: #333;
+    padding: 5px 10px;
+    border-radius: 20px;
+    margin-bottom: 5px;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.rank {
+    font-weight: bold;
+    font-size: 16px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    margin-bottom: 5px;
+}
+
+.history-rank {
+    margin-top: 10px;
+}
+
+.item-rank {
+    margin-bottom: 5px;
+}
+
+.register-blog-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.register-blog-button:hover {
+    background-color: #45a049;
+}
+
+
+/* 2번 CSS */
+.chart-container {
+    position: relative;
+    margin-top: 20px;
+}
+
+canvas {
+    max-width: 100%;
+}
+
+.keyword-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.keyword-button {
+    padding: 8px 16px;
+    margin: 0 5px;
+    border: 1px solid #4CAF50;
+    border-radius: 5px;
+    background-color: transparent;
+    color: #4CAF50;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.keyword-button:hover {
+    background-color: #4CAF50;
+    color: white;
+}
+
+
+/* 3번 CSS */
+#inputForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: auto;
+    width: fit-content;
+}
+
+.inputRow {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.inputRow label {
+    margin-right: 10px;
+}
+
+#keywordInputs {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.keyword-button.selected {
+    background-color: #007bff; /* 선택된 배경색 */
+    color: #ffffff; /* 선택된 텍스트색 */
+    border-color: #007bff; /* 선택된 테두리색 */
+    /* 기타 선택된 상태에 대한 스타일링 */
+}
+.item-post-tr-selected {
+    background-color: darkgray;
+}

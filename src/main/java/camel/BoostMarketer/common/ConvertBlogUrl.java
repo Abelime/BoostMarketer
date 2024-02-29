@@ -1,6 +1,7 @@
 package camel.BoostMarketer.common;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,5 +24,22 @@ public class ConvertBlogUrl {
         }
 
         return blogInfo;
+    }
+
+    public static String getRankForKeywordDate(List<Map<String, Object>> rankDates, String date) {
+        for (Map<String, Object> rankDate : rankDates) {
+            if (date.equals(rankDate.get("date"))) {
+                Object rank = rankDate.get("rank");
+                // rank 값이 0이면 "미확인"을, null이면 "-"를 반환합니다.
+                if (rank == null || rank.equals("")) {
+                    return "-";
+                } else {
+                    int rankInt = Integer.parseInt(String.valueOf(rank));
+                    return rankInt == 0 ? "미확인" : String.valueOf(rank);
+                }
+            }
+        }
+        // 날짜에 해당하는 rank가 없으면 "-"을 반환합니다.
+        return "-";
     }
 }

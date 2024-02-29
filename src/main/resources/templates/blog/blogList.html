@@ -4,133 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>키워드 랭킹 페이지</title>
+    <link rel="stylesheet" type="text/css" href="/css/common.css">
     <style>
-        /* CSS 스타일링 추가 */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column; /* 수직 정렬을 위해 column으로 설정 */
-            min-height: 100vh; /* 최소 높이 설정 */
+        .selected-posts label {
+            margin-right: 10px;
         }
-
-        .container {
-            flex: 1; /* 컨테이너가 컨텐츠만큼 확장되도록 설정 */
-            position: relative; /* 부모 요소 설정 */
-            background-color: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 800px; /* 전체적인 크기 조정 */
-            width: 100%;
-            overflow-x: auto; /* 키워드가 너무 길 경우 가로 스크롤 생성 */
-            overflow-y: auto; /* 필요 시 수직 스크롤 생성 */
-            margin: 0 auto; /* 중앙 정렬을 위해 수정 */
+        #selectButton {
+            position: fixed;
+            bottom: 10px;
+            left: 20px;
         }
-
-        .post-title a {
-            text-decoration: none;
-            color: #333;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        .post-date {
-            color: #888;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-
-        .post-hashtag .hashtag {
-            background-color: dimgrey; /* 해시태그 백그라운드 컬러 변경 */
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            margin-right: 5px;
-            display: inline-block;
-            font-size: 12px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px; /* 테이블 위 여백 추가 */
-        }
-
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-        }
-
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .history-keyword {
-            margin-top: 10px;
-        }
-
-        .keyword,
-        .rank {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .keyword {
-            background-color: #f2f2f2;
-            color: #333;
-            padding: 5px 10px;
-            border-radius: 20px;
-            margin-bottom: 5px;
-            font-size: 14px;
-            white-space: nowrap; /* 키워드가 길어질 경우 줄바꿈 방지 */
-        }
-
-        .rank {
-            font-weight: bold;
-            font-size: 16px;
-            padding: 8px 12px; /* 패딩 조정 */
-            border-radius: 20px;
-            margin-bottom: 5px;
-        }
-
-        .history-rank {
-            margin-top: 10px;
-        }
-
-        .item-rank {
-            margin-bottom: 5px;
-        }
-
-        /* 버튼 스타일 */
-        .register-blog-button {
-            position: fixed; /* 화면 고정 */
-            bottom: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        /* 버튼 호버 효과 */
-        .register-blog-button:hover {
-            background-color: #45a049;
+        #deleteButton {
+            display: none;
+            position: fixed;
+            bottom: 10px;
+            left: 100px;
+            background-color: red; /* 수정된 부분: 삭제 버튼 색상을 빨간색으로 지정 */
         }
     </style>
 </head>
 <body>
 <div class="container">
     <h2>키워드 랭킹 페이지</h2>
+    <button id="selectButton" onclick="toggleSelection()">선택</button>
+    <button id="deleteButton" onclick="deleteSelectedPosts()">삭제</button>
     <table>
         <tr>
             <th>글정보</th>
@@ -140,7 +37,10 @@
         <!-- 게시물 반복문 시작 -->
         <tr class="item-post-tr" th:each="post : ${postList}">
             <td>
-                <div class="post-title"><a href="/blog/detail" target="_blank" th:text="${post.postTitle}"></a></div>
+                <div class="post-title">
+                    <input type="checkbox" class="post-checkbox" style="display: none" th:value="${post.postNo}">
+                    <a th:href="@{'/blog/detail/' + ${post.postNo}}" th:text="${post.postTitle}"></a>
+                </div>
                 <div class="post-date" th:text="${post.postDate}"></div>
                 <div class="post-hashtag">
                     <div class="hashtag select" th:each="tag : ${#strings.arraySplit(post.hashtag, ',')}" th:text="'#' + ${tag.trim()}" style="margin-top: 5px; margin-bottom: 5px;"></div>
@@ -168,5 +68,98 @@
 </div>
 <!-- 블로그 등록 버튼 -->
 <button class="register-blog-button" onclick="window.location.href = '/blog/new'">블로그 등록</button>
+
+<script>
+    let selectionMode = false; // 선택 모드 상태 관리
+
+    function toggleSelection() {
+        selectionMode = !selectionMode; // 선택 모드 토글
+        var selectButton = document.getElementById('selectButton');
+        var deleteButton = document.getElementById('deleteButton');
+        var checkboxes = document.querySelectorAll('.post-checkbox');
+
+        if (selectionMode) {
+            selectButton.innerHTML = '취소';
+            deleteButton.style.display = 'inline';
+            checkboxes.forEach(checkbox => checkbox.style.display = 'inline');
+        } else {
+            selectButton.innerHTML = '선택';
+            deleteButton.style.display = 'none';
+            checkboxes.forEach(checkbox => {
+                checkbox.closest('tr').classList.remove('item-post-tr-selected');
+                checkbox.checked = false;
+                checkbox.style.display = 'none';
+            });
+        }
+    }
+    document.querySelectorAll('.post-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('click', function(e) {
+            e.stopPropagation(); // 이벤트 전파를 중지하여 상위 요소의 클릭 이벤트와 충돌 방지
+        });
+    });
+
+    document.querySelectorAll('.item-post-tr').forEach(tr => {
+        tr.addEventListener('click', function() {
+            if (selectionMode) { // 선택 모드가 활성화된 경우에만 작동
+                var checkbox = this.querySelector('.post-checkbox');
+                // 체크박스 상태를 프로그래매틱하게 변경하기 전에 이벤트 전파 중지
+                checkbox.checked = !checkbox.checked; // 체크박스 상태 토글
+                checkbox.dispatchEvent(new Event('change')); // 체크박스 상태 변경 이벤트 강제 발생
+            }
+        });
+    });
+
+    function deleteSelectedPosts() {
+        var postCheckboxes = document.querySelectorAll('.post-checkbox:checked');
+        var postNos = [];
+        postCheckboxes.forEach(function(checkbox) {
+            postNos.push(checkbox.value);
+        });
+
+        if (postNos.length === 0) {
+            alert("삭제할 게시물을 선택하세요.");
+            return;
+        }
+
+        if (confirm("정말로 선택한 게시물을 삭제하시겠습니까?")) {
+            // 삭제 작업 수행
+            fetch('/blog/delete', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(postNos) // postNos를 JSON 문자열로 변환
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.text(); // 응답 텍스트 반환
+                    } else {
+                        throw new Error('게시물 삭제에 실패했습니다.');
+                    }
+                })
+                .then(data => {
+                    alert(data); // 응답 텍스트 출력
+                    location.reload(); // 삭제 후 페이지 새로고침
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("게시물 삭제에 실패했습니다.");
+                });
+        }
+    }
+
+
+    // 체크박스 선택/해제 시 부모 tr의 배경색 변경
+    document.querySelectorAll('.post-checkbox').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                this.closest('tr').classList.add('item-post-tr-selected');
+            } else {
+                this.closest('tr').classList.remove('item-post-tr-selected');
+            }
+        });
+    });
+
+</script>
 </body>
 </html>

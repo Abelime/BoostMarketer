@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>키워드 순위</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/common.css">
+    <link rel="stylesheet" type="text/css" href="/css/modal.css">
+</head>
+<body>
+<script src="/script/common.js"></script>
+<div class="container">
+
+    <h2>키워드 순위</h2>
+    <table>
+        <tr>
+            <th>글정보</th>
+        </tr>
+        <tr class="item-post-tr">
+            <td>
+                <div class="post-title" th:text="${post.postTitle}"></div>
+                <div class="post-date" th:text="${post.postDate}"></div>
+                <div class="post-hashtag">
+                    <div class="hashtag select" th:each="tag : ${#strings.arraySplit(post.hashtag, ',')}"
+                         th:text="'#' + ${tag.trim()}" style="margin-top: 5px; margin-bottom: 5px;"></div>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <br><br>
+    <button class="keyword-management-button">키워드 관리</button>
+    <table border="2">
+        <tr>
+            <th>KeywordName</th>
+            <th th:each="date : ${uniqueDates}" th:text="${date}"></th>
+        </tr>
+        <tr th:each="keyword : ${keywordList}">
+            <td th:text="${keyword['keywordName']}"></td>
+            <td th:each="date : ${uniqueDates}"
+                th:text="${T(camel.BoostMarketer.common.ConvertBlogUrl).getRankForKeywordDate(keyword['rankDates'], date)}">
+            </td>
+        </tr>
+
+
+
+    </table>
+    <br><br>
+    <!-- 키워드 선택을 위한 버튼 -->
+    <div class="keyword-buttons">
+        <button class="keyword-button" th:each="keyword : ${keywordList}" th:text="${keyword.keywordName}"
+                th:data-keyword-name="${keyword.keywordName}"
+                onclick="showChart(this.getAttribute('data-keyword-name'))">
+        </button>
+    </div>
+
+    <!-- 차트를 표시할 컨테이너 -->
+    <div class="chart-container">
+        <canvas id="myChart"></canvas>
+    </div>
+
+</div>
+<input type="hidden" id="keywordList" th:value="${json}"/>
+<input type="hidden" id="blogId" th:value="${post.blogId}"/>
+<input type="hidden" id="postNo" th:value="${post.postNo}"/>
+
+
+<button class="register-blog-button" onclick="window.location.href = '/blog/list'">목록 돌아가기</button>
+<!-- The Modal -->
+<div id="myModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="close-button">&times;</span>
+            <h2>키워드 관리</h2>
+        </div>
+        <div class="modal-body">
+            <div class="keyword-list">
+                <div class="keywords-header">
+                    <span class="keywords-title">등록한 키워드</span>
+                </div>
+                <div id="keywordsContainer" class="keywords">
+                    <!-- Keyword chips will be added here -->
+                </div>
+            </div>
+            <div class="keyword-input-container">
+                <input type="text" id="newKeyword" class="keyword-input" placeholder="키워드를 입력해주세요">
+                <button class="add-keyword-button" onclick="addKeyword()">+ 키워드 추가</button>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="save-button" onclick="saveKeywords()">저장</button>
+        </div>
+    </div>
+</div>
+<script src="/script/modal.js"></script>
+</body>
+</html>
