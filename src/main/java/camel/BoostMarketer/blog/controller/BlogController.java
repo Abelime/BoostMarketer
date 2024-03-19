@@ -24,6 +24,18 @@ public class BlogController {
 
     private final BlogService blogService;
 
+    @GetMapping(value = "/blog")
+    public String blogForm() throws Exception {
+        return "pages/blog";
+    }
+
+    @PostMapping(value = "/blog")
+    public ResponseEntity<?> registerBlogUrl(@RequestBody List<String> blogId) throws Exception {
+        blogService.registerUrl(blogId);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+
     @GetMapping(value = "/blog/new")
     public String createForm() throws Exception {
         return "blog/createBlogForm";
@@ -88,5 +100,6 @@ public class BlogController {
          blogService.saveKeywords(requestBlogDto);
         return new ResponseEntity<>("키워드가 수정 되었습니다",HttpStatus.OK);
     }
+
 
 }

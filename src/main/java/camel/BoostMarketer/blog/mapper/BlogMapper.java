@@ -35,4 +35,6 @@ public interface BlogMapper {
     public Map<String, Object> selectPostCount(BlogPostDto blogPostDto) throws Exception;
 
     public void updateBlogPost(BlogPostDto blogPostDto) throws Exception;
+
+    public void registerPosts(List<BlogPostDto> blogPostDtoList) throws Exception;
 }

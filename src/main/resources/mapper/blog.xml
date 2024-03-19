@@ -24,6 +24,13 @@
 
     </insert>
 
+    <insert id="registerPosts" parameterType="java.util.List">
+        INSERT INTO blog_post (blog_id, post_no, post_title, post_date, hashtag) VALUES
+        <foreach item="item" collection="list" separator=",">
+            (#{item.blogId}, #{item.postNo, jdbcType=INTEGER}, #{item.postTitle}, #{item.postDate}, #{item.hashtag})
+        </foreach>
+    </insert>
+
     <update id="updateBlogPost" parameterType="BlogPostDto">
         update blog_post
         set use_flg = 'Y'

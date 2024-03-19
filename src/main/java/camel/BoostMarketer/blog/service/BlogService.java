@@ -147,4 +147,9 @@ public class BlogService {
 
 
     }
+
+    public void registerUrl(List<String> blogId) throws Exception {
+        List<BlogPostDto> blogPostDtoList = allPostCrawler(blogId);
+        blogMapper.registerPosts(blogPostDtoList);
+    }
 }

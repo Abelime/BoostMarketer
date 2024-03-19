@@ -24,7 +24,8 @@ public class MyBatisConfig {
         sessionFactory.setMapperLocations(resolver.getResources("classpath:/mapper/*.xml"));
 
         // Type Aliases 등록
-        sessionFactory.setTypeAliasesPackage("camel.BoostMarketer.blog.dto");
+        sessionFactory.setTypeAliasesPackage("camel.BoostMarketer");
+
 
         // MyBatis Configuration 설정
         org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration(); // 추가

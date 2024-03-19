@@ -1,19 +1,28 @@
 package camel.BoostMarketer.common.api;
 
+import camel.BoostMarketer.blog.dto.BlogPostDto;
 import camel.BoostMarketer.blog.dto.RequestBlogDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -28,6 +37,9 @@ import static camel.BoostMarketer.common.HttpUtil.sendHttpRequest;
 public class Crawler {
 
     private final static ObjectMapper mapper = new ObjectMapper();
+
+    private final static String proxyHost = "brd.superproxy.io"; //프록시
+    private final static int proxyPort = 22225; // 프록시 서버 포트
 
     private final static Logger logger = LoggerFactory.getLogger(Crawler.class);
 
@@ -79,10 +91,6 @@ public class Crawler {
     public static List<Integer> rankCrawler(RequestBlogDto requestBlogDto) throws IOException {
         List<Integer> rankList = new ArrayList<>();
         Instant startTime = Instant.now(); // 시작 시간 기록
-
-        // 프록시 서버의 호스트와 포트를 설정합니다.
-        String proxyHost = "brd.superproxy.io";
-        int proxyPort = 22225; // 프록시 서버 포트
 
         // System 프로퍼티를 이용하여 전역 프록시 설정을 합니다.
         System.setProperty("http.proxyHost", proxyHost);
@@ -154,34 +162,6 @@ public class Crawler {
     }
 
 
-    //블로그 정보 및 게시글 크롤링(jsoup)
-    public static int blogInfoCrawler(RequestBlogDto requestBlogDto) throws IOException {
-        String blogUrl = requestBlogDto.getBlogUrl();
-
-        // 해당 URL에서 HTML을 가져옴
-        Document doc = Jsoup.connect(blogUrl).get();
-
-        // mainFrame의 src 속성 값 가져오기
-        Element mainFrame = doc.selectFirst("iframe[name=mainFrame]");
-        String mainFrameSrc = mainFrame.attr("src");
-
-        // 절대 URL로 변환
-        URL absoluteUrl = new URL(new URL(blogUrl), mainFrameSrc);
-        String mainFrameAbsoluteUrl = absoluteUrl.toString();
-
-        // mainFrame의 HTML 가져오기
-        Document mainFrameDoc = Jsoup.connect(mainFrameAbsoluteUrl).get();
-
-        // 요소 선택 및 출력
-//        printElementText(mainFrameDoc, ".se-module.se-module-text.se-title-text", "postTitle");
-//        printElementText(mainFrameDoc, ".link.pcol2", "글쓴이");
-//        printElementText(mainFrameDoc, ".se_publishDate.pcol2", "postDate");
-//        printElementText(mainFrameDoc, ".itemtitlefont", "blogTitle");
-//        printElementText(mainFrameDoc, "._commentCount", "commentCount");
-
-        return 0;
-    }
-
     //개시물 정보 크롤링
     public static Map<String, Object> postInfoCrawler(String paramUrl, String postNo) throws Exception {
         Map<String, Object> resultMap = new HashMap<>();
@@ -215,7 +195,7 @@ public class Crawler {
     }
 
 
-    //블로그 글 해시태그 크롤링
+    //해시태그 크롤링
     public static String postTagCrawler(String paramUrl) throws Exception {
         String tagName = "";
         String url = "https://blog.naver.com/BlogTagListInfo.naver?" + paramUrl;
@@ -223,15 +203,14 @@ public class Crawler {
 
         JsonNode tag = mapper.readTree(resultStr);
 
-        if (tag != null) {
+        if (tag.get("taglist").get(0) != null) {
             tagName = URLDecoder.decode(tag.get("taglist").get(0).get("tagName").asText(), StandardCharsets.UTF_8);
-            System.out.println("tagName = " + tagName);
         }
-
+        System.out.println("tagName = " + tagName);
         return tagName;
     }
 
-    //블로그 방문 숫자 크롤링
+    //방문 숫자 크롤링
     public static int visitorCntCrawler(String blogId) throws Exception {
         String url = "https://blog.naver.com/NVisitorgp4Ajax.naver?blogId=" + blogId;
 
@@ -252,15 +231,78 @@ public class Crawler {
         return totalCnt;
     }
 
-    public void printElementText(Document doc, String selector, String label) {
-        Elements elements = doc.select(selector);
-        if (!elements.isEmpty()) {
-            System.out.println(label + ": " + elements.text());
-        } else {
-            System.out.println(label + "를 찾을 수 없습니다.");
-        }
-    }
+    //전체 글 정보 크롤링
+    public static List<BlogPostDto> allPostCrawler(List<String> blogIdList) {
+        List<BlogPostDto> postDtoList = new ArrayList<>();
 
+        blogIdList.parallelStream().forEach(blogId -> {
+            int page = 1;
+            for (int i = 1; i <= page; i++) {
+
+                String url = "https://blog.naver.com/PostTitleListAsync.naver?blogId=" + blogId + "&currentPage=" + i + "&countPerPage=30";
+                String tagUrl = "https://blog.naver.com/BlogTagListInfo.naver?blogId=" + blogId;
+
+                try (CloseableHttpClient client = HttpClients.createDefault()) {
+                    HttpGet request = new HttpGet(url);
+                    String responseBody = client.execute(request, httpResponse ->
+                            EntityUtils.toString(httpResponse.getEntity()));
+
+                    JSONObject jsonObject = new JSONObject(responseBody);
+
+                    int totalCount = jsonObject.getInt("totalCount");
+                    String tagQueryString = jsonObject.getString("tagQueryString");
+                    tagUrl += tagQueryString;
+
+                    HttpGet tagRequest = new HttpGet(tagUrl);
+                    String tagResponseBody = client.execute(tagRequest, httpResponse ->
+                            EntityUtils.toString(httpResponse.getEntity()));
+
+                    JSONObject tagJsonObject = new JSONObject(tagResponseBody);
+                    JSONArray tagList = tagJsonObject.getJSONArray("taglist");
+
+                    Map<String, String> tagMap = new HashMap<>();
+                    for (int x = 0; x < tagList.length(); x++) {
+                        JSONObject tag = tagList.getJSONObject(x);
+                        String logNo = tag.getString("logno");
+                        String tagName = URLDecoder.decode(tag.getString("tagName"), StandardCharsets.UTF_8);
+                        tagMap.put(logNo, tagName);
+                    }
+
+                    if (totalCount > 30) {
+                        page = totalCount / 30;
+                        if (totalCount % 30 != 0) {
+                            page = (totalCount / 30) + 1;
+                        }
+                    }
+
+                    JSONArray postList = jsonObject.getJSONArray("postList");
+
+                    for (int y = 0; y < postList.length(); y++) {
+                        BlogPostDto blogPostDto = new BlogPostDto();
+
+                        JSONObject post = postList.getJSONObject(y);
+                        String logNo = post.getString("logNo");
+                        String title = URLDecoder.decode(post.getString("title"), StandardCharsets.UTF_8);
+                        String addDate = post.getString("addDate");
+                        String tagName = tagMap.get(logNo);
+
+                        blogPostDto.setBlogId(blogId);
+                        blogPostDto.setPostNo(logNo);
+                        blogPostDto.setPostDate(addDate);
+                        blogPostDto.setPostTitle(title);
+                        blogPostDto.setHashtag(tagName);
+
+                        postDtoList.add(blogPostDto);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        return postDtoList;
+    }
 
 }
 
