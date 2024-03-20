@@ -1,5 +1,6 @@
 package camel.BoostMarketer.blog.controller;
 
+import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.dto.BlogPostDto;
 import camel.BoostMarketer.blog.dto.KeywordDto;
 import camel.BoostMarketer.blog.dto.RequestBlogDto;
@@ -25,7 +26,17 @@ public class BlogController {
     private final BlogService blogService;
 
     @GetMapping(value = "/blog")
-    public String blogForm() throws Exception {
+    public String blogForm(Model model) throws Exception {
+        List<BlogDto> blogDtoList = blogService.selectBlogInfo();
+
+        int totalPostCnt = 0;
+
+        for (BlogDto blogDto : blogDtoList) {
+            totalPostCnt += blogDto.getPostCnt();
+        }
+
+        model.addAttribute("totalPostCnt", totalPostCnt);
+        model.addAttribute("blogList", blogDtoList);
         return "pages/blog";
     }
 
@@ -33,6 +44,18 @@ public class BlogController {
     public ResponseEntity<?> registerBlogUrl(@RequestBody List<String> blogId) throws Exception {
         blogService.registerUrl(blogId);
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PutMapping(value = "/blog/{blogId}")
+    public ResponseEntity<?> updateBlog(@PathVariable("blogId") String blogId) throws Exception {
+        blogService.updateBlog(blogId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping(value = "/blog/{blogId}")
+    public ResponseEntity<?> deleteBlog(@PathVariable("blogId") String blogId) throws Exception {
+        blogService.deleteBlog(blogId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 

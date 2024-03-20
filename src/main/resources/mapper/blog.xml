@@ -31,6 +31,17 @@
         </foreach>
     </insert>
 
+    <insert id="registerBlog" parameterType="map">
+        INSERT INTO blog (user_no, blog_id, blog_name, blog_img)
+        <foreach item="item" collection="blogDtoList" separator="UNION ALL">
+            SELECT (SELECT id FROM user WHERE email = #{email}),
+            #{item.blogId},
+            #{item.blogName},
+            #{item.blogImg}
+            FROM DUAL
+        </foreach>
+    </insert>
+
     <update id="updateBlogPost" parameterType="BlogPostDto">
         update blog_post
         set use_flg = 'Y'
@@ -155,6 +166,43 @@
         group by keyword_id
     </select>
 
+    <select id="selectBlogInfo" parameterType="String" resultType="BlogDto">
+        SELECT bg.blog_id,
+               bg.blog_name,
+               bg.blog_img,
+               COALESCE(COUNT(bp.blog_id), 0) AS post_cnt,
+               DATE_FORMAT(bg.updated_at, '%Y-%m-%d %H:%i') as UpdateDt
+        FROM BLOG bg
+                 LEFT JOIN
+             blog_post bp ON bg.blog_id = bp.blog_id
+        WHERE bg.user_no = (SELECT ID
+                            FROM user
+                            WHERE EMAIL = #{email})
+        GROUP BY bg.blog_id, bg.blog_name, bg.blog_img
+    </select>
 
 
+    <select id="selectLastPostNo" parameterType="String" resultType="String">
+        SELECT post_no FROM blog_post bp
+        WHERE blog_id = #{blogId}
+        ORDER BY post_no DESC
+        LIMIT 1;
+    </select>
+
+    <update id="blogUpdatedAt" parameterType="String">
+        UPDATE blog
+           SET updated_at = now()
+         WHERE blog_id = #{blogId}
+    </update>
+
+
+    <delete id="deleteBlog" parameterType="String">
+        delete from blog
+        WHERE blog_id = #{blogId}
+    </delete>
+
+    <delete id="deleteBlogPost" parameterType="String">
+        delete from blog_post
+        WHERE blog_id = #{blogId}
+    </delete>
 </mapper>

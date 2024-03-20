@@ -1,5 +1,6 @@
 package camel.BoostMarketer.common.api;
 
+import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.dto.BlogPostDto;
 import camel.BoostMarketer.blog.dto.RequestBlogDto;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -14,15 +15,13 @@ import org.json.JSONObject;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -206,7 +205,7 @@ public class Crawler {
         if (tag.get("taglist").get(0) != null) {
             tagName = URLDecoder.decode(tag.get("taglist").get(0).get("tagName").asText(), StandardCharsets.UTF_8);
         }
-        System.out.println("tagName = " + tagName);
+
         return tagName;
     }
 
@@ -231,13 +230,56 @@ public class Crawler {
         return totalCnt;
     }
 
+    //블로그 정보 크롤링
+    public static List<BlogDto> blogInfoCrawler(List<String> blogIdList) {
+        List<BlogDto> blogDtoList = new ArrayList<>();
+
+        for (String blogId : blogIdList) {
+            String blogUrl = "https://blog.naver.com/" + blogId;
+            try {
+                // 해당 URL에서 HTML을 가져옴
+                Document doc = Jsoup.connect(blogUrl).get();
+
+                // mainFrame의 src 속성 값 가져오기
+                Element mainFrame = doc.selectFirst("iframe[name=mainFrame]");
+                String mainFrameSrc = mainFrame.attr("src");
+
+                // 절대 URL로 변환
+                URL absoluteUrl = new URL(new URL(blogUrl), mainFrameSrc);
+                String mainFrameAbsoluteUrl = absoluteUrl.toString();
+
+                // mainFrame의 HTML 가져오기
+                Document mainFrameDoc = Jsoup.connect(mainFrameAbsoluteUrl).get();
+
+
+                //프로필 이미지 추출
+                String imgSrc = mainFrameDoc.select("img[alt=프로필]").attr("src").replace("type=s40", "type=w161");
+
+                // 사용자 이름 추출
+                String blogName = mainFrameDoc.select("strong.nick").text();
+
+                BlogDto blogDto = new BlogDto();
+                blogDto.setBlogId(blogId);
+                blogDto.setBlogName(blogName);
+                blogDto.setBlogImg(imgSrc);
+                blogDtoList.add(blogDto);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        return blogDtoList;
+    }
+
     //전체 글 정보 크롤링
-    public static List<BlogPostDto> allPostCrawler(List<String> blogIdList) {
+    public static List<BlogPostDto> allPostCrawler(List<String> blogIdList, String lastPostNo) {
         List<BlogPostDto> postDtoList = new ArrayList<>();
 
         blogIdList.parallelStream().forEach(blogId -> {
             int page = 1;
-            for (int i = 1; i <= page; i++) {
+          a: for (int i = 1; i <= page; i++) {
 
                 String url = "https://blog.naver.com/PostTitleListAsync.naver?blogId=" + blogId + "&currentPage=" + i + "&countPerPage=30";
                 String tagUrl = "https://blog.naver.com/BlogTagListInfo.naver?blogId=" + blogId;
@@ -282,6 +324,11 @@ public class Crawler {
 
                         JSONObject post = postList.getJSONObject(y);
                         String logNo = post.getString("logNo");
+
+                        if (logNo.equals(lastPostNo)) {
+                            break a;
+                        }
+
                         String title = URLDecoder.decode(post.getString("title"), StandardCharsets.UTF_8);
                         String addDate = post.getString("addDate");
                         String tagName = tagMap.get(logNo);
@@ -294,13 +341,11 @@ public class Crawler {
 
                         postDtoList.add(blogPostDto);
                     }
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         });
-
         return postDtoList;
     }
 

@@ -1,11 +1,13 @@
 package camel.BoostMarketer.blog.service;
 
+import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.dto.BlogPostDto;
 import camel.BoostMarketer.blog.dto.KeywordDto;
 import camel.BoostMarketer.blog.dto.RequestBlogDto;
 import camel.BoostMarketer.blog.mapper.BlogMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -149,7 +151,39 @@ public class BlogService {
     }
 
     public void registerUrl(List<String> blogId) throws Exception {
-        List<BlogPostDto> blogPostDtoList = allPostCrawler(blogId);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        //블로그 정보
+        List<BlogDto> blogDtoList = blogInfoCrawler(blogId);
+        //블로그 글
+        List<BlogPostDto> blogPostDtoList = allPostCrawler(blogId, "");
+
+        blogMapper.registerBlog(blogDtoList, email);
         blogMapper.registerPosts(blogPostDtoList);
+    }
+
+    public List<BlogDto> selectBlogInfo() throws Exception {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return blogMapper.selectBlogInfo(email);
+    }
+
+    public void updateBlog(String blogId) throws Exception {
+        List<String> list = new ArrayList<>();
+        list.add(blogId);
+
+        String lastPostNo = blogMapper.selectLastPostNo(blogId);
+
+        List<BlogPostDto> blogPostDtoList = allPostCrawler(list,lastPostNo);
+
+        if(!blogPostDtoList.isEmpty()){
+            blogMapper.registerPosts(blogPostDtoList);
+        }
+
+        blogMapper.blogUpdatedAt(blogId);
+    }
+
+    public void deleteBlog(String blogId) throws Exception {
+        blogMapper.deleteBlog(blogId);
+        blogMapper.deleteBlogPost(blogId);
     }
 }

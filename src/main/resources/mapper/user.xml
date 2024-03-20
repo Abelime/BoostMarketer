@@ -18,7 +18,9 @@
     </insert>
 
     <select id="findByEmail" parameterType="UserDto" resultType="UserDto">
-        SELECT email, password FROM user WHERE email = #{email}
+        SELECT id, email, password
+          FROM user
+         WHERE email = #{email}
     </select>
 
 </mapper>
