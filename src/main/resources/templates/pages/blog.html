@@ -91,6 +91,22 @@
           </div>
         </div>
       </div>
+      <div class="container">
+        <div class="row mt-4 justify-content-center">
+          <div class="col-lg-6 col-md-8">
+            <div class="form-group">
+              <div class="input-group input-group-lg">
+                <input type="text" id="blogUrl" class="form-control" placeholder="https://blog.naver.com/로 시작하는 블로그 URL">
+                <a href="#" id="insertBlogLink">
+                  <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
+                    <i class="fa fa-search text-lg opacity-10" aria-hidden="true"></i>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="row mt-4">
         <div class="col-12">
           <div class="card mb-4">
@@ -102,10 +118,10 @@
                 <table class="table align-items-center mb-0">
                   <thead>
                     <tr>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">정보</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">게시글 수</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">상위 노출 게시글 수</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">최신화 일자</th>
+                      <th class="text-uppercase text-secondary text-xxl font-weight-bolder opacity-7">정보</th>
+                      <th class="text-uppercase text-secondary text-xxl font-weight-bolder opacity-7 ps-2">게시글 수</th>
+                      <th class="text-center text-uppercase text-secondary text-xxl font-weight-bolder opacity-7">상위 노출 게시글 수</th>
+                      <th class="text-center text-uppercase text-secondary text-xxl font-weight-bolder opacity-7">최신화 일자</th>
                       <th class="text-secondary opacity-7"></th>
                     </tr>
                   </thead>
@@ -114,32 +130,29 @@
                       <td>
                         <div class="d-flex px-2 py-1">
                           <div>
-                            <img th:src="@{${blog.blogImg}}" class="avatar avatar-sm me-3" alt="user1">
+                            <img th:src="@{${blog.blogImg}}" class="avatar avatar-content me-3" alt="user1">
                           </div>
                           <div class="d-flex flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm" th:text="${blog.blogName}"></h6>
-                            <a class="text-xs text-secondary mb-0 link-primary" target="_blank" th:href="'https://blog.naver.com/' + ${blog.blogId}" th:text="'https://blog.naver.com/' + ${blog.blogId}">john@creative-tim.com</a>
+                            <h6 class="mb-0 text-xxl-start" th:text="${blog.blogName}"></h6>
+                            <a class="text-xxl-start text-secondary mb-0 link-primary" target="_blank" th:href="'https://blog.naver.com/' + ${blog.blogId}" th:text="'https://blog.naver.com/' + ${blog.blogId}">john@creative-tim.com</a>
                           </div>
                         </div>
                       </td>
                       <td>
-                        <p class="text-xs font-weight-bold mb-0" th:text="${blog.postCnt}"></p>
+                        <p class="text-xxl font-weight-bold mb-0" th:text="${blog.postCnt}"></p>
 <!--                        <p class="text-xs text-secondary mb-0" th:text="${blog.postCnt}"></p>-->
                       </td>
                       <td class="align-middle text-center text-sm">
-                        <p class="text-xs font-weight-bold mb-0" th:text="${blog.postCnt}"></p>
+                        <p class="text-xxl font-weight-bold mb-0" th:text="${blog.postCnt}"></p>
 <!--                        <span class="badge badge-sm bg-gradient-success">상위노출 글 </span>-->
                       </td>
                       <td class="align-middle text-center">
-                        <p class="text-xs font-weight-bold mb-0" th:text="${blog.updateDt}"></p>
+                        <p class="text-xxl font-weight-bold mb-0" th:text="${blog.updateDt}"></p>
 <!--                        <p class="text-xs text-secondary mb-0">12:13</p>-->
                       </td>
                       <td class="align-middle text-center">
                         <a class="btn btn-link text-dark px-3 mb-0" href="#" th:onclick="updateBlog([[${blog.blogId}]]);"><i class="fas fa-sync-alt text-dark me-2" aria-hidden="true"></i>최신화 요청</a>
                         <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="#" th:onclick="deleteBlog([[${blog.blogId}]]);"><i class="far fa-trash-alt me-2"></i>삭제</a>
-<!--                        <a href="javascript:;" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit user">-->
-<!--                          Edit-->
-<!--                        </a>-->
                       </td>
                     </tr>
                   </tbody>
@@ -149,7 +162,7 @@
           </div>
         </div>
         <div class="d-flex justify-content-end">
-          <button type="button" class="btn bg-gradient-info btn-lg btn-rounded" data-bs-toggle="modal" data-bs-target="#modal-form">블로그 등록</button>
+          <button type="button" class="btn bg-gradient-primary btn-lg btn-rounded" data-bs-toggle="modal" data-bs-target="#modal-form">블로그 등록</button>
         </div>
       </div>
       <div th:insert="~{common/mainfooter.html :: footer}"></div>
@@ -264,6 +277,55 @@
   </script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+
+  function insertFetch(blogId){
+    // Fetch API를 사용하여 요청 보내기
+    fetch('/blog', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(blogId)
+    })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('서버 응답이 실패했습니다.');
+              }
+              window.location = '/blog';
+            })
+            .catch(error => {
+              console.error('등록 중 오류가 발생했습니다:', error);
+            });
+  }
+
+  $(document).ready(function() {
+    function processBlogUrl() {
+      var blogId = $('#blogUrl').val();
+      var regex = /blog.naver.com\/([^\/]+)/;
+      var match = blogId.match(regex);
+
+      if (match && match[1]) {
+        blogId = match[1];
+        const blogList = [blogId];
+        insertFetch(blogList);
+      } else {
+        $('#blogUrl').val('');
+      }
+    }
+
+    $('#insertBlogLink').click(function(event) {
+      event.preventDefault();
+      processBlogUrl();
+    });
+
+    $('#blogUrl').keypress(function(event) {
+      if (event.which === 13) { // 13 is the key code for the enter key
+        event.preventDefault();
+        processBlogUrl();
+      }
+    });
+  });
+
   function updateBlog(blogId) {
     // Fetch API를 사용하여 요청 보내기
     fetch('/blog/' + blogId, {
@@ -279,7 +341,6 @@
               console.error('오류가 발생했습니다:', error);
             });
   }
-
   function deleteBlog(blogId) {
     // Fetch API를 사용하여 요청 보내기
     fetch('/blog/' + blogId, {
@@ -296,9 +357,9 @@
             });
   }
 
-  $(document).ready(function(){
+  $(document).ready(function () {
     // 입력 필드 추가
-    $('.add-input').click(function(e){
+    $('.add-input').click(function (e) {
       e.preventDefault();
       var newInputGroup = $('.blog-input-group:first').clone();
       newInputGroup.find('input').val('');
@@ -310,7 +371,7 @@
     });
 
     // 동적으로 생성된 입력 필드 삭제
-    $('form').on('click', '.remove-input', function(e){
+    $('form').on('click', '.remove-input', function (e) {
       e.preventDefault();
       $(this).closest('.blog-input-group').remove();
     });
@@ -319,9 +380,9 @@
     $('.blog-input-group:first').find('.remove-input').remove();
 
     // 폼 제출 이벤트
-    $('#blogForm').submit(function(e){
+    $('#blogForm').submit(function (e) {
       const urls = [];
-      $('.blog-input-group input').each(function(){
+      $('.blog-input-group input').each(function () {
         urls.push($.trim($(this).val()));
       });
 
@@ -335,27 +396,8 @@
           return null;
         }
       }).filter(blogId => blogId !== null); // null 값 제거
-
-      // Fetch API를 사용하여 요청 보내기
-      fetch('/blog', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(blogId)
-      })
-              .then(response => {
-                if (!response.ok) {
-                  throw new Error('서버 응답이 실패했습니다.');
-                }
-                // window.location = '/blog';
-              })
-              .catch(error => {
-                console.error('등록 중 오류가 발생했습니다:', error);
-              });
+      insertFetch(blogId);
     });
-
-
   });
 </script>
   <!-- Github buttons -->
