@@ -6,7 +6,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -20,12 +19,6 @@ public class UserController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final UserService userService;
-
-    @Value("${google.client.id}")
-    private String googleClientId;
-
-    @Value("${google.client.pw}")
-    private String googleClientPw;
 
     @GetMapping(value = "/sign-in")
     public String index() throws Exception {
