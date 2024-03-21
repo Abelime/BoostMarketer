@@ -118,10 +118,10 @@
                 <table class="table align-items-center mb-0">
                   <thead>
                     <tr>
-                      <th class="text-uppercase text-secondary text-xxl font-weight-bolder opacity-7">정보</th>
-                      <th class="text-uppercase text-secondary text-xxl font-weight-bolder opacity-7 ps-2">게시글 수</th>
-                      <th class="text-center text-uppercase text-secondary text-xxl font-weight-bolder opacity-7">상위 노출 게시글 수</th>
-                      <th class="text-center text-uppercase text-secondary text-xxl font-weight-bolder opacity-7">최신화 일자</th>
+                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">정보</th>
+                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">게시글 수</th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">상위 노출 게시글 수</th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">최신화 일자</th>
                       <th class="text-secondary opacity-7"></th>
                     </tr>
                   </thead>
@@ -133,21 +133,21 @@
                             <img th:src="@{${blog.blogImg}}" class="avatar avatar-content me-3" alt="user1">
                           </div>
                           <div class="d-flex flex-column justify-content-center">
-                            <h6 class="mb-0 text-xxl-start" th:text="${blog.blogName}"></h6>
-                            <a class="text-xxl-start text-secondary mb-0 link-primary" target="_blank" th:href="'https://blog.naver.com/' + ${blog.blogId}" th:text="'https://blog.naver.com/' + ${blog.blogId}">john@creative-tim.com</a>
+                            <h6 class="mb-0 text-sm" th:text="${blog.blogName}"></h6>
+                            <a class="text-xs text-secondary mb-0 link-primary" target="_blank" th:href="'https://blog.naver.com/' + ${blog.blogId}" th:text="'https://blog.naver.com/' + ${blog.blogId}">john@creative-tim.com</a>
                           </div>
                         </div>
                       </td>
                       <td>
-                        <p class="text-xxl font-weight-bold mb-0" th:text="${blog.postCnt}"></p>
+                        <p class="text-xs font-weight-bold mb-0" th:text="${blog.postCnt}"></p>
 <!--                        <p class="text-xs text-secondary mb-0" th:text="${blog.postCnt}"></p>-->
                       </td>
                       <td class="align-middle text-center text-sm">
-                        <p class="text-xxl font-weight-bold mb-0" th:text="${blog.postCnt}"></p>
+                        <p class="text-xs font-weight-bold mb-0" th:text="${blog.postCnt}"></p>
 <!--                        <span class="badge badge-sm bg-gradient-success">상위노출 글 </span>-->
                       </td>
                       <td class="align-middle text-center">
-                        <p class="text-xxl font-weight-bold mb-0" th:text="${blog.updateDt}"></p>
+                        <p class="text-xs font-weight-bold mb-0" th:text="${blog.updateDt}"></p>
 <!--                        <p class="text-xs text-secondary mb-0">12:13</p>-->
                       </td>
                       <td class="align-middle text-center">
