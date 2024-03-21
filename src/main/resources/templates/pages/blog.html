@@ -313,13 +313,47 @@
       }
     }
 
+    $('.add-input').click(function(e) {
+      e.preventDefault();
+      var newInputGroup = $('.blog-input-group:first').clone();
+      newInputGroup.find('input').val('');
+      newInputGroup.append('<button class="btn bg-gradient-danger remove-input" type="button">&minus;</button>');
+      newInputGroup.insertBefore('.add-input');
+    });
+
+    $('form').on('click', '.remove-input', function(e) {
+      e.preventDefault();
+      $(this).closest('.blog-input-group').remove();
+    });
+
+    $('.blog-input-group:first').find('.remove-input').remove();
+
+    $('#blogForm').submit(function(e) {
+      e.preventDefault();
+      const urls = [];
+      $('.blog-input-group input').each(function() {
+        urls.push($.trim($(this).val()));
+      });
+
+      const blogId = urls.map(url => {
+        const match = url.match(/blog\.naver\.com\/([^/]+)/);
+        if (match && match.length > 1) {
+          return match[1];
+        } else {
+          return null;
+        }
+      }).filter(blogId => blogId !== null);
+
+      insertFetch(blogId);
+    });
+
     $('#insertBlogLink').click(function(event) {
       event.preventDefault();
       processBlogUrl();
     });
 
     $('#blogUrl').keypress(function(event) {
-      if (event.which === 13) { // 13 is the key code for the enter key
+      if (event.which === 13) {
         event.preventDefault();
         processBlogUrl();
       }
@@ -357,48 +391,6 @@
             });
   }
 
-  $(document).ready(function () {
-    // 입력 필드 추가
-    $('.add-input').click(function (e) {
-      e.preventDefault();
-      var newInputGroup = $('.blog-input-group:first').clone();
-      newInputGroup.find('input').val('');
-
-      // 새로운 입력 필드에는 - 버튼을 추가합니다.
-      newInputGroup.append('<button class="btn bg-gradient-danger remove-input" type="button">&minus;</button>');
-
-      newInputGroup.insertBefore('.add-input');
-    });
-
-    // 동적으로 생성된 입력 필드 삭제
-    $('form').on('click', '.remove-input', function (e) {
-      e.preventDefault();
-      $(this).closest('.blog-input-group').remove();
-    });
-
-    // 첫 번째 입력 필드에는 - 버튼이 없도록 초기 설정
-    $('.blog-input-group:first').find('.remove-input').remove();
-
-    // 폼 제출 이벤트
-    $('#blogForm').submit(function (e) {
-      const urls = [];
-      $('.blog-input-group input').each(function () {
-        urls.push($.trim($(this).val()));
-      });
-
-      // URLs 배열에서 사용자 이름 추출하여 새로운 배열 생성
-      const blogId = urls.map(url => {
-        // 정규 표현식을 사용하여 URL에서 사용자 이름 추출
-        const match = url.match(/blog\.naver\.com\/([^/]+)/);
-        if (match && match.length > 1) {
-          return match[1];
-        } else {
-          return null;
-        }
-      }).filter(blogId => blogId !== null); // null 값 제거
-      insertFetch(blogId);
-    });
-  });
 </script>
   <!-- Github buttons -->
   <script async defer src="https://buttons.github.io/buttons.js"></script>
