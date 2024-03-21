@@ -27,7 +27,7 @@ public class HomeController {
 
         model.addAttribute("id", id);
         model.addAttribute("role",role);
-        return "/pages/dashboard";
+        return "pages/dashboard";
     }
 
     @ResponseBody

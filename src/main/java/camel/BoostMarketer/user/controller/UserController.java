@@ -22,13 +22,13 @@ public class UserController {
 
     @GetMapping(value = "/sign-in")
     public String index() throws Exception {
-        return "/pages/sign-in";
+        return "pages/sign-in";
     }
 
 
     @GetMapping(value = "/sign-up")
     public String signUpPage() throws Exception {
-        return "/pages/sign-up";
+        return "pages/sign-up";
     }
 
     @GetMapping("/checkDuplication/{email}")
