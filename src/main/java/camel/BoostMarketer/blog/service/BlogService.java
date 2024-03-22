@@ -1,10 +1,9 @@
 package camel.BoostMarketer.blog.service;
 
-import camel.BoostMarketer.blog.dto.BlogDto;
-import camel.BoostMarketer.blog.dto.BlogPostDto;
-import camel.BoostMarketer.blog.dto.KeywordDto;
-import camel.BoostMarketer.blog.dto.RequestBlogDto;
+import camel.BoostMarketer.blog.dto.*;
 import camel.BoostMarketer.blog.mapper.BlogMapper;
+import camel.BoostMarketer.common.dto.CommonBlogDto;
+import camel.BoostMarketer.keyword.dto.KeywordDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -156,7 +155,7 @@ public class BlogService {
         //블로그 정보
         List<BlogDto> blogDtoList = blogInfoCrawler(blogId);
         //블로그 글
-        List<BlogPostDto> blogPostDtoList = allPostCrawler(blogId, "");
+        List<BlogPostDto> blogPostDtoList = allPostCrawler(blogId, null);
 
         blogMapper.registerBlog(blogDtoList, email);
         blogMapper.registerPosts(blogPostDtoList);
@@ -168,18 +167,34 @@ public class BlogService {
     }
 
     public void updateBlog(String blogId) throws Exception {
-        List<String> list = new ArrayList<>();
-        list.add(blogId);
+        List<String> blogIdList = new ArrayList<>();
+        Map<String, String> map = new HashMap<>();
 
-        String lastPostNo = blogMapper.selectLastPostNo(blogId);
+        if (blogId.equals("ALL")) {
+            String email = SecurityContextHolder.getContext().getAuthentication().getName();
+            List<CommonBlogDto> commonBlogDtos = blogMapper.selectLastPostNoList(email);
 
-        List<BlogPostDto> blogPostDtoList = allPostCrawler(list,lastPostNo);
+            for (CommonBlogDto commonBlogDto : commonBlogDtos) {
+                blogIdList.add(commonBlogDto.getBlogId());
+                map.put(commonBlogDto.getBlogId(), commonBlogDto.getPostNo());
+            }
 
-        if(!blogPostDtoList.isEmpty()){
+            blogMapper.allBlogUpdatedAt(email);
+
+        } else {
+            String lastPostNo = blogMapper.selectLastPostNo(blogId);
+            blogIdList.add(blogId);
+            map.put(blogId, lastPostNo);
+
+            blogMapper.blogUpdatedAt(blogId);
+        }
+
+        List<BlogPostDto> blogPostDtoList = allPostCrawler(blogIdList, map);
+
+        if (!blogPostDtoList.isEmpty()) {
             blogMapper.registerPosts(blogPostDtoList);
         }
 
-        blogMapper.blogUpdatedAt(blogId);
     }
 
     public void deleteBlog(String blogId) throws Exception {

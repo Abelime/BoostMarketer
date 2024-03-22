@@ -183,10 +183,22 @@
 
 
     <select id="selectLastPostNo" parameterType="String" resultType="String">
-        SELECT post_no FROM blog_post bp
+        SELECT MAX(post_no) AS max_post_no
+        FROM blog_post
         WHERE blog_id = #{blogId}
-        ORDER BY post_no DESC
-        LIMIT 1;
+        GROUP BY blog_id;
+    </select>
+
+    <select id="selectLastPostNoList" parameterType="String" resultType="CommonBlogDto">
+        SELECT blog_id, MAX(post_no) AS post_no
+        FROM blog_post
+        where blog_id in (select blog_id
+                          from blog
+                          where user_no =
+                                (select id
+                                 from user
+                                 where email = #{email}))
+        GROUP BY blog_id;
     </select>
 
     <update id="blogUpdatedAt" parameterType="String">
@@ -195,6 +207,16 @@
          WHERE blog_id = #{blogId}
     </update>
 
+    <update id="allBlogUpdatedAt" parameterType="String">
+        UPDATE blog
+        SET updated_at = now()
+        where blog_id in (select blog_id
+                          from blog
+                          where user_no =
+                                (select id
+                                 from user
+                                 where email = #{email}))
+    </update>
 
     <delete id="deleteBlog" parameterType="String">
         delete from blog

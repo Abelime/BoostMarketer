@@ -1,5 +1,6 @@
-package camel.BoostMarketer.blog.dto;
+package camel.BoostMarketer.keyword.dto;
 
+import camel.BoostMarketer.common.dto.CommonBlogDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,7 @@ import org.apache.ibatis.type.Alias;
 @Data
 @NoArgsConstructor
 @Alias("KeywordDto")
-public class KeywordDto extends CommonBlogDto{
+public class KeywordDto extends CommonBlogDto {
     //게시글 번호
     private Long keywordId;
     private String keywordName; //키워드

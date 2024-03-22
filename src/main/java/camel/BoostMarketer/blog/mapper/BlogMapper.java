@@ -2,7 +2,8 @@ package camel.BoostMarketer.blog.mapper;
 
 import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.dto.BlogPostDto;
-import camel.BoostMarketer.blog.dto.KeywordDto;
+import camel.BoostMarketer.common.dto.CommonBlogDto;
+import camel.BoostMarketer.keyword.dto.KeywordDto;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -47,7 +48,13 @@ public interface BlogMapper {
 
     public void blogUpdatedAt(String blogId) throws Exception;
 
+    public void allBlogUpdatedAt(String email) throws Exception;
+
     public void deleteBlog(String blogId) throws Exception;
 
     public void deleteBlogPost(String blogId) throws Exception;
+
+    public List<CommonBlogDto> selectLastPostNoList(String email) throws Exception;
+
+
 }

@@ -2,7 +2,7 @@ package camel.BoostMarketer.blog.controller;
 
 import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.dto.BlogPostDto;
-import camel.BoostMarketer.blog.dto.KeywordDto;
+import camel.BoostMarketer.keyword.dto.KeywordDto;
 import camel.BoostMarketer.blog.dto.RequestBlogDto;
 import camel.BoostMarketer.blog.service.BlogService;
 import com.fasterxml.jackson.databind.ObjectMapper;

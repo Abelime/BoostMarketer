@@ -274,7 +274,7 @@ public class Crawler {
     }
 
     //전체 글 정보 크롤링
-    public static List<BlogPostDto> allPostCrawler(List<String> blogIdList, String lastPostNo) {
+    public static List<BlogPostDto> allPostCrawler(List<String> blogIdList, Map<String, String> map) {
         List<BlogPostDto> postDtoList = new ArrayList<>();
 
         blogIdList.parallelStream().forEach(blogId -> {
@@ -325,7 +325,7 @@ public class Crawler {
                         JSONObject post = postList.getJSONObject(y);
                         String logNo = post.getString("logNo");
 
-                        if (logNo.equals(lastPostNo)) {
+                        if (map != null && map.get(blogId).equals(logNo)) {
                             break a;
                         }
 

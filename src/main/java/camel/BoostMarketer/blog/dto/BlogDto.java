@@ -1,5 +1,6 @@
 package camel.BoostMarketer.blog.dto;
 
+import camel.BoostMarketer.common.dto.CommonBlogDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.ibatis.type.Alias;
@@ -8,7 +9,7 @@ import org.apache.ibatis.type.Alias;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Alias("BlogDto")
-public class BlogDto extends CommonBlogDto{
+public class BlogDto extends CommonBlogDto {
     //블로그 ID
     private String blogName; //이름
     private String blogImg; //프로필 이미지
