@@ -32,7 +32,7 @@
     </insert>
 
     <insert id="registerBlog" parameterType="map">
-        INSERT INTO blog (user_no, blog_id, blog_name, blog_img)
+        INSERT INTO blog (user_id, blog_id, blog_name, blog_img)
         <foreach item="item" collection="blogDtoList" separator="UNION ALL">
             SELECT (SELECT id FROM user WHERE email = #{email}),
             #{item.blogId},
@@ -175,7 +175,7 @@
         FROM blog bg
                  LEFT JOIN
              blog_post bp ON bg.blog_id = bp.blog_id
-        WHERE bg.user_no = (SELECT ID
+        WHERE bg.user_id = (SELECT ID
                             FROM user
                             WHERE EMAIL = #{email})
         GROUP BY bg.blog_id, bg.blog_name, bg.blog_img
@@ -194,7 +194,7 @@
         FROM blog_post
         where blog_id in (select blog_id
                           from blog
-                          where user_no =
+                          where user_id =
                                 (select id
                                  from user
                                  where email = #{email}))
@@ -212,7 +212,7 @@
         SET updated_at = now()
         where blog_id in (select blog_id
                           from blog
-                          where user_no =
+                          where user_id =
                                 (select id
                                  from user
                                  where email = #{email}))

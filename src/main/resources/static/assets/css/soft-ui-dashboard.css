@@ -24581,7 +24581,7 @@ html {
   padding: 0.75rem 1.5rem;
   text-transform: capitalize;
   letter-spacing: 0px;
-  border-bottom: 1px solid #e9ecef;
+  /*border-bottom: 1px solid #e9ecef;*/
 }
 
 .table th {
@@ -24609,7 +24609,7 @@ html {
 }
 
 .table> :not(:last-child)> :last-child>* {
-  border-bottom-color: #e9ecef;
+  /*border-bottom-color: #e9ecef;*/
 }
 
 .timeline {
