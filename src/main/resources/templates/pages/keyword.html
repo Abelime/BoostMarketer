@@ -230,65 +230,6 @@
     border-color: #34ce57; /* Light green border for focus */
   }
 
-  /* 엑셀 업로드 모달 스타일*/
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgb(0,0,0);
-    background-color: rgba(0,0,0,0.4);
-  }
-
-  .modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 10px;
-    border: 1px solid #888;
-    width: 30%;
-  }
-
-  /* 닫기 버튼 스타일 */
-  .close {
-    color: #aaa;
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    font-size: 24px; /* 폰트 사이즈와 동일 */
-    font-weight: bold;
-    padding: 5px; /* 크기 조정 */
-    line-height: 1; /* 버튼 텍스트와 아이콘 정렬을 위해 추가 */
-    background: transparent; /* 배경 제거 */
-    border: none; /* 테두리 제거 */
-  }
-
-  .close:hover,
-  .close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-  }
-
-  /* 확인 버튼 스타일 */
-  #confirmBtn {
-    padding: 5px 10px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 7px;
-    cursor: pointer;
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-  }
-
-  #confirmBtn:hover {
-    background-color: #45a049;
-  }
 </style>
 
 <body class="g-sidenav-show  bg-gray-100">
@@ -448,47 +389,39 @@
           </div>
         </div>
         <div class="d-flex justify-content-end">
-          <button class="btn-custom"><i class="icon-left fas fa-file-excel"></i>엑셀 양식다운</button>
-          <button id="openModal" class="btn-custom"><i class="icon-left fas fa-file-excel"></i>엑셀 등록하기</button>
+          <button id="excelDownload" class="btn-custom"><i class="icon-left fas fa-file-excel"></i>엑셀 양식다운</button>
+          <button id="openModal" class="btn-custom" data-bs-toggle="modal" data-bs-target="#exampleModalMessage"><i class="icon-left fas fa-file-excel"></i>엑셀 등록하기</button>
         </div>
       </div>
       <div th:insert="~{common/mainfooter.html :: footer}"></div>
     </div>
   </main>
+
 <!-- Modal -->
-<div class="modal fade" id="modal-form" tabindex="-1" role="dialog" aria-labelledby="modal-form" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document"> <!-- modal-sm 클래스 제거 -->
+<div class="modal fade" id="exampleModalMessage" tabindex="-1" role="dialog" aria-labelledby="exampleModalMessageTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="modal-body p-0">
-        <div class="card card-plain">
-          <div class="card-header pb-0 text-left">
-            <h3 class="font-weight-bolder text-info text-gradient">블로그 등록</h3>
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">엑셀 업로드</h5>
+        <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+          <div class="form-group">
+            <input type="file" id="excelFileInput" class="form-control" value="Creative Tim" >
           </div>
-          <div class="card-body">
-            <form role="form text-left" id="blogForm">
-              <div class="input-group mb-3 blog-input-group">
-                <input type="url" class="form-control" placeholder="희망하는 키워드를 등록해주세요" aria-label="Blog URL" aria-describedby="blog-addon">
-              </div>
-              <div class="text-center">
-                <button type="button" class="btn bg-gradient-info add-input">&plus;</button>
-                <button type="submit" class="btn btn-round bg-gradient-info btn-lg w-100 mt-4 mb-0">등록</button>
-              </div>
-            </form>
-          </div>
-        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="closeBtn" class="btn bg-gradient-secondary" data-bs-dismiss="modal">닫기</button>
+        <button type="button" id="confirmBtn" class="btn bg-gradient-primary">등록</button>
       </div>
     </div>
   </div>
 </div>
 
-<div id="uploadModal" class="modal">
-  <div class="modal-content">
-    <span id="closeModal" class="close" al>&times;</span>
-    <h3>파일 업로드</h3>
-    <input type="file" id="excelFileInput">
-    <button id="confirmBtn">확인</button>
-  </div>
-</div>
 
   <!--   Core JS Files   -->
   <script src="/assets/js/core/popper.min.js"></script>
@@ -562,14 +495,6 @@
             });
   }
 
-  $('#openModal').click(function() {
-    $('#uploadModal').css('display','block');
-  });
-
-  $('#closeModal').click(function() {
-    $('#uploadModal').css('display','none');
-  });
-
   $("#confirmBtn").click(function() {
     const file = $("#excelFileInput")[0].files[0];
     if (file) {
@@ -581,16 +506,16 @@
 
       fetch('/keyword/excelUpload', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: formData
+        body: formData,
+        processData: false,
+        contentType: false,
       })
               .then(response => {
                 if (!response.ok) {
                   throw new Error('서버 응답이 실패했습니다.');
                 }
-                location.replace('/keyword');
+                //location.replace('/keyword');
+                $("#closeBtn").trigger("click");
               })
               .catch(error => {
                 console.error('등록 중 오류가 발생했습니다:', error);
@@ -611,6 +536,10 @@
   $('#keywordRegister').click(function(event) {
     event.preventDefault();
     insertFetch()
+  });
+
+  $('#excelDownload').click(function(event) {
+    location.href="excel/keyword_excel.xlsx"
   });
 
 </script>

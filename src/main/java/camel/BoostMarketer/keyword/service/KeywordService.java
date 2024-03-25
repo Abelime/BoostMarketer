@@ -2,12 +2,14 @@ package camel.BoostMarketer.keyword.service;
 
 import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.mapper.BlogMapper;
+import camel.BoostMarketer.common.ExcelUtil;
 import camel.BoostMarketer.common.api.NaverSearchAdApi;
 import camel.BoostMarketer.keyword.dto.KeywordDto;
 import camel.BoostMarketer.keyword.mapper.KeywordMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
@@ -43,4 +45,10 @@ public class KeywordService {
 
 
     }
+
+    public void keywordExcelUpload(MultipartFile file) throws Exception {
+        ExcelUtil util = new ExcelUtil();
+        util.excelUpload(file);
+    }
+
 }
