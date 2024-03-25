@@ -227,7 +227,7 @@
               if (!response.ok) {
                 throw new Error('서버 응답이 실패했습니다.');
               }
-              window.location = '/blog';
+              location.replace('/blog');
             })
             .catch(error => {
               console.error('등록 중 오류가 발생했습니다:', error);
@@ -305,7 +305,7 @@
               if (!response.ok) {
                 throw new Error('서버 응답이 실패했습니다.');
               }
-              location.reload()
+              location.replace('/blog');
             })
             .catch(error => {
               console.error('오류가 발생했습니다:', error);
@@ -320,7 +320,7 @@
               if (!response.ok) {
                 throw new Error('서버 응답이 실패했습니다.');
               }
-              location.reload()
+              location.replace('/blog');
             })
             .catch(error => {
               console.error('오류가 발생했습니다:', error);
