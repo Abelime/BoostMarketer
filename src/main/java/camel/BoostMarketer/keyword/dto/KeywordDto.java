@@ -11,11 +11,13 @@ import org.apache.ibatis.type.Alias;
 @NoArgsConstructor
 @Alias("KeywordDto")
 public class KeywordDto extends CommonBlogDto {
-    //게시글 번호
     private Long keywordId;
     private String keywordName; //키워드
+    private String category; //키워드
     private int keywordRank; //순위
     private String rankDate;
+    private int monthSearchPc;
+    private int monthSearchMobile;
 
     public KeywordDto(String postNo, String keywordName, int keywordRank) {
         this.setPostNo(postNo);

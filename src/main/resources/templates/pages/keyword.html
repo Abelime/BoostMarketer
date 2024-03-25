@@ -347,7 +347,7 @@
       <div class="row col-12 mt-4">
           <div class="flex-container">
             <div class="custom-select-wrapper">
-              <select class="custom-select" id="ranking">
+              <select class="custom-select" id="category">
                 <option>카테고리</option>
                 <option value="1">1순위</option>
                 <option value="2">2순위</option>
@@ -358,8 +358,8 @@
             </div>
             <div class="col-4">
               <div class="input-group">
-                <input type="text" id="blogUrl" class="form-control" placeholder="희망하는 키워드를 등록해주세요">
-                <a href="#" id="insertBlogLink">
+                <input type="text" id="keyword" class="form-control" placeholder="희망하는 키워드를 등록해주세요">
+                <a href="#" id="keywordRegister">
                   <div class="icon icon-shape bg-gradient-success shadow text-center border-radius-md">
                     <i class="fa fa-pencil text-lg opacity-10" aria-hidden="true"></i>
                   </div>
@@ -531,20 +531,31 @@
     });
   });
 
-  function insertFetch(blogId){
-    // Fetch API를 사용하여 요청 보내기
-    fetch('/blog', {
+  function insertFetch(){
+    const keywordName = $('#keyword').val().trim();
+    const category = $('#category').val().trim();
+
+    if (category === '카테고리') {
+      alert('카테고리를 선택해주세요.');
+      $('#category').focus();
+      return;
+    }
+
+    fetch('/keyword', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(blogId)
+      body: JSON.stringify({
+        keywordName: keywordName,
+        category: category
+      })
     })
             .then(response => {
               if (!response.ok) {
                 throw new Error('서버 응답이 실패했습니다.');
               }
-              window.location = '/blog';
+              location.replace('/keyword');
             })
             .catch(error => {
               console.error('등록 중 오류가 발생했습니다:', error);
@@ -588,6 +599,18 @@
     } else {
       console.log('파일이 선택되지 않았습니다.');
     }
+  });
+
+  $('#keyword').keypress(function(event) {
+    if (event.which === 13) {
+      event.preventDefault();
+      insertFetch()
+    }
+  });
+
+  $('#keywordRegister').click(function(event) {
+    event.preventDefault();
+    insertFetch()
   });
 
 </script>

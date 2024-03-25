@@ -2,6 +2,7 @@ package camel.BoostMarketer.keyword.controller;
 
 import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.service.BlogService;
+import camel.BoostMarketer.keyword.dto.KeywordDto;
 import camel.BoostMarketer.keyword.service.KeywordService;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -12,9 +13,13 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,6 +51,12 @@ public class KeywordController {
         model.addAttribute("totalPostCnt", totalPostCnt);
         model.addAttribute("blogList", blogDtoList);
         return "pages/keyword";
+    }
+
+    @PostMapping(value = "/keyword")
+    public ResponseEntity<?> registerKeyword(@RequestBody KeywordDto keywordDto) throws Exception {
+        keywordService.registerKeyword(keywordDto);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PostMapping(value = "/keyword/excelUpload")

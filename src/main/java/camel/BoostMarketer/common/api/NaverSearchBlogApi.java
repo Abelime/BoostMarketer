@@ -18,7 +18,7 @@ import java.util.Map;
 import static camel.BoostMarketer.common.ConvertBlogUrl.convertUrl;
 
 @Component
-public class ApiSearchBlog {
+public class NaverSearchBlogApi {
 
     private final String clientId = "WL1M5lNM2971fY_nLeOY"; //애플리케이션 클라이언트 아이디
     private final String clientSecret = "aYYZtJiEbb"; //애플리케이션 클라이언트 시크릿

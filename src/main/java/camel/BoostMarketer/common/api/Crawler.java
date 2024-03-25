@@ -349,5 +349,50 @@ public class Crawler {
         return postDtoList;
     }
 
+//    public static List<Integer> newRankCrawler(Map<String, Object> param) {
+//        Instant startTime = Instant.now(); // 시작 시간 기록
+//        List<String> keyWordList = requestBlogDto.getKeyWord();
+//        List<Integer> rankList = new ArrayList<>();
+//
+//        // 키워드 리스트를 순회하며 크롤링을 수행합니다.
+//        for (String keyword : keyWordList) {
+//            try {
+//                // 검색어를 UTF-8 형식으로 인코딩합니다.
+//                String text = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+//                // URL을 생성합니다.
+//                String url = "https://search.naver.com/search.naver?ssc=tab.blog.all&query=" + text;
+//
+//                // 예외 처리를 추가하여 Jsoup을 사용하여 웹페이지를 가져옵니다.
+//                Document doc;
+//                doc = Jsoup.connect(url).get();
+//                // 블로그 검색 결과에서 링크를 가져옵니다.
+//                Elements aTag = doc.select(".title_area a");
+//
+//                // 링크를 순회하며 블로그 URL과 일치하는지 확인합니다.
+//                for (int i = 0; i < aTag.size(); i++) {
+//                    String crawlerUrl = aTag.get(i).attr("href");
+//                    if (crawlerUrl.equals(requestBlogDto.getBlogUrl())) {
+//                        rankList.add(++i);
+//                        break;
+//                    } else if (i == aTag.size() - 1) { //마지막 까지 일치하지 않으면
+//                        rankList.add(0);
+//                    }
+//                }
+//                Thread.sleep(500);
+//            } catch (Exception e) {
+//                logger.error("Error occurred while fetching keyword ranks for keyword: " + keyword, e);
+//                // 예외가 발생한 경우 해당 키워드의 순위를 -1로 설정합니다.
+//                rankList.add(-1);
+//            }
+//
+//        }
+//        Instant endTime = Instant.now(); // 종료 시간 기록
+//        Duration duration = Duration.between(startTime, endTime); // 걸린 시간 계산
+//        logger.debug("rankList: {} ", rankList);
+//        logger.debug("검색어 순위 계산에 소요된 시간: {} 밀리초", duration.toMillis());
+//
+//        return rankList;
+//    }
+
 }
 

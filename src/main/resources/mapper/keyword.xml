@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="camel.BoostMarketer.keyword.mapper.KeywordMapper">
+
+    <!--  키워드 등록(사전)  -->
+    <insert id="registerKeywordDict" parameterType="KeywordDto">
+        INSERT INTO keyword_dict (keyword_name, month_search_pc, month_search_mobile) VALUE
+            (#{keywordName}, #{monthSearchPc}, #{monthSearchMobile})
+        <selectKey resultType="Long" keyProperty="keywordId" order="AFTER">
+            SELECT keyword_id
+            FROM keyword_dict
+            WHERE keyword_name = #{keywordName}
+        </selectKey>
+    </insert>
+
+    <!--  키워드 등록(유저)  -->
+    <insert id="registerUserKeyword" parameterType="map">
+        INSERT INTO user_keywords (user_id, keyword_id, category)
+        SELECT (SELECT id FROM user WHERE email = #{email}),
+               #{keywordDto.keywordId},
+               #{keywordDto.category}
+        FROM DUAL
+    </insert>
+
+
+</mapper>
