@@ -26,6 +26,22 @@ public class ConvertBlogUrl {
         return blogInfo;
     }
 
+    public static String urlToPostNo(String blogUrl) {
+        // 정규표현식 패턴
+        String pattern = "https://blog.naver.com/(\\w+)/(\\d+)";
+        Pattern r = Pattern.compile(pattern);
+
+        // Matcher 객체 생성
+        Matcher m = r.matcher(blogUrl);
+        String postNo = "";
+        // 매칭된 경우 값 추출
+        if (m.find()) {
+            postNo = m.group(2);
+        }
+
+        return postNo;
+    }
+
     public static String getRankForKeywordDate(List<Map<String, Object>> rankDates, String date) {
         for (Map<String, Object> rankDate : rankDates) {
             if (date.equals(rankDate.get("date"))) {

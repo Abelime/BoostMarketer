@@ -6,9 +6,15 @@
 <mapper namespace="camel.BoostMarketer.keyword.mapper.KeywordMapper">
 
     <!--  키워드 등록(사전)  -->
-    <insert id="registerKeywordDict" parameterType="KeywordDto">
-        INSERT INTO keyword_dict (keyword_name, month_search_pc, month_search_mobile) VALUE
-            (#{keywordName}, #{monthSearchPc}, #{monthSearchMobile})
+    <insert id="registerKeywordDict" parameterType="KeywordDto" useGeneratedKeys="true" keyProperty="keywordId">
+        INSERT INTO keyword_dict (keyword_name, month_search_pc, month_search_mobile)
+        SELECT #{keywordName}, #{monthSearchPc},  #{monthSearchMobile}
+        FROM DUAL
+        WHERE NOT EXISTS (
+            SELECT 1
+             FROM keyword_dict
+            WHERE keyword_name = #{keywordName}
+        )
         <selectKey resultType="Long" keyProperty="keywordId" order="AFTER">
             SELECT keyword_id
             FROM keyword_dict
@@ -23,7 +29,63 @@
                #{keywordDto.keywordId},
                #{keywordDto.category}
         FROM DUAL
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM user_keywords
+            WHERE keyword_id = #{keywordDto.keywordId}
+        )
     </insert>
+
+    <!--  블로그 게시물 정보 등록  -->
+    <insert id="registerKeywordRank" parameterType="java.util.List">
+        INSERT INTO keyword_rank (post_no, keyword_id, rank_pc, rank_mobile) VALUES
+        <foreach item="item" collection="list" separator=",">
+            (#{item.postNo}, #{item.keywordId}, #{item.rankPc}, 0)
+        </foreach>
+    </insert>
+
+    <!--  키워드 정보 조회  -->
+    <select id="selectKeywordInfo" parameterType="String" resultType="KeywordDto"><![CDATA[
+        SELECT
+            kd.keyword_id,
+            kd.keyword_name,
+            uk.category,
+            kd.month_search_pc,
+            kd.month_search_mobile,
+            COALESCE(kr.rank_pc_5, 0) AS rank_pc_5,
+            COALESCE(kr.rank_pc_30, 0) AS rank_pc_30,
+            COALESCE(kr.rank_mobile_5, 0) AS rank_mobile_5,
+            COALESCE(kr.rank_mobile_30, 0) AS rank_mobile_30
+        FROM
+            keyword_dict kd
+        INNER JOIN
+            user_keywords uk ON kd.keyword_id = uk.keyword_id
+        INNER JOIN
+            (SELECT id FROM user WHERE email = #{email}) u ON uk.user_id = u.id
+        LEFT JOIN
+            (
+                SELECT
+                    keyword_id,
+                COUNT(CASE WHEN rank_pc > 0 AND rank_pc <= 5 THEN 1 END) AS rank_pc_5,
+                COUNT(CASE WHEN rank_pc > 5 AND rank_pc <= 30 THEN 1 END) AS rank_pc_30,
+                COUNT(CASE WHEN rank_mobile > 0 AND rank_mobile <= 5 THEN 1 END) AS rank_mobile_5,
+                COUNT(CASE WHEN rank_mobile > 5 AND rank_mobile <= 30 THEN 1 END) AS rank_mobile_30
+                FROM
+                    keyword_rank
+                WHERE
+                    post_no IN (
+                        SELECT post_no
+                        FROM blog_post
+                        WHERE blog_id IN (
+                            SELECT blog_id
+                            FROM blog
+                            WHERE user_id = (SELECT id FROM user WHERE email = #{email})
+                        )
+                    )
+                GROUP BY
+                    keyword_id
+            ) kr ON kd.keyword_id = kr.keyword_id
+    ]]></select>
 
 
 </mapper>

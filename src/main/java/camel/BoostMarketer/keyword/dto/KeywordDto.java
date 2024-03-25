@@ -14,14 +14,14 @@ public class KeywordDto extends CommonBlogDto {
     private Long keywordId;
     private String keywordName; //키워드
     private String category; //키워드
-    private int keywordRank; //순위
+    private int rankPc; //순위
+    private int rankMobile; //순위
     private String rankDate;
     private int monthSearchPc;
     private int monthSearchMobile;
+    private int rankPc5;
+    private int rankPc30;
+    private int rankMobile5;
+    private int rankMobile30;
 
-    public KeywordDto(String postNo, String keywordName, int keywordRank) {
-        this.setPostNo(postNo);
-        this.keywordName = keywordName;
-        this.keywordRank = keywordRank;
-    }
 }

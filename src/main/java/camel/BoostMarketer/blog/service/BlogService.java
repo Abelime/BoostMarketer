@@ -47,11 +47,11 @@ public class BlogService {
 
         KeywordDto keywordDto;
 
-        for (int i = 0; i < rankList.size(); i++) {
-            keywordDto = new KeywordDto(requestBlogDto.getPostNo(), requestBlogDto.getKeyWord().get(i), rankList.get(i));
-            blogMapper.insertKeyword(keywordDto); //키워드 사전 등록
-            blogMapper.insertKeywordRank(keywordDto); //키워드 랭킹 등록
-        }
+//        for (int i = 0; i < rankList.size(); i++) {
+//            keywordDto = new KeywordDto(requestBlogDto.getPostNo(), requestBlogDto.getKeyWord().get(i), rankList.get(i));
+//            blogMapper.insertKeyword(keywordDto); //키워드 사전 등록
+//            blogMapper.insertKeywordRank(keywordDto); //키워드 랭킹 등록
+//        }
     }
 
     public List<BlogPostDto> selectPostList() throws Exception {
@@ -75,7 +75,7 @@ public class BlogService {
         for (KeywordDto keywordDto : keywordDtoList) {
             Map<String, Object> keywordMap = new HashMap<>();
             keywordMap.put("date", keywordDto.getRankDate());
-            keywordMap.put("rank", keywordDto.getKeywordRank());
+//            keywordMap.put("rank", keywordDto.getKeywordRank());
 
             String keywordName = keywordDto.getKeywordName();
             if (!map.containsKey(keywordName)) {
@@ -128,9 +128,9 @@ public class BlogService {
             KeywordDto keywordDto;
 
             for (int i = 0; i < rankList.size(); i++) {
-                keywordDto = new KeywordDto(requestBlogDto.getPostNo(), requestBlogDto.getKeyWord().get(i), rankList.get(i));
-                blogMapper.insertKeyword(keywordDto); //키워드 사전 등록
-                blogMapper.insertKeywordRank(keywordDto); //키워드 랭킹 등록
+//                keywordDto = new KeywordDto(requestBlogDto.getPostNo(), requestBlogDto.getKeyWord().get(i), rankList.get(i));
+//                blogMapper.insertKeyword(keywordDto); //키워드 사전 등록
+//                blogMapper.insertKeywordRank(keywordDto); //키워드 랭킹 등록
             }
         }
 

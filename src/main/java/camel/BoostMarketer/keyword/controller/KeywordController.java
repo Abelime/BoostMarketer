@@ -1,6 +1,5 @@
 package camel.BoostMarketer.keyword.controller;
 
-import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.service.BlogService;
 import camel.BoostMarketer.keyword.dto.KeywordDto;
 import camel.BoostMarketer.keyword.service.KeywordService;
@@ -31,16 +30,9 @@ public class KeywordController {
 
     @GetMapping(value = "/keyword")
     public String blogForm(Model model) throws Exception {
-        List<BlogDto> blogDtoList = blogService.selectBlogInfo();
+        List<KeywordDto> keywordDtoList = keywordService.selectKeywordInfo();
 
-        int totalPostCnt = 0;
-
-        for (BlogDto blogDto : blogDtoList) {
-            totalPostCnt += blogDto.getPostCnt();
-        }
-
-        model.addAttribute("totalPostCnt", totalPostCnt);
-        model.addAttribute("blogList", blogDtoList);
+        model.addAttribute("keywordList", keywordDtoList);
         return "pages/keyword";
     }
 

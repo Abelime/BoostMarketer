@@ -3,6 +3,7 @@ package camel.BoostMarketer.keyword.service;
 import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.mapper.BlogMapper;
 import camel.BoostMarketer.common.ExcelUtil;
+import camel.BoostMarketer.common.api.Crawler;
 import camel.BoostMarketer.common.api.NaverSearchAdApi;
 import camel.BoostMarketer.keyword.dto.KeywordDto;
 import camel.BoostMarketer.keyword.mapper.KeywordMapper;
@@ -11,9 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -23,26 +22,30 @@ public class KeywordService {
 
     private final BlogMapper blogMapper;
 
+    public List<KeywordDto> selectKeywordInfo() throws Exception {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return keywordMapper.selectKeywordInfo(email);
+    }
+
     public void registerKeyword(KeywordDto keywordDto) throws Exception {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        
 
+        //검색량 조회
         NaverSearchAdApi.apiAccess(keywordDto);
 
-        Long keywordId = keywordMapper.registerKeywordDict(keywordDto);
-        keywordDto.setKeywordId(keywordId);
+        keywordMapper.registerKeywordDict(keywordDto);
 
         keywordMapper.registerUserKeyword(keywordDto, email);
 
-        List<BlogDto> blogDtos = blogMapper.selectBlogInfo(email);
+        List<BlogDto> blogDtoList = blogMapper.selectBlogInfo(email);
 
-        Map<String, Object> map = new HashMap<>();
+        List<String> blogIdList = blogDtoList.stream()
+                .map(BlogDto::getBlogId)
+                .toList();
 
-        map.put("blogId", blogDtos);
-        map.put("keyword", keywordDto.getKeywordName());
-//        Crawler.newRankCrawler(map);
+        List<KeywordDto> keywordDtoList = Crawler.newRankCrawler(blogIdList, keywordDto.getKeywordName(), keywordDto.getKeywordId());
 
-
+        keywordMapper.registerKeywordRank(keywordDtoList);
 
     }
 
