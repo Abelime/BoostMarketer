@@ -45,7 +45,11 @@ public class KeywordService {
 
         List<KeywordDto> keywordDtoList = Crawler.newRankCrawler(blogIdList, keywordDto.getKeywordName(), keywordDto.getKeywordId());
 
-        keywordMapper.registerKeywordRank(keywordDtoList);
+        if(!keywordDtoList.isEmpty()){
+            keywordMapper.registerKeywordRank(keywordDtoList);
+        }
+
+
 
     }
 
