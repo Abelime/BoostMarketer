@@ -4,6 +4,7 @@ import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.dto.BlogPostDto;
 import camel.BoostMarketer.blog.dto.RequestBlogDto;
 import camel.BoostMarketer.common.ConvertBlogUrl;
+import camel.BoostMarketer.common.util.DateUtil;
 import camel.BoostMarketer.keyword.dto.KeywordDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,12 +28,9 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static camel.BoostMarketer.common.HttpUtil.sendHttpRequest;
+import static camel.BoostMarketer.common.util.HttpUtil.sendHttpRequest;
 
 
 public class Crawler {
@@ -324,7 +322,11 @@ public class Crawler {
                         }
 
                         String title = URLDecoder.decode(post.getString("title"), StandardCharsets.UTF_8);
+
                         String addDate = post.getString("addDate");
+                        Date date = DateUtil.convertToLocalDate(addDate);
+                        addDate = DateUtil.formatDate(date);
+
                         String tagName = tagMap.get(logNo);
 
                         blogPostDto.setBlogId(blogId);
