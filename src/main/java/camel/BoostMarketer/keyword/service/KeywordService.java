@@ -88,7 +88,8 @@ public class KeywordService {
         map.put("keywordId",keywordDto.getKeywordId());
 
         keywordMapper.deleteKeyDict(map);
-        keywordMapper.deleteKeyRank(map);
+        keywordMapper.deleteKeyRank1(map);
+        keywordMapper.deleteKeyRank2(map);
         keywordMapper.deleteUserKey(map);
     }
 

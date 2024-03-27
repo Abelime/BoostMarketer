@@ -89,37 +89,46 @@
 
     <!--  키워드 사전 삭제  -->
     <delete id="deleteKeyDict" parameterType="map">
-        delete
-        from keyword_dict
+        DELETE
+        FROM keyword_dict
         WHERE keyword_id = #{keywordId}
-        and 0=(select count(*)
-                from user_keywords
-                where user_id != #{id}
-                and keyword_id = #{keywordId})
+        AND 0=(SELECT count(*)
+                FROM user_keywords
+                WHERE user_id != #{id}
+                AND keyword_id = #{keywordId})
     </delete>
 
     <!--  키워드 순위 삭제  -->
-    <delete id="deleteKeyRank" parameterType="map">
-        delete
-        from keyword_rank
-        WHERE post_no in(   select post_no
-                            from blog_post bp
-                            inner join blog b on(bp.blog_id = b.blog_id)
-                            where b.user_id = #{id}
-                            and bp.blog_id not in(
-                                select blog_id
-                                from blog
-                                where user_id != #{id})
-                        )
-        and keyword_id = #{keywordId}
+    <delete id="deleteKeyRank1" parameterType="map">
+        DELETE
+        FROM keyword_rank
+        WHERE keyword_id = #{keywordId}
+        AND post_no in (    SELECT post_no
+                            FROM blog_post bp
+                            INNER JOIN blog b ON (bp.blog_id = b.blog_id)
+                            WHERE b.user_id = #{id}
+                            AND bp.blog_id NOT IN (SELECT blog_id
+                                                  FROM blog
+                                                  WHERE user_id != #{id})
+        )
+    </delete>
+
+    <delete id="deleteKeyRank2" parameterType="map">
+        DELETE
+        FROM keyword_rank
+        WHERE keyword_id = #{keywordId}
+        AND 0=(   SELECT count(*) FROM user_keywords
+                    WHERE user_id != #{id}
+                    AND keyword_id = #{keywordId}
+        )
     </delete>
 
     <!--  유저 키워드 삭제  -->
     <delete id="deleteUserKey" parameterType="map">
-        delete
-        from user_keywords
+        DELETE
+        FROM user_keywords
         WHERE user_id = #{id}
-        and keyword_id = #{keywordId}
+        AND keyword_id = #{keywordId}
     </delete>
 
 </mapper>

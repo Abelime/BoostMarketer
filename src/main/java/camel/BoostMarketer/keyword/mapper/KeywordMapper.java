@@ -17,7 +17,9 @@ public interface KeywordMapper {
 
     void deleteKeyDict(HashMap<String, Object> map) throws Exception;
 
-    void deleteKeyRank(HashMap<String, Object> map) throws Exception;
+    void deleteKeyRank1(HashMap<String, Object> map) throws Exception;
+
+    void deleteKeyRank2(HashMap<String, Object> map) throws Exception;
 
     void deleteUserKey(HashMap<String, Object> map) throws Exception;
 }
