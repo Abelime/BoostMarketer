@@ -15,7 +15,8 @@
         FROM DUAL
         WHERE NOT EXISTS (SELECT 1
                           FROM blog
-                          WHERE user_id = (SELECT id FROM user WHERE email = #{email}))
+                          WHERE user_id = (SELECT id FROM user WHERE email = #{email})
+                            and blog_id = #{blogDto.blogId})
     </insert>
 
     <!--  블로그 게시물 정보 등록  -->

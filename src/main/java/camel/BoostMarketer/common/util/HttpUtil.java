@@ -1,4 +1,4 @@
-package camel.BoostMarketer.common;
+package camel.BoostMarketer.common.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
