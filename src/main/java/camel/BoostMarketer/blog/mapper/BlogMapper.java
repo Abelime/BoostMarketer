@@ -56,5 +56,6 @@ public interface BlogMapper {
 
     public List<CommonBlogDto> selectLastPostNoList(String email) throws Exception;
 
-    BlogDto checkIfBlogExists(String blogId);
+    BlogDto checkIfBlogExists(String blogId) throws Exception;
+
 }

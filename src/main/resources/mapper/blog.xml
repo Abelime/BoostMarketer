@@ -13,6 +13,9 @@
                #{blogDto.blogName},
                #{blogDto.blogImg}
         FROM DUAL
+        WHERE NOT EXISTS (SELECT 1
+                          FROM blog
+                          WHERE user_id = (SELECT id FROM user WHERE email = #{email}))
     </insert>
 
     <!--  블로그 게시물 정보 등록  -->
