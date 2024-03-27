@@ -36,7 +36,7 @@
         )
     </insert>
 
-    <!--  블로그 게시물 정보 등록  -->
+    <!--  키워드 순위 정보 등록  -->
     <insert id="registerKeywordRank" parameterType="java.util.List">
         INSERT INTO keyword_rank (post_no, keyword_id, rank_pc, rank_mobile) VALUES
         <foreach item="item" collection="list" separator=",">
@@ -87,5 +87,39 @@
             ) kr ON kd.keyword_id = kr.keyword_id
     ]]></select>
 
+    <!--  키워드 사전 삭제  -->
+    <delete id="deleteKeyDict" parameterType="map">
+        delete
+        from keyword_dict
+        WHERE keyword_id = #{keywordId}
+        and 0=(select count(*)
+                from user_keywords
+                where user_id != #{id}
+                and keyword_id = #{keywordId})
+    </delete>
+
+    <!--  키워드 순위 삭제  -->
+    <delete id="deleteKeyRank" parameterType="map">
+        delete
+        from keyword_rank
+        WHERE post_no in(   select post_no
+                            from blog_post bp
+                            inner join blog b on(bp.blog_id = b.blog_id)
+                            where b.user_id = #{id}
+                            and bp.blog_id not in(
+                                select blog_id
+                                from blog
+                                where user_id != #{id})
+                        )
+        and keyword_id = #{keywordId}
+    </delete>
+
+    <!--  유저 키워드 삭제  -->
+    <delete id="deleteUserKey" parameterType="map">
+        delete
+        from user_keywords
+        WHERE user_id = #{id}
+        and keyword_id = #{keywordId}
+    </delete>
 
 </mapper>

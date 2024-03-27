@@ -7,6 +7,8 @@ import camel.BoostMarketer.common.api.Crawler;
 import camel.BoostMarketer.common.api.NaverSearchAdApi;
 import camel.BoostMarketer.keyword.dto.KeywordDto;
 import camel.BoostMarketer.keyword.mapper.KeywordMapper;
+import camel.BoostMarketer.user.dto.UserDto;
+import camel.BoostMarketer.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,8 @@ public class KeywordService {
     private final KeywordMapper keywordMapper;
 
     private final BlogMapper blogMapper;
+
+    private final UserMapper userMapper;
 
     public List<KeywordDto> selectKeywordInfo() throws Exception {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -72,6 +76,19 @@ public class KeywordService {
             }
         }
 
+    }
+
+    public void keywordDelete(KeywordDto keywordDto) throws Exception {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserDto userDto = userMapper.findByEmail(email);
+
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("id",userDto.getId().toString());
+        map.put("keywordId",keywordDto.getKeywordId());
+
+        keywordMapper.deleteKeyDict(map);
+        keywordMapper.deleteKeyRank(map);
+        keywordMapper.deleteUserKey(map);
     }
 
 }

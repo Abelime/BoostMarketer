@@ -48,4 +48,9 @@ public class KeywordController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @PostMapping(value = "/keyword/delete")
+    public ResponseEntity<?> keywordDelete(@RequestBody KeywordDto keywordDto) throws Exception {
+        keywordService.keywordDelete(keywordDto);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
 }

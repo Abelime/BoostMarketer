@@ -376,7 +376,7 @@
                       </a>
                     </td>
                     <td class="align-middle text-center">
-                      <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="#" th:onclick=""><i class="far fa-trash-alt me-2"></i>삭제</a>
+                      <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="#" th:onclick="keywordDelete([[${keyword.keywordId}]],[[${keyword.keywordName}]],[[${keyword.category}]]);"><i class="far fa-trash-alt me-2"></i>삭제</a>
                     </td>
                   </tr>
                   </tbody>
@@ -538,6 +538,30 @@
   $('#excelDownload').click(function(event) {
     location.href="excel/keyword_excel.xlsx"
   });
+
+  function keywordDelete(keywordId,keywordName,category) {
+
+    fetch('/keyword/delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        keywordId: keywordId,
+        keywordName: keywordName,
+        category: category
+      })
+    })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('서버 응답이 실패했습니다.');
+              }
+              location.replace('/keyword');
+            })
+            .catch(error => {
+              console.error('등록 중 오류가 발생했습니다:', error);
+            });
+  }
 
 </script>
   <!-- Github buttons -->
