@@ -25,10 +25,14 @@ public class NaverSearchAdApi {
     public static void apiAccess(KeywordDto keywordDto) throws NoSuchAlgorithmException, InvalidKeyException {
         OkHttpClient client = new OkHttpClient();
 
+
+        String keyword = keywordDto.getKeywordName();
+        keyword = keyword.replace(" ", "");
+
         String timestamp = String.valueOf(System.currentTimeMillis());
 
         HttpUrl.Builder urlBuilder = HttpUrl.parse(API_URL + path).newBuilder();
-        urlBuilder.addQueryParameter("hintKeywords", keywordDto.getKeywordName());
+        urlBuilder.addQueryParameter("hintKeywords", keyword);
         urlBuilder.addQueryParameter("showDetail", "1");
 
         String url = urlBuilder.build().toString();
@@ -52,13 +56,18 @@ public class NaverSearchAdApi {
                 JSONObject jsonObject = new JSONObject(responseBody);
                 JSONArray keywordList = jsonObject.getJSONArray("keywordList");
 
-                int monthlyPcQcCnt = keywordList.getJSONObject(0).getInt("monthlyPcQcCnt");
-                int monthlyMobileQcCnt = keywordList.getJSONObject(0).getInt("monthlyMobileQcCnt");
+                JSONObject firstKeyword = keywordList.getJSONObject(0);
+
+                Object monthlyPcQcCntStr = firstKeyword.get("monthlyPcQcCnt");
+                Object monthlyMobileQcCntStr = firstKeyword.get("monthlyMobileQcCnt");
+
+                int monthlyPcQcCnt = parseKeywordCount(monthlyPcQcCntStr);
+                int monthlyMobileQcCnt = parseKeywordCount(monthlyMobileQcCntStr);
 
                 keywordDto.setMonthSearchPc(monthlyPcQcCnt);
                 keywordDto.setMonthSearchMobile(monthlyMobileQcCnt);
 
-            }else{
+            } else {
                 return;
             }
 
@@ -75,4 +84,15 @@ public class NaverSearchAdApi {
         byte[] rawHmac = mac.doFinal(sign.getBytes());
         return java.util.Base64.getEncoder().encodeToString(rawHmac);
     }
+
+    private static int parseKeywordCount(Object value) {
+        int returnNumber = 0;
+
+        if (value instanceof Integer) {
+            returnNumber = (Integer) value;
+        }
+
+        return returnNumber;
+    }
+
 }

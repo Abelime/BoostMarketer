@@ -149,21 +149,28 @@ public class BlogService {
 
     }
 
-    public void registerUrl(List<String> blogId) throws Exception {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        //블로그 정보
-        List<BlogDto> blogDtoList = blogInfoCrawler(blogId);
-        //블로그 글
-        List<BlogPostDto> blogPostDtoList = allPostCrawler(blogId, null);
-
-        blogMapper.registerBlog(blogDtoList, email);
-        blogMapper.registerPosts(blogPostDtoList);
-    }
-
     public List<BlogDto> selectBlogInfo() throws Exception {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return blogMapper.selectBlogInfo(email);
+    }
+
+    public void registerUrl(String blogId) throws Exception {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        BlogDto checkBlogDto = blogMapper.checkIfBlogExists(blogId);
+
+        if (checkBlogDto == null) {
+            //블로그 정보
+            BlogDto blogDto = blogInfoCrawler(blogId);
+            //블로그 글
+            List<BlogPostDto> blogPostDtoList = allPostCrawler(Collections.singletonList(blogId), null);
+
+            blogMapper.registerBlog(blogDto, email);
+            blogMapper.registerPosts(blogPostDtoList);
+        } else {
+            blogMapper.registerBlog(checkBlogDto, email);
+        }
+
     }
 
     public void updateBlog(String blogId) throws Exception {
@@ -198,7 +205,15 @@ public class BlogService {
     }
 
     public void deleteBlog(String blogId) throws Exception {
-        blogMapper.deleteBlog(blogId);
-        blogMapper.deleteBlogPost(blogId);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        blogMapper.deleteBlog(blogId, email);
+
+        BlogDto checkBlogDto = blogMapper.checkIfBlogExists(blogId);
+
+        if (checkBlogDto == null) {
+            blogMapper.deleteBlogPost(blogId);
+        }
+
     }
 }

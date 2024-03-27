@@ -163,9 +163,9 @@
             </div>
           </div>
         </div>
-        <div class="d-flex justify-content-end">
-          <button type="button" class="btn bg-gradient-primary btn-lg btn-rounded" data-bs-toggle="modal" data-bs-target="#modal-form">블로그 등록</button>
-        </div>
+<!--        <div class="d-flex justify-content-end">-->
+<!--          <button type="button" class="btn bg-gradient-primary btn-lg btn-rounded" data-bs-toggle="modal" data-bs-target="#modal-form">블로그 등록</button>-->
+<!--        </div>-->
       </div>
       <div th:insert="~{common/mainfooter.html :: footer}"></div>
     </div>
@@ -216,12 +216,8 @@
 
   function insertFetch(blogId){
     // Fetch API를 사용하여 요청 보내기
-    fetch('/blog', {
+    fetch('/blog/' + blogId, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(blogId)
     })
             .then(response => {
               if (!response.ok) {
@@ -242,13 +238,26 @@
 
       if (match && match[1]) {
         blogId = match[1];
-        const blogList = [blogId];
+        const blogList = blogId;
         insertFetch(blogList);
       } else {
         $('#blogUrl').val('');
       }
     }
 
+    $('#insertBlogLink').click(function(event) {
+      event.preventDefault();
+      processBlogUrl();
+    });
+
+    $('#blogUrl').keypress(function(event) {
+      if (event.which === 13) {
+        event.preventDefault();
+        processBlogUrl();
+      }
+    });
+
+    //blog modal js
     $('.add-input').click(function(e) {
       e.preventDefault();
       var newInputGroup = $('.blog-input-group:first').clone();
@@ -283,17 +292,6 @@
       insertFetch(blogId);
     });
 
-    $('#insertBlogLink').click(function(event) {
-      event.preventDefault();
-      processBlogUrl();
-    });
-
-    $('#blogUrl').keypress(function(event) {
-      if (event.which === 13) {
-        event.preventDefault();
-        processBlogUrl();
-      }
-    });
   });
 
   function updateBlog(blogId) {

@@ -330,8 +330,8 @@
                   <tr>
                     <th rowspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">키워드</th>
                     <th colspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">월 검색량</th>
-                    <th colspan="3" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">PC 기준</th>
-                    <th colspan="3" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">Mobile 기준</th>
+                    <th colspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">PC 기준</th>
+                    <th colspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">Mobile 기준</th>
                     <th rowspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 10%">조회하기</th>
                     <th rowspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder"></th>
                   </tr>
@@ -340,10 +340,8 @@
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">Mobile</th>
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 5</th>
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 30</th>
-                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 100</th>
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 5</th>
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 30</th>
-                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 100</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -352,10 +350,10 @@
                       <p class="text-xs font-weight-bold mb-0" th:text="${keyword.keywordName}"></p>
                     </td>
                     <td class="align-middle text-center">
-                      <p class="text-xs font-weight-bold mb-0" th:text="${#numbers.formatInteger(keyword.monthSearchPc, 3, 'COMMA')}"></p>
+                      <p class="text-xs font-weight-bold mb-0" th:text="${keyword.monthSearchPc == 0 ? '0' : #numbers.formatInteger(keyword.monthSearchPc, 2, 'COMMA')}"></p>
                     </td>
                     <td class="align-middle text-center">
-                      <p class="text-xs font-weight-bold mb-0" th:text="${#numbers.formatInteger(keyword.monthSearchMobile, 3, 'COMMA')}"></p>
+                      <p class="text-xs font-weight-bold mb-0" th:text="${keyword.monthSearchMobile == 0 ? '0' : #numbers.formatInteger(keyword.monthSearchMobile, 2, 'COMMA')}"></p>
                     </td>
                     <td class="align-middle text-center">
                       <p class="text-xs font-weight-bold mb-0" th:text="${keyword.rankPc5}"></p>
@@ -364,16 +362,10 @@
                       <p class="text-xs font-weight-bold mb-0" th:text="${keyword.rankPc30}"></p>
                     </td>
                     <td class="align-middle text-center">
-                      <p class="text-xs font-weight-bold mb-0">top 100</p>
-                    </td>
-                    <td class="align-middle text-center">
                       <p class="text-xs font-weight-bold mb-0" th:text="${keyword.rankMobile5}"></p>
                     </td>
                     <td class="align-middle text-center">
                       <p class="text-xs font-weight-bold mb-0" th:text="${keyword.rankMobile30}"></p>
-                    </td>
-                    <td class="align-middle text-center">
-                      <p class="text-xs font-weight-bold mb-0">top 100</p>
                     </td>
                     <td class="align-middle text-center">
                       <a class="btn btn-link text-dark px-3 mb-0" target="_blank" th:href="@{https://search.naver.com/search.naver(ssc='tab.blog.all', sm='tab_jum', query=${keyword.keywordName})}">

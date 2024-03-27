@@ -40,7 +40,7 @@ public interface BlogMapper {
 
     public void registerPosts(List<BlogPostDto> blogPostDtoList) throws Exception;
 
-    public void registerBlog(@Param("blogDtoList") List<BlogDto> blogDtoList, @Param("email") String email) throws Exception;
+    public void registerBlog(@Param("blogDto") BlogDto blogDto, @Param("email") String email) throws Exception;
 
     public List<BlogDto> selectBlogInfo(String email) throws Exception;
 
@@ -50,11 +50,11 @@ public interface BlogMapper {
 
     public void allBlogUpdatedAt(String email) throws Exception;
 
-    public void deleteBlog(String blogId) throws Exception;
+    public void deleteBlog(@Param("blogId") String blogId, @Param("email") String email) throws Exception;
 
     public void deleteBlogPost(String blogId) throws Exception;
 
     public List<CommonBlogDto> selectLastPostNoList(String email) throws Exception;
 
-
+    BlogDto checkIfBlogExists(String blogId);
 }

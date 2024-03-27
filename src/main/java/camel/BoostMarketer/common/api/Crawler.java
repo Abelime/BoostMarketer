@@ -15,6 +15,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -232,47 +233,45 @@ public class Crawler {
         return totalCnt;
     }
 
-    //블로그 정보 크롤링
-    public static List<BlogDto> blogInfoCrawler(List<String> blogIdList) {
-        List<BlogDto> blogDtoList = new ArrayList<>();
+    //블로그 정보 크롤링 (jsoup)
+    public static BlogDto blogInfoCrawler(String blogId) {
+        BlogDto blogDto = new BlogDto();
 
-        for (String blogId : blogIdList) {
-            String blogUrl = "https://blog.naver.com/" + blogId;
-            try {
-                // 해당 URL에서 HTML을 가져옴
-                Document doc = Jsoup.connect(blogUrl).get();
+        String blogUrl = "https://blog.naver.com/" + blogId;
+        try {
+            // 해당 URL에서 HTML을 가져옴
+            Document doc = Jsoup.connect(blogUrl).get();
 
-                // mainFrame의 src 속성 값 가져오기
-                Element mainFrame = doc.selectFirst("iframe[name=mainFrame]");
-                String mainFrameSrc = mainFrame.attr("src");
+            // mainFrame의 src 속성 값 가져오기
+            Element mainFrame = doc.selectFirst("iframe[name=mainFrame]");
+            String mainFrameSrc = mainFrame.attr("src");
 
-                // 절대 URL로 변환
-                URL absoluteUrl = new URL(new URL(blogUrl), mainFrameSrc);
-                String mainFrameAbsoluteUrl = absoluteUrl.toString();
+            // 절대 URL로 변환
+            URL absoluteUrl = new URL(new URL(blogUrl), mainFrameSrc);
+            String mainFrameAbsoluteUrl = absoluteUrl.toString();
 
-                // mainFrame의 HTML 가져오기
-                Document mainFrameDoc = Jsoup.connect(mainFrameAbsoluteUrl).get();
+            // mainFrame의 HTML 가져오기
+            Document mainFrameDoc = Jsoup.connect(mainFrameAbsoluteUrl).get();
 
 
-                //프로필 이미지 추출
-                String imgSrc = mainFrameDoc.select("img[alt=프로필]").attr("src").replace("type=s40", "type=w161");
+            //프로필 이미지 추출
+            String imgSrc = mainFrameDoc.select("img[alt=프로필]").attr("src").replace("type=s40", "type=w161");
 
-                // 사용자 이름 추출
-                String blogName = mainFrameDoc.select("strong.nick").text();
+            // 사용자 이름 추출
+            String blogName = mainFrameDoc.select("strong.nick").text();
 
-                BlogDto blogDto = new BlogDto();
-                blogDto.setBlogId(blogId);
-                blogDto.setBlogName(blogName);
-                blogDto.setBlogImg(imgSrc);
-                blogDtoList.add(blogDto);
+            blogDto.setBlogId(blogId);
+            blogDto.setBlogName(blogName);
+            blogDto.setBlogImg(imgSrc);
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        } catch (HttpStatusException e) {
+            e.printStackTrace();
+            logger.debug("잘못된 블로그 주소 입니다");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-
-        return blogDtoList;
+        return blogDto;
     }
 
     //전체 글 정보 크롤링

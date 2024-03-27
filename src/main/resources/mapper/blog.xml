@@ -8,13 +8,11 @@
     <!--  블로그 등록  -->
     <insert id="registerBlog" parameterType="map">
         INSERT INTO blog (user_id, blog_id, blog_name, blog_img)
-        <foreach item="item" collection="blogDtoList" separator="UNION ALL">
-            SELECT (SELECT id FROM user WHERE email = #{email}),
-            #{item.blogId},
-            #{item.blogName},
-            #{item.blogImg}
-            FROM DUAL
-        </foreach>
+        SELECT (SELECT id FROM user WHERE email = #{email}),
+               #{blogDto.blogId},
+               #{blogDto.blogName},
+               #{blogDto.blogImg}
+        FROM DUAL
     </insert>
 
     <!--  블로그 게시물 정보 등록  -->
@@ -24,6 +22,14 @@
             (#{item.blogId}, #{item.postNo, jdbcType=INTEGER}, #{item.postTitle}, #{item.postDate}, #{item.hashtag})
         </foreach>
     </insert>
+
+        <!--  블로그 정보 조회  -->
+    <select id="checkIfBlogExists" parameterType="String" resultType="BlogDto">
+        select blog_id, blog_name, blog_img
+          from blog b
+         where blog_id = #{blogId}
+         limit 1
+    </select>
 
     <!--  블로그 정보 조회  -->
     <select id="selectBlogInfo" parameterType="String" resultType="BlogDto">
@@ -83,8 +89,12 @@
 
     <!--  블로그 삭제  -->
     <delete id="deleteBlog" parameterType="String">
-        delete from blog
+        delete
+        from blog
         WHERE blog_id = #{blogId}
+          and user_id = (select id
+               from user
+               where email = #{email})
     </delete>
 
     <!--  블로그 글 삭제  -->

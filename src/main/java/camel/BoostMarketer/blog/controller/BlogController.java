@@ -40,8 +40,8 @@ public class BlogController {
         return "pages/blog";
     }
 
-    @PostMapping(value = "/blog")
-    public ResponseEntity<?> registerBlogUrl(@RequestBody List<String> blogId) throws Exception {
+    @PostMapping(value = "/blog/{blogId}")
+    public ResponseEntity<?> registerBlogUrl(@PathVariable("blogId") String blogId) throws Exception {
         blogService.registerUrl(blogId);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
