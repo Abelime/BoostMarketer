@@ -511,8 +511,8 @@
                 if (!response.ok) {
                   throw new Error('서버 응답이 실패했습니다.');
                 }
-                //location.replace('/keyword');
                 $("#closeBtn").trigger("click");
+                location.replace('/keyword');
               })
               .catch(error => {
                 console.error('등록 중 오류가 발생했습니다:', error);

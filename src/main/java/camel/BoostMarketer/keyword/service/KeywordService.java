@@ -12,7 +12,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -54,8 +57,21 @@ public class KeywordService {
     }
 
     public void keywordExcelUpload(MultipartFile file) throws Exception {
+        List<HashMap<String, Object>> list = new ArrayList<>();
+        KeywordDto keywordDto;
+
         ExcelUtil util = new ExcelUtil();
-        util.excelUpload(file);
+        util.excelUpload(file, list);
+
+        for (HashMap<String, Object> map : list) {
+            keywordDto = new KeywordDto();
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                keywordDto.setCategory(entry.getKey().replaceAll("[^0-9]", ""));
+                keywordDto.setKeywordName(entry.getValue().toString());
+                registerKeyword(keywordDto);
+            }
+        }
+
     }
 
 }

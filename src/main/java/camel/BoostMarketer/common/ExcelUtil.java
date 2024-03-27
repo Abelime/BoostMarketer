@@ -14,9 +14,8 @@ import java.util.List;
 
 public class ExcelUtil {
 
-    public void excelUpload(MultipartFile file) throws Exception {
+    public void excelUpload(MultipartFile file, List<HashMap<String, Object>> list) throws Exception {
 
-        List<HashMap<String, Object>> list = new ArrayList<>();
         HashMap<String, Object> data;
 
         Workbook workbook;
