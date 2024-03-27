@@ -40,8 +40,10 @@ public class KeywordService {
         //검색량 조회
         NaverSearchAdApi.apiAccess(keywordDto);
 
+        //사전등록
         keywordMapper.registerKeywordDict(keywordDto);
 
+        //내가 등록한 키워드
         keywordMapper.registerUserKeyword(keywordDto, email);
 
         List<BlogDto> blogDtoList = blogMapper.selectBlogInfo(email);
@@ -50,13 +52,12 @@ public class KeywordService {
                 .map(BlogDto::getBlogId)
                 .toList();
 
+        //랭킹 체크 로직(크롤링)
         List<KeywordDto> keywordDtoList = Crawler.newRankCrawler(blogIdList, keywordDto.getKeywordName(), keywordDto.getKeywordId());
 
         if(!keywordDtoList.isEmpty()){
             keywordMapper.registerKeywordRank(keywordDtoList);
         }
-
-
 
     }
 

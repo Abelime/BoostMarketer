@@ -36,6 +36,7 @@
   <!-- Nepcha Analytics (nepcha.com) -->
   <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
   <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 </head>
 
 <body class="g-sidenav-show  bg-gray-100">
@@ -132,7 +133,7 @@
                       <td>
                         <div class="d-flex px-2 py-1">
                           <div>
-                            <img th:src="@{${blog.blogImg}}" class="avatar avatar-content me-3" alt="user1">
+                            <img th:src="${!#strings.isEmpty(blog.blogImg) ? blog.blogImg : 'assets/img/logo-ct-dark.png'}" class="avatar avatar-content me-3" alt="user1">
                           </div>
                           <div class="d-flex flex-column justify-content-center">
                             <h6 class="mb-0 text-sm" th:text="${blog.blogName}"></h6>
@@ -156,6 +157,7 @@
                         <a class="btn btn-link text-dark px-3 mb-0" href="#" th:onclick="updateBlog([[${blog.blogId}]]);"><i class="fas fa-sync-alt text-dark me-2" aria-hidden="true"></i>최신화 요청</a>
                         <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="#" th:onclick="deleteBlog([[${blog.blogId}]]);"><i class="far fa-trash-alt me-2"></i>삭제</a>
                       </td>
+                      <input type="hidden" name="blogId" th:value="${blog.blogId}"/>
                     </tr>
                   </tbody>
                 </table>
@@ -214,21 +216,38 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 
-  function insertFetch(blogId){
-    // Fetch API를 사용하여 요청 보내기
-    fetch('/blog/' + blogId, {
-      method: 'POST',
-    })
+    function insertFetch(blogId) {
+        const blogIds = [];
+        $("input[name='blogId']").each(function () {
+            blogIds.push($(this).val());
+        });
+
+        if (blogIds.includes(blogId)) {
+            sweetAlert("등록한 블로그 입니다", "", "error");
+            $('#blogUrl').val("");
+            return;
+        }
+
+        // Fetch API를 사용하여 요청 보내기
+        fetch('/blog/' + blogId, {
+            method: 'POST',
+        })
             .then(response => {
-              if (!response.ok) {
-                throw new Error('서버 응답이 실패했습니다.');
-              }
-              location.replace('/blog');
+                if (!response.ok) {
+                    // 서버에서 응답 메시지(오류 메시지)를 JSON 형식으로 기대하는 경우
+                    return response.text().then(text => {
+                        throw new Error(text || '서버 응답이 실패했습니다.');
+                    });
+                }
+                // 성공적인 응답 처리
+                location.replace('/blog');
             })
             .catch(error => {
-              console.error('등록 중 오류가 발생했습니다:', error);
+                // 오류 메시지 출력
+                sweetAlert("", error.message, "error");
             });
-  }
+    }
+
 
   $(document).ready(function() {
     function processBlogUrl() {

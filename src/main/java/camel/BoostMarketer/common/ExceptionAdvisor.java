@@ -1,5 +1,6 @@
 package camel.BoostMarketer.common;
 
+import org.jsoup.HttpStatusException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -29,6 +30,18 @@ public class ExceptionAdvisor {
         }
 
         return new ResponseEntity<>(builder, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpStatusException.class)
+    public ResponseEntity<?> HttpStatusException(HttpStatusException exception) {
+        String msg = "";
+        String url = exception.getUrl();
+
+        if(url.startsWith("https://blog.naver.com/")){
+            msg = "해당 블로그가 없습니다. 블로그 아이디를 확인해 주세요.";
+        }
+
+        return new ResponseEntity<>(msg,HttpStatus.BAD_REQUEST);
     }
 
 }
