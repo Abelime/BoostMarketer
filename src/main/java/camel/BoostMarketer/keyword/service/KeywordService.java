@@ -72,8 +72,10 @@ public class KeywordService {
             keywordDto = new KeywordDto();
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 keywordDto.setCategory(entry.getKey().replaceAll("[^0-9]", ""));
-                keywordDto.setKeywordName(entry.getValue().toString());
-                registerKeyword(keywordDto);
+                if (!entry.getValue().toString().isEmpty()) {
+                    keywordDto.setKeywordName(entry.getValue().toString());
+                    registerKeyword(keywordDto);
+                }
             }
         }
 
