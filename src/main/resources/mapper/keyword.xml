@@ -29,18 +29,24 @@
                #{keywordDto.keywordId},
                #{keywordDto.category}
         FROM DUAL
-        WHERE NOT EXISTS (
-            SELECT 1
-            FROM user_keywords
-            WHERE keyword_id = #{keywordDto.keywordId}
-        )
+        WHERE NOT EXISTS (SELECT 1
+                          FROM user_keywords
+                          WHERE keyword_id = #{keywordDto.keywordId}
+                            AND user_id = (SELECT id FROM user WHERE email = #{email}))
     </insert>
 
     <!--  키워드 순위 정보 등록  -->
     <insert id="registerKeywordRank" parameterType="java.util.List">
-        INSERT INTO keyword_rank (post_no, keyword_id, rank_pc, rank_mobile) VALUES
-        <foreach item="item" collection="list" separator=",">
-            (#{item.postNo}, #{item.keywordId}, #{item.rankPc}, 0)
+        INSERT INTO keyword_rank (post_no, keyword_id, rank_pc, rank_mobile)
+        <foreach item="item" collection="list" separator="UNION ALL">
+            SELECT #{item.postNo}, #{item.keywordId},  #{item.rankPc}, 0
+            FROM DUAL
+            WHERE NOT EXISTS (
+                SELECT 1
+                 FROM keyword_rank
+                WHERE post_no = #{item.postNo}
+                  AND keyword_id = #{item.keywordId}
+            )
         </foreach>
     </insert>
 
