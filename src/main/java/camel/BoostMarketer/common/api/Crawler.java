@@ -92,10 +92,10 @@ public class Crawler {
         Instant startTime = Instant.now(); // 시작 시간 기록
 
         // System 프로퍼티를 이용하여 전역 프록시 설정을 합니다.
-        System.setProperty("http.proxyHost", proxyHost);
-        System.setProperty("http.proxyPort", String.valueOf(proxyPort));
-
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
+//        System.setProperty("http.proxyHost", proxyHost);
+//        System.setProperty("http.proxyPort", String.valueOf(proxyPort));
+//
+//        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
 
         // 병렬로 각 키워드에 대한 순위를 계산합니다.
         requestBlogDto.getKeyWord().parallelStream().forEach(keyword -> {
@@ -109,7 +109,7 @@ public class Crawler {
                 // Jsoup 연결 객체 생성 및 사용자 에이전트 설정
                 Connection conn = Jsoup.connect(url)
                         .referrer("https://www.naver.com/") // Set a referrer
-                        .proxy(proxy)
+//                        .proxy(proxy)
                         .headers(getHeaders()); // Set custom headers
 
 
@@ -144,10 +144,10 @@ public class Crawler {
     }
 
     private static Map<String, String> getHeaders() {
-        // 인증 정보 설정
-        String authUser = "brd-customer-hl_79e5bff5-zone-web_unlocker1";
+        //  프록시 설정 인증 정보 설정
+        /*String authUser = "brd-customer-hl_79e5bff5-zone-web_unlocker1";
         String authPassword = "il48wb3obr1n";
-        String base64Auth = java.util.Base64.getEncoder().encodeToString((authUser + ":" + authPassword).getBytes());
+        String base64Auth = java.util.Base64.getEncoder().encodeToString((authUser + ":" + authPassword).getBytes());*/
 
         Map<String, String> headers = new HashMap<>();
 //        headers.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");
@@ -155,7 +155,7 @@ public class Crawler {
         headers.put("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7");
 //        headers.put("Referer", "https://search.naver.com/search.naver?");
         headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36");
-        headers.put("Proxy-Authorization", "Basic " + base64Auth);
+//        headers.put("Proxy-Authorization", "Basic " + base64Auth); 프록시 설정
 
         return headers;
     }
@@ -345,51 +345,96 @@ public class Crawler {
         return postDtoList;
     }
 
-    public static List<KeywordDto> newRankCrawler(List<String> blogIds, String keyword, Long keywordId) {
-        Instant startTime = Instant.now(); // 시작 시간 기록
-        List<KeywordDto> keywordDtoList = new ArrayList<>();
+    public static List<KeywordDto> pcAndMobileRankCrawler(List<String> blogIds, String keyword, Long keywordId) {
+        List<KeywordDto> keywordDtoList = new ArrayList<>(); //1
 
-        // 키워드 리스트를 순회하며 크롤링을 수행합니다.
+        // PC 검색 결과를 먼저 처리합니다.
+        pcRankCrawler(blogIds, keyword, keywordId, keywordDtoList);
+
+        // 모바일 검색 결과를 처리합니다.
+        mobileRankCrawler(blogIds, keyword, keywordId, keywordDtoList);
+
+        //pc만 순위를 크롤링 쫑
+        //모바일도 순위를 크롤링 1dto에 글 키워드 pc순위 모바일순위 를 하나로 만들고 싶은거지
+        //postNO가 같은 dto인지를 어떻게 알지 ?
+
+        return keywordDtoList;
+    }
+
+    private static void pcRankCrawler(List<String> blogIds, String keyword, Long keywordId, List<KeywordDto> keywordDtoList) {
         try {
-            // 검색어를 UTF-8 형식으로 인코딩합니다.
-            String text = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
-            // URL을 생성합니다.
-            String url = "https://search.naver.com/search.naver?ssc=tab.blog.all&query=" + text;
+            String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+            String url = "https://search.naver.com/search.naver?ssc=tab.blog.all&query=" + encodedKeyword;
+            String referrer = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword;
 
-            // 예외 처리를 추가하여 Jsoup을 사용하여 웹페이지를 가져옵니다.
-            Document doc;
-            doc = Jsoup.connect(url).get();
-            // 블로그 검색 결과에서 링크를 가져옵니다.
-            Elements aTag = doc.select(".title_area a");
+            Document document = Jsoup.connect(url)
+                    .referrer(referrer)
+                    .headers(getHeaders())
+                    .get();
 
-            // 링크를 순회하며 블로그 URL과 일치하는지 확인합니다.
-            for (int i = 0; i < aTag.size(); i++) {
-                String crawlerUrl = aTag.get(i).attr("href");
+            Elements aTags = document.select(".title_area a");
 
-                for (String blogId : blogIds) {
+            for (Element aTag : aTags) {
+                String crawlerUrl = aTag.attr("href");
+                for (String blogId : blogIds) { //내가 등록한 블로그 id들
                     if (crawlerUrl.contains("/" + blogId + "/")) {
+                        String postNo = ConvertBlogUrl.urlToPostNo(crawlerUrl);
                         KeywordDto keywordDto = new KeywordDto();
                         keywordDto.setKeywordId(keywordId);
-                        keywordDto.setRankPc(++i);
+                        keywordDto.setRankPc(aTags.indexOf(aTag) + 1);
                         keywordDto.setKeywordName(keyword);
-                        String postNo = ConvertBlogUrl.urlToPostNo(crawlerUrl);
-
                         keywordDto.setPostNo(postNo);
-
                         keywordDtoList.add(keywordDto);
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("Error occurred while fetching keyword ranks for keyword: " + keyword, e);
+            logger.error("Error occurred while fetching keyword ranks for keyword: " + keyword + " on " + "PC", e);
         }
-
-        Instant endTime = Instant.now(); // 종료 시간 기록
-        Duration duration = Duration.between(startTime, endTime); // 걸린 시간 계산
-//        logger.debug("검색어 순위 계산에 소요된 시간: {} 밀리초", duration.toMillis());
-
-        return keywordDtoList;
     }
+
+    private static void mobileRankCrawler(List<String> blogIds, String keyword, Long keywordId, List<KeywordDto> keywordDtoList) {
+        try {
+            String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+            String url = "https://m.search.naver.com/search.naver?ssc=tab.m_blog.all&query=" + encodedKeyword;
+            String referrer = "https://m.search.naver.com/search.naver?sm=mtp_hty.top&where=m&query=" + encodedKeyword;
+
+            Document document = Jsoup.connect(url)
+                    .referrer(referrer)
+                    .headers(getHeaders())
+                    .get();
+
+            Elements aTags = document.select(".title_area a");
+
+            for (Element aTag : aTags) {
+                String crawlerUrl = aTag.attr("href");
+                for (String blogId : blogIds) {
+                    if (crawlerUrl.contains("/" + blogId + "/")) {
+                        String postNo = ConvertBlogUrl.urlToPostNo(crawlerUrl);
+                        if (!keywordDtoList.isEmpty()) {
+                            for (KeywordDto existDto : keywordDtoList) {
+                                if (existDto.getPostNo().equals(postNo)) {
+                                    existDto.setRankMobile(aTags.indexOf(aTag) + 1);
+                                    break;
+                                }
+                                if (keywordDtoList.indexOf(existDto) == keywordDtoList.size() - 1) {
+                                    KeywordDto keywordDto = new KeywordDto();
+                                    keywordDto.setKeywordId(keywordId);
+                                    keywordDto.setRankMobile(aTags.indexOf(aTag) + 1);
+                                    keywordDto.setKeywordName(keyword);
+                                    keywordDto.setPostNo(postNo);
+                                    keywordDtoList.add(keywordDto);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error occurred while fetching keyword ranks for keyword: " + keyword + " on " + "Mobile", e);
+        }
+    }
+
 
 }
 
