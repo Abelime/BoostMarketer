@@ -321,10 +321,10 @@
                                           keyword.category == '5' ? 'fifth' : ''}"></p>
                     </td>
                     <td class="align-middle text-center">
-                      <p class="text-xs font-weight-bold mb-0" th:text="${keyword.monthSearchPc == 0 ? '0' : #numbers.formatInteger(keyword.monthSearchPc, 2, 'COMMA')}"></p>
+                      <p class="text-xs font-weight-bold mb-0" th:text="${keyword.monthSearchPc == 0 ? '0' : #numbers.formatInteger(keyword.monthSearchPc, 1, 'COMMA')}"></p>
                     </td>
                     <td class="align-middle text-center">
-                      <p class="text-xs font-weight-bold mb-0" th:text="${keyword.monthSearchMobile == 0 ? '0' : #numbers.formatInteger(keyword.monthSearchMobile, 2, 'COMMA')}"></p>
+                      <p class="text-xs font-weight-bold mb-0" th:text="${keyword.monthSearchMobile == 0 ? '0' : #numbers.formatInteger(keyword.monthSearchMobile, 1, 'COMMA')}"></p>
                     </td>
                     <td class="align-middle text-center" th:styleappend="${keyword.rankPc5 != 0} ? 'background-color: #fffff5;' : ''">
                       <p class="text-xs font-weight-bold mb-0" th:text="${keyword.rankPc5}"></p>

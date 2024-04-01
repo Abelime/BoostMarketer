@@ -76,7 +76,7 @@
                 <div class="col-8">
                   <div class="numbers">
                     <p class="text-sm mb-0 text-capitalize font-weight-bold">블로그 게시글 수</p>
-                    <h5 class="font-weight-bolder mb-0" th:text="${totalPostCnt == 0 ? '0' : #numbers.formatInteger(totalPostCnt, 2, 'COMMA')}">
+                    <h5 class="font-weight-bolder mb-0" th:text="${totalPostCnt == 0 ? '0' : #numbers.formatInteger(totalPostCnt, 1, 'COMMA')}">
                     </h5>
                   </div>
                 </div>
@@ -140,7 +140,7 @@
                         </div>
                       </td>
                       <td>
-                        <p class="text-xs font-weight-bold mb-0" th:text="${blog.postCnt == 0 ? '0' : #numbers.formatInteger(blog.postCnt, 2, 'COMMA')}"></p>
+                        <p class="text-xs font-weight-bold mb-0" th:text="${blog.postCnt == 0 ? '0' : #numbers.formatInteger(blog.postCnt, 1, 'COMMA')}"></p>
 <!--                        <p class="text-xs text-secondary mb-0" th:text="${blog.postCnt}"></p>-->
                       </td>
                       <td class="align-middle text-center text-sm">

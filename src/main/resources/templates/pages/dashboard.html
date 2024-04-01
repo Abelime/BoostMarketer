@@ -54,7 +54,7 @@
                 <div class="col-8">
                   <div class="numbers">
                     <p class="text-sm mb-0 text-capitalize font-weight-bold">블로그 게시글 수</p>
-                    <h5 class="font-weight-bolder mb-0" th:text="${blogMap.postCnt == 0 ? '0' : #numbers.formatInteger(blogMap.postCnt, 2, 'COMMA')}">
+                    <h5 class="font-weight-bolder mb-0" th:text="${blogMap.postCnt == 0 ? '0' : #numbers.formatInteger(blogMap.postCnt, 1, 'COMMA')}">
 <!--                      <span class="text-success text-sm font-weight-bolder">+55%</span>-->
                     </h5>
                   </div>
