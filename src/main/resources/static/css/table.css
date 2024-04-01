@@ -1,0 +1,57 @@
+/* Base styles for the table */
+.table {
+  color: #495057;  /* Dark gray for text for better contrast */
+  border-collapse: collapse; /* Collapse border for continuous lines */
+}
+
+/* Header styles to distinguish it from the rest of the table */
+.table thead th {
+  background-color: #f8f9fa; /* Light background for header */
+  color: #212529; /* Slightly darker text for headers for contrast */
+}
+
+/* Borders for all cells */
+.table th,
+.table td {
+  border: 1px solid #dee2e6;
+  padding: 0.75rem; /* Increased padding for more space */
+}
+
+/* Ensure last row in tbody has the same border as others */
+.table tbody tr:last-child td {
+  border: 1px solid #dee2e6; /* Apply borders to all sides */
+}
+
+/* Hover effect for rows */
+.table tbody tr:hover {
+  background-color: #e9ecef; /* Light hover effect for rows */
+}
+
+/* Buttons and links with more padding and a cursor pointer for better clickability */
+.table .btn-link {
+  padding: 0.375rem 0.75rem;
+  margin: 0;
+  border-radius: 0.25rem; /* Rounded corners for aesthetic */
+  transition: all 0.2s ease-in-out; /* Smooth transition for hover effects */
+  cursor: pointer; /* Indicate an interactive element */
+}
+
+.table .btn-link:hover,
+.table .btn-link:focus {
+  transform: scale(1.05); /* Slight increase in size on hover/focus */
+}
+
+/* Use Bootstrap's classes for icons */
+.fas,
+.far {
+  margin-right: 0.5rem; /* Space out icons from text */
+}
+
+/* Distinguish PC and Mobile interaction buttons */
+.table .btn-link.text-dark {
+  color: #212529; /* Darker color for PC button */
+}
+
+.table .btn-link.text-danger {
+  color: #dc3545; /* Bootstrap's danger color for Mobile button */
+}

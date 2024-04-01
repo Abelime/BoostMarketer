@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="76x76" href="/assets/img/apple-icon.png">
   <link rel="icon" type="image/png" href="/assets/img/favicon.png">
   <title>
-    Soft UI Dashboard by Creative Tim
+    BoostMarketer - 마케팅을 위한 플랫폼
   </title>
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
@@ -33,6 +33,7 @@
   <link href="/assets/css/nucleo-svg.css" rel="stylesheet" />
   <!-- CSS Files -->
   <link id="pagestyle" href="/assets/css/soft-ui-dashboard.css?v=1.0.7" rel="stylesheet" />
+  <link href="/css/table.css" rel="stylesheet" />
   <!-- Nepcha Analytics (nepcha.com) -->
   <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
   <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
@@ -44,64 +45,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  /* Base styles for the table */
-  .table {
-    color: #495057; /* Dark gray for text for better contrast */
-    border-collapse: collapse; /* Collapse border for continuous lines */
-  }
-
-  /* Header styles to distinguish it from the rest of the table */
-  .table thead th {
-    background-color: #f8f9fa; /* Light background for header */
-    color: #212529; /* Slightly darker text for headers for contrast */
-  }
-
-  /* Borders for all cells */
-  .table th,
-  .table td {
-    border: 1px solid #dee2e6;
-    padding: 0.75rem; /* Increased padding for more space */
-  }
-
-  /* Ensure last row in tbody has the same border as others */
-  .table tbody tr:last-child td {
-    border: 1px solid #dee2e6; /* Apply borders to all sides */
-  }
-
-  /* Hover effect for rows */
-  .table tbody tr:hover {
-    background-color: #e9ecef; /* Light hover effect for rows */
-  }
-
-  /* Buttons and links with more padding and a cursor pointer for better clickability */
-  .table .btn-link {
-    padding: 0.375rem 0.75rem;
-    margin: 0;
-    border-radius: 0.25rem; /* Rounded corners for aesthetic */
-    transition: all 0.2s ease-in-out; /* Smooth transition for hover effects */
-    cursor: pointer; /* Indicate an interactive element */
-  }
-
-  .table .btn-link:hover,
-  .table .btn-link:focus {
-    transform: scale(1.05); /* Slight increase in size on hover/focus */
-  }
-
-  /* Use Bootstrap's classes for icons */
-  .fas,
-  .far {
-    margin-right: 0.5rem; /* Space out icons from text */
-  }
-
-  /* Distinguish PC and Mobile interaction buttons */
-  .table .btn-link.text-dark {
-    color: #212529; /* Darker color for PC button */
-  }
-
-  .table .btn-link.text-danger {
-    color: #dc3545; /* Bootstrap's danger color for Mobile button */
   }
 
   /*custom-btn*/
@@ -159,8 +102,28 @@
 
   /* Light background and darker text for each button */
   #total {
-    background-color: #e1f0ff; /* Light blue */
+      background-color: #e8e8e8; /* Light gray */
+      color: #6c757d; /* Dark gray */
+  }
+
+  .first{
+    color: #28a745; /* Dark green */
+  }
+
+  .second {
+    color: #dc3545; /* Dark red */
+  }
+
+  .third {
+    color: #087f8c; /* Dark teal */
+  }
+
+  .fourth {
     color: #007bff; /* Dark blue */
+  }
+
+  .fifth {
+    color: #6f42c1; /* Dark purple */
   }
 
   #first {
@@ -179,8 +142,8 @@
   }
 
   #fourth {
-    background-color: #e8e8e8; /* Light gray */
-    color: #6c757d; /* Dark gray */
+    background-color: #e1f0ff; /* Light blue */
+    color: #007bff; /* Dark blue */
   }
 
   #fifth {
@@ -248,7 +211,7 @@
               <div class="row">
                 <div class="col-8">
                   <div class="numbers">
-                    <p class="text-sm mb-0 text-capitalize font-weight-bold">키워드</p>
+                    <p class="text-sm mb-0 text-capitalize font-weight-bold">키워드 수</p>
                     <h5 class="font-weight-bolder mb-0" th:text="${keywordList.size()}">
                       0
 <!--                      <span class="text-success text-sm font-weight-bolder">+55%</span>-->
@@ -270,9 +233,8 @@
               <div class="row">
                 <div class="col-8">
                   <div class="numbers">
-                    <p class="text-sm mb-0 text-capitalize font-weight-bold">상위노출 키워드</p>
-                    <h5 class="font-weight-bolder mb-0">
-                      0
+                    <p class="text-sm mb-0 text-capitalize font-weight-bold">상위노출 키워드 수</p>
+                    <h5 class="font-weight-bolder mb-0" th:text="${topKeywordsCount}">
 <!--                      <span class="text-success text-sm font-weight-bolder">+3%</span>-->
                     </h5>
                   </div>
@@ -349,7 +311,13 @@
                   <tbody>
                   <tr th:each="keyword : ${keywordList}">
                     <td class="align-middle text-center">
-                      <p class="text-xs font-weight-bold mb-0" th:text="${keyword.keywordName}"></p>
+                      <p class="text-xs font-weight-bold mb-0"
+                         th:text="${keyword.keywordName}"
+                         th:classappend="${keyword.category == '1' ? 'first' :
+                                          keyword.category == '2' ? 'second' :
+                                          keyword.category == '3' ? 'third' :
+                                          keyword.category == '4' ? 'fourth' :
+                                          keyword.category == '5' ? 'fifth' : ''}"></p>
                     </td>
                     <td class="align-middle text-center">
                       <p class="text-xs font-weight-bold mb-0" th:text="${keyword.monthSearchPc == 0 ? '0' : #numbers.formatInteger(keyword.monthSearchPc, 2, 'COMMA')}"></p>
@@ -380,6 +348,7 @@
                     <td class="align-middle text-center">
                       <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="#" th:onclick="keywordDelete([[${keyword.keywordId}]],[[${keyword.keywordName}]],[[${keyword.category}]]);"><i class="far fa-trash-alt me-2"></i>삭제</a>
                     </td>
+                    <input type="hidden" name="keywordCategory" th:value="${keyword.category}"/>
                   </tr>
                   </tbody>
                 </table>
@@ -466,6 +435,10 @@
   function insertFetch(){
     const keywordName = $('#keyword').val().trim();
     const category = $('#category').val().trim();
+
+    if(keywordName === ''){
+      return;
+    }
 
     if (category === '카테고리') {
       alert('카테고리를 선택해주세요.');
@@ -583,6 +556,47 @@
   }
 
 
+
+  document.addEventListener("DOMContentLoaded", function() {
+    const rankMapping = {
+      'total': 'all',
+      'first': '1',
+      'second': '2',
+      'third': '3',
+      'fourth': '4',
+      'fifth': '5'
+    };
+
+    // Adding click event listeners to each rank button
+    const rankButtons = document.querySelectorAll('.rank-btn');
+    rankButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        // Use the mapping to determine the action
+        const action = rankMapping[this.id];
+
+        // Select only the keyword rows within the specific tbody context
+        const keywords = document.querySelectorAll('tbody tr');
+
+        // Loop through each keyword row
+        keywords.forEach(keyword => {
+          if (action === 'all') {
+            // If "전체" button is clicked, display all rows
+            keyword.style.display = "";
+          } else {
+            // Otherwise, filter based on the category
+            const input = keyword.querySelector('input[name="keywordCategory"]');
+
+            if (input && input.value === action) {
+              // Make the matching rows visible
+              keyword.style.display = "";
+            } else {
+              keyword.style.display = "none";
+            }
+          }
+        });
+      });
+    });
+  });
 
 </script>
   <!-- Github buttons -->

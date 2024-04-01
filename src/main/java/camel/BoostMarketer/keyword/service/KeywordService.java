@@ -2,9 +2,9 @@ package camel.BoostMarketer.keyword.service;
 
 import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.mapper.BlogMapper;
-import camel.BoostMarketer.common.util.ExcelUtil;
 import camel.BoostMarketer.common.api.Crawler;
 import camel.BoostMarketer.common.api.NaverSearchAdApi;
+import camel.BoostMarketer.common.util.ExcelUtil;
 import camel.BoostMarketer.keyword.dto.KeywordDto;
 import camel.BoostMarketer.keyword.mapper.KeywordMapper;
 import camel.BoostMarketer.user.dto.UserDto;

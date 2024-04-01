@@ -32,6 +32,17 @@ public class KeywordController {
     public String blogForm(Model model) throws Exception {
         List<KeywordDto> keywordDtoList = keywordService.selectKeywordInfo();
 
+        int topKeywordsCount = 0;
+
+        for (KeywordDto keywordDto : keywordDtoList) {
+            int rankPc = keywordDto.getRankPc();
+            int rankMobile = keywordDto.getRankMobile();
+            if ((rankPc != 0 && rankPc <= 30) || (rankMobile != 0 && rankMobile <= 30)) {
+                topKeywordsCount++;
+            }
+        }
+
+        model.addAttribute("topKeywordsCount", topKeywordsCount);
         model.addAttribute("keywordList", keywordDtoList);
         return "pages/keyword";
     }

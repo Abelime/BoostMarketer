@@ -18,5 +18,6 @@ public class BlogDto extends CommonBlogDto {
     private int visitCnt; //방문수
     private int postCnt; //게시글수
     private String UpdateDt;
+    private int topPostsCount;
 }
 

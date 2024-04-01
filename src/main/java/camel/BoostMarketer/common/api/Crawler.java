@@ -345,23 +345,9 @@ public class Crawler {
         return postDtoList;
     }
 
-    public static List<KeywordDto> pcAndMobileRankCrawler(List<String> blogIds, String keyword, Long keywordId) {
-        List<KeywordDto> keywordDtoList = new ArrayList<>(); //1
+    public static List<KeywordDto> newRankCrawler(List<String> blogIds, String keyword, Long keywordId) {
+        List<KeywordDto> keywordDtoList = new ArrayList<>();
 
-        // PC 검색 결과를 먼저 처리합니다.
-        pcRankCrawler(blogIds, keyword, keywordId, keywordDtoList);
-
-        // 모바일 검색 결과를 처리합니다.
-        mobileRankCrawler(blogIds, keyword, keywordId, keywordDtoList);
-
-        //pc만 순위를 크롤링 쫑
-        //모바일도 순위를 크롤링 1dto에 글 키워드 pc순위 모바일순위 를 하나로 만들고 싶은거지
-        //postNO가 같은 dto인지를 어떻게 알지 ?
-
-        return keywordDtoList;
-    }
-
-    private static void pcRankCrawler(List<String> blogIds, String keyword, Long keywordId, List<KeywordDto> keywordDtoList) {
         try {
             String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
             String url = "https://search.naver.com/search.naver?ssc=tab.blog.all&query=" + encodedKeyword;
@@ -376,65 +362,25 @@ public class Crawler {
 
             for (Element aTag : aTags) {
                 String crawlerUrl = aTag.attr("href");
-                for (String blogId : blogIds) { //내가 등록한 블로그 id들
+                for (String blogId : blogIds) {
                     if (crawlerUrl.contains("/" + blogId + "/")) {
                         String postNo = ConvertBlogUrl.urlToPostNo(crawlerUrl);
                         KeywordDto keywordDto = new KeywordDto();
                         keywordDto.setKeywordId(keywordId);
                         keywordDto.setRankPc(aTags.indexOf(aTag) + 1);
+                        keywordDto.setRankMobile(aTags.indexOf(aTag) + 1);
                         keywordDto.setKeywordName(keyword);
                         keywordDto.setPostNo(postNo);
                         keywordDtoList.add(keywordDto);
                     }
                 }
             }
+
         } catch (Exception e) {
             logger.error("Error occurred while fetching keyword ranks for keyword: " + keyword + " on " + "PC", e);
         }
+
+        return keywordDtoList;
     }
-
-    private static void mobileRankCrawler(List<String> blogIds, String keyword, Long keywordId, List<KeywordDto> keywordDtoList) {
-        try {
-            String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
-            String url = "https://m.search.naver.com/search.naver?ssc=tab.m_blog.all&query=" + encodedKeyword;
-            String referrer = "https://m.search.naver.com/search.naver?sm=mtp_hty.top&where=m&query=" + encodedKeyword;
-
-            Document document = Jsoup.connect(url)
-                    .referrer(referrer)
-                    .headers(getHeaders())
-                    .get();
-
-            Elements aTags = document.select(".title_area a");
-
-            for (Element aTag : aTags) {
-                String crawlerUrl = aTag.attr("href");
-                for (String blogId : blogIds) {
-                    if (crawlerUrl.contains("/" + blogId + "/")) {
-                        String postNo = ConvertBlogUrl.urlToPostNo(crawlerUrl);
-                        if (!keywordDtoList.isEmpty()) {
-                            for (KeywordDto existDto : keywordDtoList) {
-                                if (existDto.getPostNo().equals(postNo)) {
-                                    existDto.setRankMobile(aTags.indexOf(aTag) + 1);
-                                    break;
-                                }
-                                if (keywordDtoList.indexOf(existDto) == keywordDtoList.size() - 1) {
-                                    KeywordDto keywordDto = new KeywordDto();
-                                    keywordDto.setKeywordId(keywordId);
-                                    keywordDto.setRankMobile(aTags.indexOf(aTag) + 1);
-                                    keywordDto.setKeywordName(keyword);
-                                    keywordDto.setPostNo(postNo);
-                                    keywordDtoList.add(keywordDto);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Error occurred while fetching keyword ranks for keyword: " + keyword + " on " + "Mobile", e);
-        }
-    }
-
 
 }
-
