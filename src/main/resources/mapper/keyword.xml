@@ -58,9 +58,9 @@
                kd.month_search_pc,
                kd.month_search_mobile,
                COALESCE(kr.rank_pc_5, 0)      AS rank_pc_5,
-               COALESCE(kr.rank_pc_30, 0)     AS rank_pc_30,
+               COALESCE(kr.rank_pc_10, 0)     AS rank_pc_10,
                COALESCE(kr.rank_mobile_5, 0)  AS rank_mobile_5,
-               COALESCE(kr.rank_mobile_30, 0) AS rank_mobile_30,
+               COALESCE(kr.rank_mobile_10, 0) AS rank_mobile_10,
                rank_pc,
                rank_mobile
         FROM keyword_dict kd
@@ -71,9 +71,9 @@
                  LEFT JOIN
              (SELECT keyword_id,
                      COUNT(CASE WHEN rank_pc > 0 AND rank_pc <= 5 THEN 1 END)          AS rank_pc_5,
-                     COUNT(CASE WHEN rank_pc > 5 AND rank_pc <= 30 THEN 1 END)         AS rank_pc_30,
+                     COUNT(CASE WHEN rank_pc > 5 AND rank_pc <= 10 THEN 1 END)         AS rank_pc_10,
                      COUNT(CASE WHEN rank_mobile > 0 AND rank_mobile <= 5 THEN 1 END)  AS rank_mobile_5,
-                     COUNT(CASE WHEN rank_mobile > 5 AND rank_mobile <= 30 THEN 1 END) AS rank_mobile_30,
+                     COUNT(CASE WHEN rank_mobile > 5 AND rank_mobile <= 10 THEN 1 END) AS rank_mobile_10,
                      rank_pc,
                      rank_mobile
               FROM keyword_rank
@@ -129,5 +129,21 @@
         WHERE user_id = #{id}
         AND keyword_id = #{keywordId}
     </delete>
+
+    <!--  키워드 수, 상위노출 키워드 수  -->
+    <select id="selectKeywordCntInfo" parameterType="String" resultType="map"><![CDATA[
+        SELECT (SELECT COUNT(*)
+                FROM user_keywords uk
+                WHERE uk.user_id = (SELECT id
+                                    FROM user
+                                    WHERE email = #{email}))                          AS keywordCount,
+               (SELECT COUNT(*)
+                FROM keyword_rank kr
+                WHERE kr.keyword_id IN (SELECT keyword_id
+                                        FROM user_keywords uk
+                                        WHERE uk.user_id = (SELECT id
+                                                            FROM user
+                                                            WHERE email = #{email}))) AS keywordRankCount;
+        ]]></select>
 
 </mapper>

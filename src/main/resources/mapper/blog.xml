@@ -49,7 +49,12 @@
                  LEFT JOIN
              blog_post bp ON bg.blog_id = bp.blog_id
                  LEFT JOIN
-             keyword_rank kr ON bp.post_no = kr.post_no
+             keyword_rank kr ON bp.post_no = kr.post_no AND kr.keyword_id IN (
+                             SELECT uk.keyword_id
+                             FROM user_keywords uk
+                             JOIN user u ON uk.user_id = u.id
+                             WHERE u.email = #{email}
+                         )
         WHERE u.email = #{email}
         GROUP BY bg.blog_id, bg.blog_name, bg.blog_img;
     </select>
@@ -109,6 +114,62 @@
         delete from blog_post
         WHERE blog_id = #{blogId}
     </delete>
+
+    <!--  최신글 조회 [1달] -->
+    <select id="selectRecentPost" parameterType="String" resultType="map"><![CDATA[
+        SELECT
+        	b.blog_name as blogName,
+            bp.blog_id as blogId,
+            bp.post_no as postNo,
+            bp.post_title as postTitle,
+            bp.post_date as postDate,
+            b.blog_img as blogImg,
+            COUNT(CASE WHEN rank_pc > 0 AND rank_pc <= 5 THEN 1 END)          AS rankPc5,
+            COUNT(CASE WHEN rank_pc > 5 AND rank_pc <= 10 THEN 1 END)         AS rankPc10,
+            COUNT(CASE WHEN rank_mobile > 0 AND rank_mobile <= 5 THEN 1 END)  AS rankMobile5,
+            COUNT(CASE WHEN rank_mobile > 5 AND rank_mobile <= 10 THEN 1 END) AS rankMobile10
+        FROM
+            blog_post bp
+        JOIN
+            blog b ON bp.blog_id = b.blog_id
+        LEFT JOIN
+            keyword_rank kr ON kr.post_no = bp.post_no AND kr.keyword_id IN (
+                SELECT uk.keyword_id
+                FROM user_keywords uk
+                JOIN user u ON uk.user_id = u.id
+                WHERE u.email = #{email}
+            )
+        WHERE
+            b.user_id = (
+                SELECT id
+                FROM user
+                WHERE email = #{email}
+            )
+            AND bp.post_date >= CURDATE() - INTERVAL 1 MONTH
+        GROUP BY b.blog_name, bp.blog_id, bp.post_no, bp.post_title, bp.post_date,b.blog_img
+        order BY post_date desc
+    ]]></select>
+
+    <!--  게시글 수, 상위노출 게시글 수  -->
+    <select id="selectPostCntInfo" parameterType="String" resultType="map"><![CDATA[
+        SELECT COUNT(DISTINCT bp.post_no) AS postCnt,
+               COUNT(DISTINCT kr.post_no) AS topPostsCnt
+        FROM user u
+                 JOIN
+             blog bg ON u.id = bg.user_id
+                 LEFT JOIN
+             blog_post bp ON bg.blog_id = bp.blog_id
+                 LEFT JOIN
+             keyword_rank kr ON bp.post_no = kr.post_no  AND kr.keyword_id IN (
+                             SELECT uk.keyword_id
+                             FROM user_keywords uk
+                             JOIN user u ON uk.user_id = u.id
+                             WHERE u.email = #{email}
+                         )
+        WHERE u.email = #{email}
+    ]]></select>
+
+
 
     <!--    <select id="selectPostCount" parameterType="BlogPostDto" resultType="java.util.Map">-->
     <!--        select count(*) as cnt, use_flg as useFlg-->

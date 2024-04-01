@@ -280,7 +280,7 @@
             <div class="card-header pb-0">
               <h6>노출 현황</h6>
               <div class="button-group">
-                <button class="rank-btn" id="total">전체</button>
+                <button class="rank-btn selected" id="total">전체</button>
                 <button class="rank-btn" id="first">1순위</button>
                 <button class="rank-btn" id="second">2순위</button>
                 <button class="rank-btn" id="third">3순위</button>
@@ -304,9 +304,9 @@
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">PC</th>
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">Mobile</th>
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 5</th>
-                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 30</th>
+                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 10</th>
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 5</th>
-                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 30</th>
+                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 10</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -326,17 +326,17 @@
                     <td class="align-middle text-center">
                       <p class="text-xs font-weight-bold mb-0" th:text="${keyword.monthSearchMobile == 0 ? '0' : #numbers.formatInteger(keyword.monthSearchMobile, 2, 'COMMA')}"></p>
                     </td>
-                    <td class="align-middle text-center">
+                    <td class="align-middle text-center" th:styleappend="${keyword.rankPc5 != 0} ? 'background-color: #fffff5;' : ''">
                       <p class="text-xs font-weight-bold mb-0" th:text="${keyword.rankPc5}"></p>
                     </td>
-                    <td class="align-middle text-center">
-                      <p class="text-xs font-weight-bold mb-0" th:text="${keyword.rankPc30}"></p>
+                    <td class="align-middle text-center" th:styleappend="${keyword.rankPc10 != 0} ? 'background-color: #fffff5;' : ''">
+                      <p class="text-xs font-weight-bold mb-0" th:text="${keyword.rankPc10}"></p>
                     </td>
-                    <td class="align-middle text-center">
+                    <td class="align-middle text-center" th:styleappend="${keyword.rankMobile5 != 0} ? 'background-color: #fffff5;' : ''">
                       <p class="text-xs font-weight-bold mb-0" th:text="${keyword.rankMobile5}"></p>
                     </td>
-                    <td class="align-middle text-center">
-                      <p class="text-xs font-weight-bold mb-0" th:text="${keyword.rankMobile30}"></p>
+                    <td class="align-middle text-center" th:styleappend="${keyword.rankMobile10 != 0} ? 'background-color: #fffff5;' : ''">
+                      <p class="text-xs font-weight-bold mb-0" th:text="${keyword.rankMobile10}"></p>
                     </td>
                     <td class="align-middle text-center">
                       <a class="btn btn-link text-dark px-3 mb-0" target="_blank" th:href="@{https://search.naver.com/search.naver(ssc='tab.blog.all', sm='tab_jum', query=${keyword.keywordName})}">
@@ -439,7 +439,7 @@
     const keywordName = $('#keyword').val().trim();
     const category = $('#category').val().trim();
 
-    if(keywordName === ''){
+    if (keywordName === '') {
       return;
     }
 
@@ -448,7 +448,7 @@
       $('#category').focus();
       return;
     }
-
+    FunLoadingBarStart();
     fetch('/keyword', {
       method: 'POST',
       headers: {
@@ -467,10 +467,13 @@
             })
             .catch(error => {
               console.error('등록 중 오류가 발생했습니다:', error);
+            })
+            .finally(() => {
+              FunLoadingBarEnd();
             });
   }
 
-  $("#confirmBtn").click(function() {
+  $("#confirmBtn").click(function () {
     const file = $("#excelFileInput")[0].files[0];
     if (file) {
       console.log('선택된 파일:', file);
@@ -479,6 +482,7 @@
       const formData = new FormData();
       formData.append("file", file);
 
+      FunLoadingBarStart();
       fetch('/keyword/excelUpload', {
         method: 'POST',
         body: formData,
@@ -494,6 +498,9 @@
               })
               .catch(error => {
                 console.error('등록 중 오류가 발생했습니다:', error);
+              })
+              .finally(() => {
+                FunLoadingBarEnd();
               });
       //$("#excelFileInput").val('');
     } else {
@@ -521,7 +528,6 @@
 
     Swal.fire({
       title: "삭제하시겠습니까?",
-      //text: "삭제된 키워드는 복구하실 수 없습니다.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -540,13 +546,7 @@
             keywordId: keywordId,
             keywordName: keywordName,
             category: category
-          }),
-          beforeSend: function () {
-            FunLoadingBarStart();      	//로딩바 생성
-          },
-          complete: function () {
-            //FunLoadingBarEnd();			//로딩바 제거
-          }
+          })
         }).then(response => {
             if (!response.ok) {
               throw new Error('서버 응답이 실패했습니다.');
@@ -558,12 +558,10 @@
             console.error('등록 중 오류가 발생했습니다:', error);
           });
 
-
       }
     });
 
   }
-
 
 
   document.addEventListener("DOMContentLoaded", function() {
@@ -607,24 +605,6 @@
     });
   });
 
-  function FunLoadingBarStart() {
-    var backHeight = $(document).height();               	//뒷 배경의 상하 폭
-    var backWidth = window.screen.width;		            //뒷 배경의 좌우 폭
-    var backGroundCover = "<div id='back'></div>";			//뒷 배경을 감쌀 커버
-    var loadingBarImage = '';								//가운데 띄워 줄 이미지
-    loadingBarImage += "<div id='loadingBar'>";
-    loadingBarImage += "     <img src='/img/loading.gif' height='100' width='100' />"; //로딩 바 이미지
-    loadingBarImage += "</div>";
-    $('body').append(backGroundCover).append(loadingBarImage);
-    $('#back').css({ 'width': backWidth, 'height': backHeight, 'opacity': '0.3' });
-    $('#back').show();
-    $('#loadingBar').show();
-  }
-
-  function FunLoadingBarEnd() {
-    $('#back, #loadingBar').hide();
-    $('#back, #loadingBar').remove();
-  }
 
 
 </script>
@@ -632,6 +612,7 @@
   <script async defer src="https://buttons.github.io/buttons.js"></script>
   <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="/assets/js/soft-ui-dashboard.min.js?v=1.0.7"></script>
+  <script src="/js/common.js"></script>
 </body>
 
 </html>

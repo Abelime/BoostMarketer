@@ -6,6 +6,7 @@ import camel.BoostMarketer.common.dto.CommonBlogDto;
 import camel.BoostMarketer.keyword.dto.KeywordDto;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,4 +59,7 @@ public interface BlogMapper {
 
     BlogDto checkIfBlogExists(String blogId) throws Exception;
 
+    List<HashMap<String, Object>> selectRecentPost(String email) throws Exception;
+
+    HashMap<String, Object> selectPostCntInfo(String email) throws Exception;
 }

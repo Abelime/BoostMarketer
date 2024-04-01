@@ -22,9 +22,12 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.util.HtmlUtils;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -322,6 +325,7 @@ public class Crawler {
                         }
 
                         String title = URLDecoder.decode(post.getString("title"), StandardCharsets.UTF_8);
+                        title = HtmlUtils.htmlUnescape(title);
 
                         String addDate = post.getString("addDate");
                         Date date = DateUtil.convertToLocalDate(addDate);
@@ -374,6 +378,7 @@ public class Crawler {
                         keywordDtoList.add(keywordDto);
                     }
                 }
+                if(aTags.indexOf(aTag) == 9) break;
             }
 
         } catch (Exception e) {

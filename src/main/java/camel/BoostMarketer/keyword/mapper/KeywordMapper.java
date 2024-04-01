@@ -22,4 +22,6 @@ public interface KeywordMapper {
     void deleteKeyRank2(HashMap<String, Object> map) throws Exception;
 
     void deleteUserKey(HashMap<String, Object> map) throws Exception;
+
+    HashMap<String, Object> selectKeywordCntInfo(String email) throws Exception;
 }

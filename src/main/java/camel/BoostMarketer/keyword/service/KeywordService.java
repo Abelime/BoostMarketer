@@ -95,4 +95,7 @@ public class KeywordService {
         keywordMapper.deleteUserKey(map);
     }
 
+    public HashMap<String, Object> selectKeywordCntInfo(String email) throws Exception {
+        return keywordMapper.selectKeywordCntInfo(email);
+    }
 }

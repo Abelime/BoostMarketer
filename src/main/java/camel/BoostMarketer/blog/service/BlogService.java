@@ -214,6 +214,13 @@ public class BlogService {
         if (checkBlogDto == null) {
             blogMapper.deleteBlogPost(blogId);
         }
+    }
 
+    public List<HashMap<String, Object>> selectRecentPost(String email) throws Exception {
+        return blogMapper.selectRecentPost(email);
+    }
+
+    public HashMap<String, Object> selectPostCntInfo(String email) throws Exception {
+        return blogMapper.selectPostCntInfo(email);
     }
 }

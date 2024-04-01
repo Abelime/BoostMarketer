@@ -20,8 +20,8 @@ public class KeywordDto extends CommonBlogDto {
     private int monthSearchPc;
     private int monthSearchMobile;
     private int rankPc5;
-    private int rankPc30;
+    private int rankPc10;
     private int rankMobile5;
-    private int rankMobile30;
+    private int rankMobile10;
 
 }

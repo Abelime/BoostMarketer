@@ -37,7 +37,7 @@ public class KeywordController {
         for (KeywordDto keywordDto : keywordDtoList) {
             int rankPc = keywordDto.getRankPc();
             int rankMobile = keywordDto.getRankMobile();
-            if ((rankPc != 0 && rankPc <= 30) || (rankMobile != 0 && rankMobile <= 30)) {
+            if ((rankPc != 0 && rankPc <= 10) || (rankMobile != 0 && rankMobile <= 10)) {
                 topKeywordsCount++;
             }
         }
