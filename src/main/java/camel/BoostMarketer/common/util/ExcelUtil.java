@@ -15,64 +15,64 @@ import java.util.List;
 public class ExcelUtil {
 
     public void excelUpload(MultipartFile file, List<HashMap<String, Object>> list) throws Exception {
-
         HashMap<String, Object> data;
-
         Workbook workbook;
+        Sheet sheet;
         Row row;
         Cell cell;
 
         OPCPackage opcPackage = OPCPackage.open(file.getInputStream());
         workbook = new XSSFWorkbook(opcPackage);
-
-
-        Sheet sheet = workbook.getSheetAt(0);
+        sheet = workbook.getSheetAt(0);
         List<String> keyList = new ArrayList<>();
-        // 행 정보 얻기
+
         int idx = 0;
         for (Row item : sheet) {
             data = new HashMap<>();
             row = item;
+            int cells = row.getLastCellNum(); // Use getLastCellNum to consider all cells
 
-            // 셀의 수
-            int cells = row.getPhysicalNumberOfCells();
             for (int columnIndex = 0; columnIndex < cells; columnIndex++) {
+                cell = row.getCell(columnIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 
-                cell = row.getCell(columnIndex);
-                if (cell == null) {
-                    // 셀이 존재하지 않는 경우
-                    continue;
+                String value = getStringValue(cell, columnIndex);
+                if (idx == 0) {
+                    keyList.add(value);
                 } else {
-                    String value = getStringValue(cell,columnIndex);
-                    if (idx == 0) {
-                        keyList.add(value);
-                    } else {
-                        data.put(keyList.get(columnIndex), value);
-                    }
+                    data.put(keyList.get(columnIndex), value);
                 }
             }
-
             if (idx != 0) {
-                // 한 행의 값을 list에 추가
                 list.add(data);
             }
             idx++;
         }
-        System.out.println("list"+list);
-
+        System.out.println("list: " + list);
     }
 
+
     public static String getStringValue(Cell cell, int columnIndex) {
-        String rtnValue;
-        try {
-            rtnValue = cell.getStringCellValue();
-        } catch (IllegalStateException e) {
-            if(columnIndex==0){
-                double value = cell.getNumericCellValue();
-                rtnValue = String.valueOf((int)value);
-            }else{
-                rtnValue = Double.toString(cell.getNumericCellValue());
-            }
-        } return rtnValue;
+        String rtnValue = "";
+
+        switch (cell.getCellType()) {
+            case STRING:
+                rtnValue = cell.getStringCellValue();
+                break;
+            case NUMERIC:
+                if(columnIndex == 0){
+                    rtnValue = String.valueOf((int)cell.getNumericCellValue());
+                }else{
+                    rtnValue = Double.toString(cell.getNumericCellValue());
+                }
+                break;
+            case BLANK:
+                rtnValue = ""; // Handle blank cells
+                break;
+            // Add cases for other types as needed
+            default:
+                rtnValue = "Unsupported Cell Type";
+                break;
+        }
+        return rtnValue;
     }
 }
