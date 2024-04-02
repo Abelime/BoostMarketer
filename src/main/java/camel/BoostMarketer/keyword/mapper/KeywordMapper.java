@@ -2,6 +2,7 @@ package camel.BoostMarketer.keyword.mapper;
 
 import camel.BoostMarketer.keyword.dto.KeywordDto;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +14,7 @@ public interface KeywordMapper {
 
     void registerKeywordRank(List<KeywordDto> keywordDtoList) throws Exception;
 
-    List<KeywordDto> selectKeywordInfo(String email) throws Exception;
+    List<KeywordDto> selectKeywordInfo(@Param("email") String email, @Param("category") int category, RowBounds row) throws Exception;
 
     void deleteKeyDict(HashMap<String, Object> map) throws Exception;
 
@@ -23,5 +24,5 @@ public interface KeywordMapper {
 
     void deleteUserKey(HashMap<String, Object> map) throws Exception;
 
-    HashMap<String, Object> selectKeywordCntInfo(String email) throws Exception;
+    HashMap<String, Object> selectKeywordCntInfo(@Param("email") String email, @Param("category") int category) throws Exception;
 }

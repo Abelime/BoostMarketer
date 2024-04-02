@@ -51,7 +51,7 @@
     </insert>
 
     <!--  키워드 정보 조회  -->
-    <select id="selectKeywordInfo" parameterType="String" resultType="KeywordDto"><![CDATA[
+    <select id="selectKeywordInfo" parameterType="String" resultType="KeywordDto">
         SELECT kd.keyword_id,
                kd.keyword_name,
                uk.category,
@@ -68,7 +68,11 @@
              user_keywords uk ON kd.keyword_id = uk.keyword_id
                  INNER JOIN
                  (SELECT id FROM user WHERE email = #{email}) u ON uk.user_id = u.id
+                <if test="category != 0">
+                    AND uk.category = #{category}
+                </if>
                  LEFT JOIN
+        <![CDATA[
              (SELECT keyword_id,
                      COUNT(CASE WHEN rank_pc > 0 AND rank_pc <= 5 THEN 1 END)          AS rank_pc_5,
                      COUNT(CASE WHEN rank_pc > 5 AND rank_pc <= 10 THEN 1 END)         AS rank_pc_10,
@@ -131,19 +135,21 @@
     </delete>
 
     <!--  키워드 수, 상위노출 키워드 수  -->
-    <select id="selectKeywordCntInfo" parameterType="String" resultType="map"><![CDATA[
-        SELECT (SELECT COUNT(*)
-                FROM user_keywords uk
-                WHERE uk.user_id = (SELECT id
-                                    FROM user
-                                    WHERE email = #{email}))                          AS keywordCount,
-               (SELECT COUNT(*)
-                FROM keyword_rank kr
-                WHERE kr.keyword_id IN (SELECT keyword_id
-                                        FROM user_keywords uk
-                                        WHERE uk.user_id = (SELECT id
-                                                            FROM user
-                                                            WHERE email = #{email}))) AS keywordRankCount;
-        ]]></select>
+    <select id="selectKeywordCntInfo" parameterType="String" resultType="map">
+        SELECT
+            (SELECT COUNT(*)
+             FROM user_keywords uk
+             WHERE uk.user_id = (SELECT id FROM user WHERE email = #{email})
+               <if test="category != 0">
+                   AND uk.category = #{category}
+               </if>
+            ) AS keywordCount,
+            (SELECT COUNT(DISTINCT (kr.keyword_id))
+             FROM keyword_rank kr
+             WHERE kr.keyword_id IN (SELECT keyword_id
+                                     FROM user_keywords uk
+                                     WHERE uk.user_id = (SELECT id FROM user WHERE email = #{email}))
+             ) AS keywordRankCount;
+        </select>
 
 </mapper>

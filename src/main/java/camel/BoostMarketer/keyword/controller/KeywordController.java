@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import java.util.Map;
 
 
 @Controller
@@ -29,21 +29,19 @@ public class KeywordController {
     private final KeywordService keywordService;
 
     @GetMapping(value = "/keyword")
-    public String blogForm(Model model) throws Exception {
-        List<KeywordDto> keywordDtoList = keywordService.selectKeywordInfo();
+    public String blogForm(Model model,
+                           @RequestParam(value = "page", defaultValue = "1") int page,
+                           @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+                           @RequestParam(value = "category", defaultValue = "0") int category) throws Exception {
 
-        int topKeywordsCount = 0;
+        Map<String, Object> resultMap = keywordService.selectKeywordInfo(page, pageSize, category);
 
-        for (KeywordDto keywordDto : keywordDtoList) {
-            int rankPc = keywordDto.getRankPc();
-            int rankMobile = keywordDto.getRankMobile();
-            if ((rankPc != 0 && rankPc <= 10) || (rankMobile != 0 && rankMobile <= 10)) {
-                topKeywordsCount++;
-            }
-        }
-
-        model.addAttribute("topKeywordsCount", topKeywordsCount);
-        model.addAttribute("keywordList", keywordDtoList);
+        model.addAttribute("category", category);
+        model.addAttribute("page", page);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("totalCount", resultMap.get("keywordCount"));
+        model.addAttribute("keywordRankCount", resultMap.get("keywordRankCount"));
+        model.addAttribute("keywordList", resultMap.get("keywordDtoList"));
         return "pages/keyword";
     }
 

@@ -1,0 +1,37 @@
+/*pageSize select-box*/
+.page-select-wrapper {
+  width: 90px; /* Reduced width */
+  position: relative;
+  display: inline-block;
+}
+
+.page-select {
+  width: 85px; /* Reduced width */
+  padding: 6px 12px; /* Adjusted padding */
+  border: 1px solid #dbdde2; /* Green border for the element */
+  background-color: #ffffff; /* White background */
+  color: #28a745; /* Green text color */
+  border-radius: 0; /* Square edges */
+  -webkit-appearance: none; /* Removes default Webkit styling */
+  -moz-appearance: none; /* Removes default Mozilla styling */
+  appearance: none; /* Removes default styling */
+  position: relative;
+  font-size: 0.875rem; /* Reduced font size */
+}
+
+/* Custom arrow indicator */
+.page-select-wrapper::after {
+  content: '\25BC'; /* Unicode down arrow */
+  position: absolute;
+  top: 50%;
+  right: 8px; /* Adjusted position to match new width */
+  transform: translateY(-50%);
+  color: #28a745; /* Green arrow color */
+  pointer-events: none;
+}
+
+/* Remove the focus outline and modify border color */
+.page-select:focus {
+  outline: none;
+  border-color: #34ce57; /* Light green border for focus */
+}

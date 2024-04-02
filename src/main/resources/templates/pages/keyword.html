@@ -196,6 +196,11 @@
     border-color: #34ce57; /* Light green border for focus */
   }
 
+  .card-headers {
+    display: flex;
+    justify-content: space-between;
+  }
+
 </style>
 
 <body class="g-sidenav-show  bg-gray-100">
@@ -213,10 +218,7 @@
                 <div class="col-8">
                   <div class="numbers">
                     <p class="text-sm mb-0 text-capitalize font-weight-bold">키워드 수</p>
-                    <h5 class="font-weight-bolder mb-0" th:text="${keywordList.size()}">
-                      0
-<!--                      <span class="text-success text-sm font-weight-bolder">+55%</span>-->
-                    </h5>
+                    <h5 class="font-weight-bolder mb-0" th:text="${totalCount}"></h5>
                   </div>
                 </div>
                 <div class="col-4 text-end">
@@ -235,9 +237,7 @@
                 <div class="col-8">
                   <div class="numbers">
                     <p class="text-sm mb-0 text-capitalize font-weight-bold">상위노출 키워드 수</p>
-                    <h5 class="font-weight-bolder mb-0" th:text="${topKeywordsCount}">
-<!--                      <span class="text-success text-sm font-weight-bolder">+3%</span>-->
-                    </h5>
+                    <h5 class="font-weight-bolder mb-0" th:text="${keywordRankCount}"></h5>
                   </div>
                 </div>
                 <div class="col-4 text-end">
@@ -278,15 +278,25 @@
         <div class="col-12">
           <div class="card mb-4">
             <div class="card-header pb-0">
-              <h6>노출 현황</h6>
-              <div class="button-group">
-                <button class="rank-btn selected" id="total">전체</button>
-                <button class="rank-btn" id="first">1순위</button>
-                <button class="rank-btn" id="second">2순위</button>
-                <button class="rank-btn" id="third">3순위</button>
-                <button class="rank-btn" id="fourth">4순위</button>
-                <button class="rank-btn" id="fifth">5순위</button>
+              <div class="card-headers">
+                <h6>키워드목록 (총 <span th:text="${totalCount}" style="color: #00c73c;">0</span>개)</h6>
+                <div  class="page-select-wrapper">
+                  <select id="page-select" class="page-select">
+                    <option value="10" th:selected="${pageSize == 10}">10개씩</option>
+                    <option value="30" th:selected="${pageSize == 30}">30개씩</option>
+                    <option value="50" th:selected="${pageSize == 50}">50개씩</option>
+                    <option value="100" th:selected="${pageSize == 100}">100개씩</option>
+                  </select>
+                </div>
               </div>
+                <div class="button-group">
+                  <button class="rank-btn" th:classappend="${category} == 0 ? 'selected'" id="total" value="0">전체</button>
+                  <button class="rank-btn" th:classappend="${category} == 1 ? 'selected'" id="first" value="1">1순위</button>
+                  <button class="rank-btn" th:classappend="${category} == 2 ? 'selected'" id="second" value="2">2순위</button>
+                  <button class="rank-btn" th:classappend="${category} == 3 ? 'selected'" id="third" value="3">3순위</button>
+                  <button class="rank-btn" th:classappend="${category} == 4 ? 'selected'" id="fourth" value="4">4순위</button>
+                  <button class="rank-btn" th:classappend="${category} == 5 ? 'selected'" id="fifth" value="5">5순위</button>
+                </div>
             </div>
             <div class="card-body px-0 pt-0 pb-2 justify-content-center mt-2">
               <div class="table-responsive p-0">
@@ -315,10 +325,10 @@
                       <p class="text-xs font-weight-bold mb-0"
                          th:text="${keyword.keywordName}"
                          th:classappend="${keyword.category == '1' ? 'first' :
-                                          keyword.category == '2' ? 'second' :
-                                          keyword.category == '3' ? 'third' :
-                                          keyword.category == '4' ? 'fourth' :
-                                          keyword.category == '5' ? 'fifth' : ''}"></p>
+                                           keyword.category == '2' ? 'second' :
+                                           keyword.category == '3' ? 'third' :
+                                           keyword.category == '4' ? 'fourth' :
+                                           keyword.category == '5' ? 'fifth' : ''}"></p>
                     </td>
                     <td class="align-middle text-center">
                       <p class="text-xs font-weight-bold mb-0" th:text="${keyword.monthSearchPc == 0 ? '0' : #numbers.formatInteger(keyword.monthSearchPc, 1, 'COMMA')}"></p>
@@ -357,6 +367,7 @@
             </div>
           </div>
         </div>
+        <nav id="pagination" aria-label="Page navigation example"></nav>
         <div class="d-flex justify-content-end">
           <button id="excelDownload" class="btn-custom"><i class="icon-left fas fa-file-excel"></i>엑셀 양식다운</button>
           <button id="openModal" class="btn-custom" data-bs-toggle="modal" data-bs-target="#exampleModalMessage"><i class="icon-left fas fa-file-excel"></i>엑셀 등록하기</button>
@@ -411,27 +422,26 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 
-  $(document).ready(function(){
-    $('.dropdown-item').click(function(e) {
-      e.preventDefault(); // 링크의 기본 동작을 방지합니다.
+  $(document).ready(function() {
+    $("#page-select").change(function() {
+      var category = [[${category}]]; // 서버 사이드에서 전달된 'pageSize' 값을 사용
+      var pageSize = $(this).val();
 
-      // 클릭된 아이템의 텍스트와 data-value 값을 가져옵니다.
-      var selectedItemText = $(this).text();
-      var selectedItemValue = $(this).attr('data-value');
-
-      // 버튼 내의 .button-text 요소의 텍스트를 업데이트합니다.
-      $('#dropdownMenuButton .button-text').text(selectedItemText);
-
-      // 버튼의 value 속성을 업데이트합니다.
-      $('#dropdownMenuButton').val(selectedItemValue);
+      window.location.href = '/keyword?pageSize=' + pageSize + '&category=' + category;
 
     });
   });
 
-  document.querySelectorAll('.rank-btn').forEach(button => {
-    button.addEventListener('click', function() {
+  // Adding click event listeners to each rank button
+  const rankButtons = document.querySelectorAll('.rank-btn');
+  rankButtons.forEach(button => {
+    button.addEventListener('click', function () {
       document.querySelectorAll('.rank-btn').forEach(btn => btn.classList.remove('selected'));
       this.classList.add('selected');
+      var pageSize = [[${pageSize}]]; // 서버 사이드에서 전달된 'pageSize' 값을 사용
+      var category = this.value;
+
+      window.location.href = '/keyword?pageSize=' + pageSize + '&category=' + category;
     });
   });
 
@@ -563,49 +573,67 @@
 
   }
 
+  document.addEventListener('DOMContentLoaded', function () {
+    /*<![CDATA[*/
+    var keywordCount = [[${totalCount}]]; // 서버 사이드에서 전달된 'keywordCount' 값을 사용
+    var page = [[${page}]]; // 서버 사이드에서 전달된 'page' 값을 사용
+    var pageSize = [[${pageSize}]]; // 서버 사이드에서 전달된 'pageSize' 값을 사용
+    var category = [[${category}]]; // 서버 사이드에서 전달된 'pageSize' 값을 사용
+    /*]]>*/
+    var totalPages = Math.ceil(keywordCount / pageSize);
+    var groupSize = 5; // 한 번에 표시할 페이지 번호의 개수
 
-  document.addEventListener("DOMContentLoaded", function() {
-    const rankMapping = {
-      'total': 'all',
-      'first': '1',
-      'second': '2',
-      'third': '3',
-      'fourth': '4',
-      'fifth': '5'
-    };
+    // 페이지 그룹의 시작과 끝 페이지 번호 계산
+    var startPage = Math.floor((page - 1) / groupSize) * groupSize + 1;
+    var endPage = Math.min(startPage + groupSize - 1, totalPages);
 
-    // Adding click event listeners to each rank button
-    const rankButtons = document.querySelectorAll('.rank-btn');
-    rankButtons.forEach(button => {
-      button.addEventListener('click', function() {
-        // Use the mapping to determine the action
-        const action = rankMapping[this.id];
+    function createPagination(currentPage, totalPages, startPage, endPage) {
+      var paginationHTML = '<ul class="pagination pagination-secondary justify-content-center">';
 
-        // Select only the keyword rows within the specific tbody context
-        const keywords = document.querySelectorAll('tbody tr');
+      // 처음으로 이동
+      paginationHTML += '<li class="page-item ' + (currentPage === 1 ? 'disabled' : '') + '">' +
+              '<a class="page-link" href="javascript:changePage(1);" aria-label="First">' +
+              '<i class="fa fa-angle-double-left" aria-hidden="true"></i></a></li>';
 
-        // Loop through each keyword row
-        keywords.forEach(keyword => {
-          if (action === 'all') {
-            // If "전체" button is clicked, display all rows
-            keyword.style.display = "";
-          } else {
-            // Otherwise, filter based on the category
-            const input = keyword.querySelector('input[name="keywordCategory"]');
+      // 이전 페이지로 이동
+      var prevPage = currentPage - 1;
+      paginationHTML += '<li class="page-item ' + (currentPage === 1 ? 'disabled' : '') + '">' +
+              '<a class="page-link" href="javascript:changePage(' + prevPage + ');" aria-label="Previous">' +
+              '<i class="fa fa-angle-left" aria-hidden="true"></i></a></li>';
 
-            if (input && input.value === action) {
-              // Make the matching rows visible
-              keyword.style.display = "";
-            } else {
-              keyword.style.display = "none";
-            }
-          }
-        });
-      });
-    });
+      // 페이지 번호 버튼
+      for (var i = startPage; i <= endPage; i++) {
+        if (i === currentPage) {
+          // 현재 페이지에 대해 클릭 불가능한 상태로 표시
+          paginationHTML += '<li class="page-item active"><span class="page-link">' + i + '</span></li>';
+        } else {
+          paginationHTML += '<li class="page-item">' +
+                  '<a class="page-link" href="javascript:changePage(' + i + ');">' + i + '</a></li>';
+        }
+      }
+
+      // 다음 페이지로 이동
+      var nextPage = currentPage + 1;
+      paginationHTML += '<li class="page-item ' + (currentPage === totalPages ? 'disabled' : '') + '">' +
+              '<a class="page-link" href="javascript:changePage(' + nextPage + ');" aria-label="Next">' +
+              '<i class="fa fa-angle-right" aria-hidden="true"></i></a></li>';
+
+      // 마지막으로 이동
+      paginationHTML += '<li class="page-item ' + (currentPage === totalPages ? 'disabled' : '') + '">' +
+              '<a class="page-link" href="javascript:changePage(' + totalPages + ');" aria-label="Last">' +
+              '<i class="fa fa-angle-double-right" aria-hidden="true"></i></a></li>';
+
+      paginationHTML += '</ul>';
+
+      document.getElementById('pagination').innerHTML = paginationHTML;
+    }
+
+    window.changePage = function (page) {
+      window.location.href = '/keyword?page=' + page + '&pageSize=' + pageSize + '&category=' + category;
+    }
+
+    createPagination(page, totalPages, startPage, endPage);
   });
-
-
 
 </script>
   <!-- Github buttons -->

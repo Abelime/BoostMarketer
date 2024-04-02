@@ -10,6 +10,7 @@ import camel.BoostMarketer.keyword.mapper.KeywordMapper;
 import camel.BoostMarketer.user.dto.UserDto;
 import camel.BoostMarketer.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.session.RowBounds;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,9 +30,21 @@ public class KeywordService {
 
     private final UserMapper userMapper;
 
-    public List<KeywordDto> selectKeywordInfo() throws Exception {
+    public Map<String, Object> selectKeywordInfo(int page, int pageSize, int category) throws Exception {
+        Map<String, Object> resultMap = new HashMap<>();
+
+        int offset = (page - 1) * pageSize;
+        RowBounds rowBounds = new RowBounds(offset, pageSize);
+
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return keywordMapper.selectKeywordInfo(email);
+        HashMap<String, Object> keywordCntInfo = keywordMapper.selectKeywordCntInfo(email, category);
+        List<KeywordDto> keywordDtoList = keywordMapper.selectKeywordInfo(email, category, rowBounds);
+
+        resultMap.put("keywordRankCount", keywordCntInfo.get("keywordRankCount"));
+        resultMap.put("keywordCount", keywordCntInfo.get("keywordCount"));
+        resultMap.put("keywordCntInfo", keywordCntInfo);
+        resultMap.put("keywordDtoList", keywordDtoList);
+        return resultMap;
     }
 
     public void registerKeyword(KeywordDto keywordDto) throws Exception {
@@ -96,6 +109,6 @@ public class KeywordService {
     }
 
     public HashMap<String, Object> selectKeywordCntInfo(String email) throws Exception {
-        return keywordMapper.selectKeywordCntInfo(email);
+        return keywordMapper.selectKeywordCntInfo(email, 0);
     }
 }
