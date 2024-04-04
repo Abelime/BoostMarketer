@@ -15,13 +15,13 @@ public class KeywordDto extends CommonBlogDto {
     private String keywordName; //키워드
     private String category; //키워드
     private int rankPc; //순위
-    private int rankMobile; //순위
     private String rankDate;
     private int monthSearchPc;
     private int monthSearchMobile;
+    private int totalSearch;
     private int rankPc5;
     private int rankPc10;
-    private int rankMobile5;
-    private int rankMobile10;
+    private int rankPc20;
+    private int keywordFix;
 
 }

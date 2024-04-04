@@ -4,6 +4,9 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="camel.BoostMarketer.keyword.mapper.KeywordMapper">
+    <sql id="selectUserIdByEmail">
+        SELECT id FROM user WHERE email = #{email}
+    </sql>
 
     <!--  키워드 등록(사전)  -->
     <insert id="registerKeywordDict" parameterType="KeywordDto" useGeneratedKeys="true" keyProperty="keywordId">
@@ -25,21 +28,21 @@
     <!--  키워드 등록(유저)  -->
     <insert id="registerUserKeyword" parameterType="map">
         INSERT INTO user_keywords (user_id, keyword_id, category)
-        SELECT (SELECT id FROM user WHERE email = #{email}),
+        SELECT (<include refid="selectUserIdByEmail"/>),
                #{keywordDto.keywordId},
                #{keywordDto.category}
         FROM DUAL
         WHERE NOT EXISTS (SELECT 1
                           FROM user_keywords
                           WHERE keyword_id = #{keywordDto.keywordId}
-                            AND user_id = (SELECT id FROM user WHERE email = #{email}))
+                            AND user_id = (<include refid="selectUserIdByEmail"/>))
     </insert>
 
     <!--  키워드 순위 정보 등록  -->
     <insert id="registerKeywordRank" parameterType="java.util.List">
-        INSERT INTO keyword_rank (post_no, keyword_id, rank_pc, rank_mobile)
+        INSERT INTO keyword_rank (post_no, keyword_id, rank_pc)
         <foreach item="item" collection="list" separator="UNION ALL">
-            SELECT #{item.postNo}, #{item.keywordId},  #{item.rankPc}, #{item.rankMobile}
+            SELECT #{item.postNo}, #{item.keywordId},  #{item.rankPc}
             FROM DUAL
             WHERE NOT EXISTS (
                 SELECT 1
@@ -57,38 +60,56 @@
                uk.category,
                kd.month_search_pc,
                kd.month_search_mobile,
+        month_search_pc + month_search_mobile as total_search,
                COALESCE(kr.rank_pc_5, 0)      AS rank_pc_5,
                COALESCE(kr.rank_pc_10, 0)     AS rank_pc_10,
-               COALESCE(kr.rank_mobile_5, 0)  AS rank_mobile_5,
-               COALESCE(kr.rank_mobile_10, 0) AS rank_mobile_10,
-               rank_pc,
-               rank_mobile
+               COALESCE(kr.rank_pc_20, 0)     AS rank_pc_20,
+               rank_pc_cnt,
+               uk.keyword_fix
         FROM keyword_dict kd
                  INNER JOIN
              user_keywords uk ON kd.keyword_id = uk.keyword_id
                  INNER JOIN
-                 (SELECT id FROM user WHERE email = #{email}) u ON uk.user_id = u.id
+                 (<include refid="selectUserIdByEmail"/>) u ON uk.user_id = u.id
                 <if test="category != 0">
                     AND uk.category = #{category}
+                    or uk.keyword_fix = -1
                 </if>
                  LEFT JOIN
         <![CDATA[
              (SELECT keyword_id,
                      COUNT(CASE WHEN rank_pc > 0 AND rank_pc <= 5 THEN 1 END)          AS rank_pc_5,
                      COUNT(CASE WHEN rank_pc > 5 AND rank_pc <= 10 THEN 1 END)         AS rank_pc_10,
-                     COUNT(CASE WHEN rank_mobile > 0 AND rank_mobile <= 5 THEN 1 END)  AS rank_mobile_5,
-                     COUNT(CASE WHEN rank_mobile > 5 AND rank_mobile <= 10 THEN 1 END) AS rank_mobile_10,
-                     rank_pc,
-                     rank_mobile
+                     COUNT(CASE WHEN rank_pc > 10 AND rank_pc <= 20 THEN 1 END)         AS rank_pc_20,
+                     COUNT(rank_pc) as rank_pc_cnt
+        ]]>
               FROM keyword_rank
               WHERE post_no IN (SELECT post_no
                                 FROM blog_post
                                 WHERE blog_id IN (SELECT blog_id
                                                   FROM blog
-                                                  WHERE user_id = (SELECT id FROM user WHERE email = #{email})))
+                                                  WHERE user_id = (<include refid="selectUserIdByEmail"/>)))
               GROUP BY keyword_id) kr ON kd.keyword_id = kr.keyword_id
-        order by uk.category
-        ]]></select>
+        order by uk.keyword_fix
+        <choose>
+            <when test="sort == 'category'">
+                ,uk.category
+            </when>
+            <when test="sort == 'highSearch'">
+                ,total_search desc
+            </when>
+            <when test="sort == 'lowSearch'">
+                ,total_search
+            </when>
+            <when test="sort == 'highRank'">
+                ,rank_pc_cnt desc ,rank_pc_5 desc, rank_pc_10 desc, rank_pc_20 desc
+            </when>
+            <when test="sort == 'lowRank'">
+                ,rank_pc_cnt, rank_pc_5, rank_pc_10, rank_pc_20
+            </when>
+        </choose>
+        , uk.updated_at desc
+        </select>
 
     <!--  키워드 사전 삭제  -->
     <delete id="deleteKeyDict" parameterType="map">
@@ -139,17 +160,28 @@
         SELECT
             (SELECT COUNT(*)
              FROM user_keywords uk
-             WHERE uk.user_id = (SELECT id FROM user WHERE email = #{email})
+             WHERE uk.user_id = (<include refid="selectUserIdByEmail"/>)
                <if test="category != 0">
                    AND uk.category = #{category}
+                   or uk.keyword_fix = -1
                </if>
             ) AS keywordCount,
             (SELECT COUNT(DISTINCT (kr.keyword_id))
              FROM keyword_rank kr
              WHERE kr.keyword_id IN (SELECT keyword_id
                                      FROM user_keywords uk
-                                     WHERE uk.user_id = (SELECT id FROM user WHERE email = #{email}))
+                                     WHERE uk.user_id = (<include refid="selectUserIdByEmail"/>))
              ) AS keywordRankCount;
-        </select>
+    </select>
+
+    <!--  유저 키워드 고정  -->
+    <update id="keywordFix" parameterType="map">
+        UPDATE user_keywords
+        SET keyword_fix = CASE WHEN keyword_fix = 0 THEN -1 ELSE 0 END
+        WHERE keyword_id = #{keywordId}
+        AND user_id = (
+        <include refid="selectUserIdByEmail"/>
+            )
+    </update>
 
 </mapper>

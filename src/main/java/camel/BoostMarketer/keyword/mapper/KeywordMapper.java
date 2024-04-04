@@ -14,7 +14,7 @@ public interface KeywordMapper {
 
     void registerKeywordRank(List<KeywordDto> keywordDtoList) throws Exception;
 
-    List<KeywordDto> selectKeywordInfo(@Param("email") String email, @Param("category") int category, RowBounds row) throws Exception;
+    List<KeywordDto> selectKeywordInfo(@Param("email") String email, @Param("category") int category, @Param("sort") String sort, RowBounds row) throws Exception;
 
     void deleteKeyDict(HashMap<String, Object> map) throws Exception;
 
@@ -25,4 +25,7 @@ public interface KeywordMapper {
     void deleteUserKey(HashMap<String, Object> map) throws Exception;
 
     HashMap<String, Object> selectKeywordCntInfo(@Param("email") String email, @Param("category") int category) throws Exception;
+
+    void keywordFix(@Param("email") String email, @Param("keywordId") Long keywordId) throws Exception;
+
 }

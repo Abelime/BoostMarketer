@@ -372,13 +372,12 @@ public class Crawler {
                         KeywordDto keywordDto = new KeywordDto();
                         keywordDto.setKeywordId(keywordId);
                         keywordDto.setRankPc(aTags.indexOf(aTag) + 1);
-                        keywordDto.setRankMobile(aTags.indexOf(aTag) + 1);
                         keywordDto.setKeywordName(keyword);
                         keywordDto.setPostNo(postNo);
                         keywordDtoList.add(keywordDto);
                     }
                 }
-                if(aTags.indexOf(aTag) == 9) break;
+                if(aTags.indexOf(aTag) == 19) break; //20등까지 순위 확인
             }
 
         } catch (Exception e) {

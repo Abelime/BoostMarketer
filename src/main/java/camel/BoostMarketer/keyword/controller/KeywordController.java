@@ -10,10 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
@@ -32,10 +29,15 @@ public class KeywordController {
     public String blogForm(Model model,
                            @RequestParam(value = "page", defaultValue = "1") int page,
                            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-                           @RequestParam(value = "category", defaultValue = "0") int category) throws Exception {
+                           @RequestParam(value = "category", defaultValue = "0") int category,
+                           @RequestParam(value = "inputCategory", defaultValue = "0") int inputCategory,
+                           @RequestParam(value = "sort", defaultValue = "category") String sort) throws Exception {
 
-        Map<String, Object> resultMap = keywordService.selectKeywordInfo(page, pageSize, category);
 
+        Map<String, Object> resultMap = keywordService.selectKeywordInfo(page, pageSize, category, sort);
+
+        model.addAttribute("sort", sort);
+        model.addAttribute("inputCategory", inputCategory);
         model.addAttribute("category", category);
         model.addAttribute("page", page);
         model.addAttribute("pageSize", pageSize);
@@ -51,15 +53,23 @@ public class KeywordController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @DeleteMapping(value = "/keyword/{keywordId}")
+    public ResponseEntity<?> keywordDelete(@PathVariable("keywordId") Long keywordId) throws Exception {
+        keywordService.keywordDelete(keywordId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping(value = "/keyword/{keywordId}")
+    public ResponseEntity<?> keywordFix(@PathVariable("keywordId") Long keywordId) throws Exception {
+        keywordService.keywordFix(keywordId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PostMapping(value = "/keyword/excelUpload")
     public ResponseEntity<?> keywordExcelUpload(@RequestParam("file") MultipartFile file) throws Exception {
         keywordService.keywordExcelUpload(file);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @PostMapping(value = "/keyword/delete")
-    public ResponseEntity<?> keywordDelete(@RequestBody KeywordDto keywordDto) throws Exception {
-        keywordService.keywordDelete(keywordDto);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
+
 }

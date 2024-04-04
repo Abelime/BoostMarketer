@@ -145,18 +145,13 @@
                   <tr>
                     <th rowspan="3" class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 15%">블로그명</th>
                     <th rowspan="3" class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 25%">게시글 제목</th>
-                    <th rowspan="3" class="text-center text-uppercase text-secondary text-xs font-weight-bolder" >작성일자</th>
+                    <th rowspan="3" class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 10%">작성일자</th>
                     <th colspan="4" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">노출여부 확인</th>
                   </tr>
                   <tr>
-                    <th colspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">PC</th>
-                    <th colspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">Mobile</th>
-                  </tr>
-                  <tr>
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 5</th>
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 10</th>
-                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 5</th>
-                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 10</th>
+                      <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 20</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -184,11 +179,8 @@
                     <td class="align-middle text-center" th:styleappend="${list.rankPc10 != 0} ? 'background-color: #fffff5;' : ''">
                       <p class="text-xs font-weight-bold mb-0" th:text="${list.rankPc10}"></p>
                     </td>
-                    <td class="align-middle text-center" th:styleappend="${list.rankMobile5 != 0} ? 'background-color: #fffff5;' : ''">
-                      <p class="text-xs font-weight-bold mb-0" th:text="${list.rankMobile5}"></p>
-                    </td>
-                    <td class="align-middle text-center" th:styleappend="${list.rankMobile10 != 0} ? 'background-color: #fffff5;' : ''">
-                      <p class="text-xs font-weight-bold mb-0" th:text="${list.rankMobile10}"></p>
+                    <td class="align-middle text-center" th:styleappend="${list.rankPc20 != 0} ? 'background-color: #fffff5;' : ''">
+                      <p class="text-xs font-weight-bold mb-0" th:text="${list.rankPc20}"></p>
                     </td>
                   </tr>
                   </tbody>

@@ -30,7 +30,7 @@ public class KeywordService {
 
     private final UserMapper userMapper;
 
-    public Map<String, Object> selectKeywordInfo(int page, int pageSize, int category) throws Exception {
+    public Map<String, Object> selectKeywordInfo(int page, int pageSize, int category, String sort) throws Exception {
         Map<String, Object> resultMap = new HashMap<>();
 
         int offset = (page - 1) * pageSize;
@@ -38,7 +38,7 @@ public class KeywordService {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         HashMap<String, Object> keywordCntInfo = keywordMapper.selectKeywordCntInfo(email, category);
-        List<KeywordDto> keywordDtoList = keywordMapper.selectKeywordInfo(email, category, rowBounds);
+        List<KeywordDto> keywordDtoList = keywordMapper.selectKeywordInfo(email, category, sort, rowBounds);
 
         resultMap.put("keywordRankCount", keywordCntInfo.get("keywordRankCount"));
         resultMap.put("keywordCount", keywordCntInfo.get("keywordCount"));
@@ -94,13 +94,13 @@ public class KeywordService {
 
     }
 
-    public void keywordDelete(KeywordDto keywordDto) throws Exception {
+    public void keywordDelete(Long keywordId) throws Exception {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserDto userDto = userMapper.findByEmail(email);
 
         HashMap<String, Object> map = new HashMap<>();
         map.put("id",userDto.getId().toString());
-        map.put("keywordId",keywordDto.getKeywordId());
+        map.put("keywordId", keywordId);
 
         keywordMapper.deleteKeyDict(map);
         keywordMapper.deleteKeyRank1(map);
@@ -110,5 +110,10 @@ public class KeywordService {
 
     public HashMap<String, Object> selectKeywordCntInfo(String email) throws Exception {
         return keywordMapper.selectKeywordCntInfo(email, 0);
+    }
+
+    public void keywordFix(Long keywordId) throws Exception {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        keywordMapper.keywordFix(email,keywordId);
     }
 }
