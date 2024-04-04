@@ -4,18 +4,21 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="camel.BoostMarketer.blog.mapper.BlogMapper">
+    <sql id="selectUserIdByEmail">
+        SELECT id FROM user WHERE email = #{email}
+    </sql>
 
     <!--  블로그 등록  -->
     <insert id="registerBlog" parameterType="map">
         INSERT INTO blog (user_id, blog_id, blog_name, blog_img)
-        SELECT (SELECT id FROM user WHERE email = #{email}),
+        SELECT (<include refid="selectUserIdByEmail"/>),
                #{blogDto.blogId},
                #{blogDto.blogName},
                #{blogDto.blogImg}
         FROM DUAL
         WHERE NOT EXISTS (SELECT 1
                           FROM blog
-                          WHERE user_id = (SELECT id FROM user WHERE email = #{email})
+                          WHERE user_id = (<include refid="selectUserIdByEmail"/>)
                             and blog_id = #{blogDto.blogId})
     </insert>
 
@@ -74,9 +77,7 @@
         where blog_id in (select blog_id
                           from blog
                           where user_id =
-                                (select id
-                                 from user
-                                 where email = #{email}))
+                                (<include refid="selectUserIdByEmail"/>))
         GROUP BY blog_id;
     </select>
 
@@ -94,9 +95,7 @@
         where blog_id in (select blog_id
                           from blog
                           where user_id =
-                                (select id
-                                 from user
-                                 where email = #{email}))
+                                (<include refid="selectUserIdByEmail"/>))
     </update>
 
     <!--  블로그 삭제  -->
@@ -104,9 +103,7 @@
         delete
         from blog
         WHERE blog_id = #{blogId}
-          and user_id = (select id
-               from user
-               where email = #{email})
+          and user_id = (<include refid="selectUserIdByEmail"/>)
     </delete>
 
     <!--  블로그 글 삭제  -->
@@ -116,7 +113,7 @@
     </delete>
 
     <!--  최신글 조회 [1달] -->
-    <select id="selectRecentPost" parameterType="String" resultType="map"><![CDATA[
+    <select id="selectRecentPost" parameterType="String" resultType="map">
         SELECT
         	b.blog_name as blogName,
             bp.blog_id as blogId,
@@ -124,9 +121,11 @@
             bp.post_title as postTitle,
             bp.post_date as postDate,
             b.blog_img as blogImg,
+            <![CDATA[
             COUNT(CASE WHEN rank_pc > 0 AND rank_pc <= 5 THEN 1 END)          AS rankPc5,
             COUNT(CASE WHEN rank_pc > 5 AND rank_pc <= 10 THEN 1 END)         AS rankPc10,
             COUNT(CASE WHEN rank_pc > 10 AND rank_pc <= 20 THEN 1 END)         AS rankPc20
+            ]]>
         FROM
             blog_post bp
         JOIN
@@ -139,15 +138,11 @@
                 WHERE u.email = #{email}
             )
         WHERE
-            b.user_id = (
-                SELECT id
-                FROM user
-                WHERE email = #{email}
-            )
+            b.user_id = (<include refid="selectUserIdByEmail"/>)
             AND bp.post_date >= CURDATE() - INTERVAL 1 MONTH
         GROUP BY b.blog_name, bp.blog_id, bp.post_no, bp.post_title, bp.post_date,b.blog_img
         order BY post_date desc
-    ]]></select>
+    </select>
 
     <!--  게시글 수, 상위노출 게시글 수  -->
     <select id="selectPostCntInfo" parameterType="String" resultType="map"><![CDATA[
@@ -167,6 +162,30 @@
                          )
         WHERE u.email = #{email}
     ]]></select>
+
+    <!--  키워드 순위에 해당하는 블로그 글  -->
+    <select id="getRankedBlogsByKeyword" parameterType="map" resultType="map">
+        SELECT b.blog_name     as blogName,
+               bp.blog_id      as blogId,
+               bp.post_no      as postNo,
+               bp.post_title   as postTitle,
+               bp.post_date    as postDate,
+               b.blog_img      as blogImg,
+               kd.keyword_name as keywordName,
+               kr.rank_pc      as rankPc
+        FROM blog_post bp
+                 LEFT JOIN
+             blog b ON bp.blog_id = b.blog_id
+                 LEFT JOIN
+             keyword_rank kr ON kr.post_no = bp.post_no
+                 LEFT JOIN
+             keyword_dict kd ON kr.keyword_id = kd.keyword_id
+        WHERE b.user_id = (<include refid="selectUserIdByEmail"/>)
+          and kd.keyword_id = #{keywordId}
+        order BY rank_pc
+    </select>
+
+
 
 
 

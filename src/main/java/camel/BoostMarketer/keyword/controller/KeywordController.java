@@ -13,6 +13,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -69,6 +71,19 @@ public class KeywordController {
     public ResponseEntity<?> keywordExcelUpload(@RequestParam("file") MultipartFile file) throws Exception {
         keywordService.keywordExcelUpload(file);
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @GetMapping(value = "/keyword/popup/{keywordId}")
+    public String keywordPopUp(Model model,@PathVariable("keywordId") Long keywordId) throws Exception {
+        String keywordName = "";
+        List<HashMap<String, Object>> resultList = blogService.getRankedBlogsByKeyword(keywordId);
+
+        if(!resultList.isEmpty()){
+            keywordName = (String) resultList.get(0).get("keywordName");
+        }
+        model.addAttribute("keywordName", keywordName);
+        model.addAttribute("resultList", resultList);
+        return "common/popup";
     }
 
 

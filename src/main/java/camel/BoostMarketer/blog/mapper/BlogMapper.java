@@ -62,4 +62,6 @@ public interface BlogMapper {
     List<HashMap<String, Object>> selectRecentPost(String email) throws Exception;
 
     HashMap<String, Object> selectPostCntInfo(String email) throws Exception;
+
+    List<HashMap<String, Object>> getRankedBlogsByKeyword(@Param("keywordId") Long keywordId,@Param("email") String email) throws Exception;
 }

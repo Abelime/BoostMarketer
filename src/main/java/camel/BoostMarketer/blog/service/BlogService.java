@@ -223,4 +223,9 @@ public class BlogService {
     public HashMap<String, Object> selectPostCntInfo(String email) throws Exception {
         return blogMapper.selectPostCntInfo(email);
     }
+
+    public List<HashMap<String, Object>> getRankedBlogsByKeyword(Long keywordId) throws Exception {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return blogMapper.getRankedBlogsByKeyword(keywordId, email);
+    }
 }
