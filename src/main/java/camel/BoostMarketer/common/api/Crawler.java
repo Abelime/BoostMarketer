@@ -377,7 +377,7 @@ public class Crawler {
                         keywordDtoList.add(keywordDto);
                     }
                 }
-                if(aTags.indexOf(aTag) == 19) break; //20등까지 순위 확인
+                if(aTags.indexOf(aTag) == 9) break; //10등까지 순위 확인
             }
 
         } catch (Exception e) {

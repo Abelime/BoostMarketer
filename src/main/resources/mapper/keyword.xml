@@ -63,7 +63,6 @@
         month_search_pc + month_search_mobile as total_search,
                COALESCE(kr.rank_pc_5, 0)      AS rank_pc_5,
                COALESCE(kr.rank_pc_10, 0)     AS rank_pc_10,
-               COALESCE(kr.rank_pc_20, 0)     AS rank_pc_20,
                rank_pc_cnt,
                uk.keyword_fix
         FROM keyword_dict kd
@@ -80,7 +79,6 @@
              (SELECT keyword_id,
                      COUNT(CASE WHEN rank_pc > 0 AND rank_pc <= 5 THEN 1 END)          AS rank_pc_5,
                      COUNT(CASE WHEN rank_pc > 5 AND rank_pc <= 10 THEN 1 END)         AS rank_pc_10,
-                     COUNT(CASE WHEN rank_pc > 10 AND rank_pc <= 20 THEN 1 END)         AS rank_pc_20,
                      COUNT(rank_pc) as rank_pc_cnt
         ]]>
               FROM keyword_rank

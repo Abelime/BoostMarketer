@@ -316,9 +316,9 @@
                   <tr>
                     <th rowspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">키워드</th>
                     <th colspan="3" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">월 검색량</th>
-                    <th colspan="3" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">노출 순위</th>
+                    <th colspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">노출 순위</th>
                     <th rowspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 10%">조회하기</th>
-                    <th rowspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder"></th>
+                    <th rowspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 10%"></th>
                   </tr>
                   <tr>
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">PC</th>
@@ -326,7 +326,6 @@
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">총 검색량</th>
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 5</th>
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 10</th>
-                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 20</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -364,19 +363,19 @@
                     <td class="align-middle text-center" th:styleappend="${keyword.rankPc10 != 0} ? 'background-color: #fffff5;' : ''">
                       <p class="text-xs font-weight-bold mb-0" th:text="${keyword.rankPc10}"></p>
                     </td>
-                    <td class="align-middle text-center" th:styleappend="${keyword.rankPc20 != 0} ? 'background-color: #fffff5;' : ''">
-                      <p class="text-xs font-weight-bold mb-0" th:text="${keyword.rankPc20}"></p>
+                    <td class="align-middle text-center">
+                      <a class="btn btn-link text-dark px-3 mb-0" target="_blank" th:href="@{https://search.naver.com/search.naver(where='nexearch', sm='top_hty', fbm='0', ie='utf8', query=${keyword.keywordName})}">
+                        <i class="fas fa-desktop text-dark me-2" aria-hidden="true"></i>PC
+                      </a>
+                      <a class="btn btn-link text-dark px-3 mb-0" target="_blank" th:href="@{https://m.search.naver.com/search.naver(sm='mtp_hty.top', where='m', query=${keyword.keywordName})}">
+                        <i class="fas fa-mobile-alt me-2" aria-hidden="true"></i>Mobile
+                      </a>
                     </td>
                     <td class="align-middle text-center">
                       <a class="btn btn-link text-dark px-3 mb-0" target="_blank" th:onclick="'openPopUp(' + ${keyword.keywordId} + ');'">
                         <i class="fas fa-external-link-alt" aria-hidden="true"></i>
                         자세히
                       </a>
-                      <a class="btn btn-link text-dark px-3 mb-0" target="_blank" th:href="@{https://search.naver.com/search.naver(ssc='tab.blog.all', sm='tab_jum', query=${keyword.keywordName})}">
-                        <i class="fas fa-desktop text-dark me-2" aria-hidden="true"></i>PC
-                      </a>
-                    </td>
-                    <td class="align-middle text-center">
                       <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="#" th:onclick="'keywordDelete(' + ${keyword.keywordId} + ');'"><i class="far fa-trash-alt me-2"></i>삭제</a>
                     </td>
                     <input type="hidden" name="keywordCategory" th:value="${keyword.category}"/>
