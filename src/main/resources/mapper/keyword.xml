@@ -100,10 +100,10 @@
                 ,total_search
             </when>
             <when test="sort == 'highRank'">
-                ,rank_pc_cnt desc ,rank_pc_5 desc, rank_pc_10 desc, rank_pc_20 desc
+                ,rank_pc_cnt desc ,rank_pc_5 desc, rank_pc_10 desc
             </when>
             <when test="sort == 'lowRank'">
-                ,rank_pc_cnt, rank_pc_5, rank_pc_10, rank_pc_20
+                ,rank_pc_cnt, rank_pc_5, rank_pc_10
             </when>
         </choose>
         , uk.updated_at desc
