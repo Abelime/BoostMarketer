@@ -123,8 +123,7 @@
             b.blog_img as blogImg,
             <![CDATA[
             COUNT(CASE WHEN rank_pc > 0 AND rank_pc <= 5 THEN 1 END)          AS rankPc5,
-            COUNT(CASE WHEN rank_pc > 5 AND rank_pc <= 10 THEN 1 END)         AS rankPc10,
-            COUNT(CASE WHEN rank_pc > 10 AND rank_pc <= 20 THEN 1 END)         AS rankPc20
+            COUNT(CASE WHEN rank_pc > 5 AND rank_pc <= 10 THEN 1 END)         AS rankPc10
             ]]>
         FROM
             blog_post bp
