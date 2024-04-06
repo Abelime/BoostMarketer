@@ -1,0 +1,10 @@
+<div class="p-2 bd-highlight">
+  <div class="page-select-wrapper">
+    <select id="page-select" class="page-select">
+      <option value="10" th:selected="${pageSize == 10}">10개씩</option>
+      <option value="30" th:selected="${pageSize == 30}">30개씩</option>
+      <option value="50" th:selected="${pageSize == 50}">50개씩</option>
+      <option value="100" th:selected="${pageSize == 100}">100개씩</option>
+    </select>
+  </div>
+</div>

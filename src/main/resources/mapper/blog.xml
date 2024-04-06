@@ -59,7 +59,25 @@
                              WHERE u.email = #{email}
                          )
         WHERE u.email = #{email}
-        GROUP BY bg.blog_id, bg.blog_name, bg.blog_img;
+        GROUP BY bg.blog_id, bg.blog_name, bg.blog_img
+        order by
+        <choose>
+            <when test="sort == 'general'">
+                bg.created_at
+            </when>
+            <when test="sort == 'highPost'">
+                post_cnt desc
+            </when>
+            <when test="sort == 'lowPost'">
+                post_cnt
+            </when>
+            <when test="sort == 'highRank'">
+                top_posts_count desc
+            </when>
+            <when test="sort == 'lowRank'">
+                top_posts_count
+            </when>
+        </choose>
     </select>
 
     <!--  블로그 마지막 글번호 조회  -->
@@ -184,152 +202,11 @@
         order BY rank_pc
     </select>
 
-
-
-
-
-    <!--    <select id="selectPostCount" parameterType="BlogPostDto" resultType="java.util.Map">-->
-    <!--        select count(*) as cnt, use_flg as useFlg-->
-    <!--        from blog_post-->
-    <!--        WHERE blog_id = #{blogId}-->
-    <!--          AND post_no = #{postNo, jdbcType=INTEGER}-->
-    <!--    </select>-->
-
-    <!--    <insert id="insertBlogPost" parameterType="BlogPostDto">-->
-    <!--        INSERT INTO blog_post (blog_id, post_no, post_title, post_date, hashtag)-->
-    <!--        SELECT #{blogId}, #{postNo, jdbcType=INTEGER}, #{postTitle}, #{postDate}, #{hashtag}-->
-    <!--        FROM DUAL-->
-    <!--        WHERE NOT EXISTS (SELECT 1-->
-    <!--                          FROM blog_post-->
-    <!--                          WHERE blog_id = #{blogId}-->
-    <!--                            AND post_no = #{postNo, jdbcType=INTEGER}-->
-    <!--                            AND use_flg = 'Y')-->
-
-    <!--    </insert>-->
-
-<!--    <insert id="insertKeywordRank" parameterType="KeywordDto">-->
-<!--        INSERT INTO keyword_rank (post_no, keyword_id, keyword_rank)-->
-<!--        SELECT * FROM (-->
-<!--                          SELECT #{postNo, jdbcType=INTEGER}, #{keywordId}, #{keywordRank} AS keyword_rank-->
-<!--                      ) AS tmp-->
-<!--        WHERE NOT EXISTS (-->
-<!--            SELECT * FROM keyword_rank-->
-<!--            WHERE post_no = #{postNo} AND keyword_id = #{keywordId} AND rank_date = current_date()-->
-<!--        )-->
-<!--        LIMIT 1;-->
-<!--    </insert>-->
-
-<!--    <update id="updateBlogPost" parameterType="BlogPostDto">-->
-<!--        update blog_post-->
-<!--        set use_flg = 'Y'-->
-<!--        WHERE blog_id = #{blogId}-->
-<!--          AND post_no = #{postNo, jdbcType=INTEGER}-->
-<!--    </update>-->
-
-<!--    <insert id="insertKeyword" parameterType="KeywordDto" useGeneratedKeys="true" keyProperty="keywordId">-->
-<!--        INSERT INTO keyword_dict (keyword_name)-->
-<!--            SELECT #{keywordName}-->
-<!--            FROM DUAL-->
-<!--            WHERE NOT EXISTS (-->
-<!--                SELECT 1-->
-<!--                FROM keyword_dict-->
-<!--                WHERE keyword_name = #{keywordName}-->
-<!--            )-->
-<!--        <selectKey resultType="Long" keyProperty="keywordId" order="AFTER">-->
-<!--            SELECT keyword_id-->
-<!--            FROM keyword_dict-->
-<!--            WHERE keyword_name = #{keywordName}-->
-<!--        </selectKey>-->
-<!--    </insert>-->
-
-<!---->
-<!--    <insert id="insertKeywordRank" parameterType="java.util.List">-->
-<!--        INSERT INTO keyword_rank (post_no, keyword_id, keyword_rank) VALUES-->
-<!--        <foreach item="item" collection="list" separator=",">-->
-<!--            (#{item.postNo, jdbcType=INTEGER}, #{item.keywordId}, #{item.keywordRank})-->
-<!--        </foreach>-->
-<!--        ON DUPLICATE KEY UPDATE keyword_rank = VALUES(keyword_rank), updated_at = VALUES(updated_at);-->
-<!--    </insert>-->
-
-
-<!--    <select id="selectPostList" resultType="BlogPostDto">-->
-<!--        select *-->
-<!--          from blog_post-->
-<!--         where use_flg = 'Y'-->
-<!--    </select>-->
-
-<!--    <select id="selectDetailPost" parameterType="String" resultType="BlogPostDto">-->
-<!--        select blog_id, post_no, post_title, post_date, hashtag-->
-<!--          from blog_post-->
-<!--         where post_no = #{postNo}-->
-<!--           and use_flg = 'Y'-->
-<!--    </select>-->
-
-<!--    <select id="selectKeyWordRank" parameterType="java.util.List" resultType="KeywordDto">-->
-<!--        select bp.post_no, kd.keyword_id, kd.keyword_name, kr.keyword_rank, kr.rank_date-->
-<!--        from keyword_rank kr,-->
-<!--             keyword_dict kd,-->
-<!--             blog_post bp-->
-<!--        where kr.keyword_id = kd.keyword_id-->
-<!--          and kr.post_no = bp.post_no-->
-<!--          and kr.use_flg = 'Y'-->
-<!--          and kd.use_flg = 'Y'-->
-<!--        group by post_no, keyword_id-->
-<!--    </select>-->
-
-<!--    <select id="selectDetailRank" parameterType="String" resultType="KeywordDto">-->
-<!--        select kr.id,-->
-<!--               kr.post_no,-->
-<!--               kr.keyword_id,-->
-<!--               kr.keyword_rank,-->
-<!--               DATE_FORMAT(kr.rank_date, '%m-%d') AS rank_date,-->
-<!--               kd.keyword_name-->
-<!--        from keyword_rank kr,-->
-<!--             keyword_dict kd-->
-<!--        where kr.post_no = #{postNo}-->
-<!--          and kd.keyword_id = kr.keyword_id-->
-<!--          and kr.use_flg = 'Y'-->
-<!--          and kd.use_flg = 'Y'-->
-<!--        group by kr.keyword_id, kr.rank_date-->
-<!--    </select>-->
-
-<!--    <update id="deletePost" parameterType="java.util.List">-->
-<!--        UPDATE blog_post-->
-<!--        SET use_flg = 'N'-->
-<!--        WHERE post_no in-->
-<!--        <foreach item="item" open="(" close=")" collection="list" separator=",">-->
-<!--            #{item}-->
-<!--        </foreach>-->
-<!--    </update>-->
-
-    <!--게시글 삭제로 인한 키워드 삭제-->
-<!--    <delete id="deleteKeyword" parameterType="java.util.List">-->
-<!--        delete from keyword_rank-->
-<!--        WHERE post_no in-->
-<!--        <foreach item="item" open="(" close=")" collection="list" separator=",">-->
-<!--            #{item}-->
-<!--        </foreach>-->
-<!--    </delete>-->
-
-    <!--키워드 삭제-->
-<!--    <delete id="deleteKeyword2" parameterType="map">-->
-<!--        delete from keyword_rank-->
-<!--        WHERE keyword_id IN-->
-<!--        <foreach item="item" collection="keywordIds" open="(" close=")" separator=",">-->
-<!--            #{item}-->
-<!--        </foreach>-->
-<!--        AND post_no = #{postNo}-->
-<!--    </delete>-->
-
-<!--    <select id="selectKeywords" parameterType="String" resultType="KeywordDto">-->
-<!--        select kr.keyword_id,-->
-<!--               kd.keyword_name-->
-<!--        from keyword_dict kd,-->
-<!--             keyword_rank kr-->
-<!--        where kr.post_no = #{postNo}-->
-<!--          and kr.keyword_id = kd.keyword_id-->
-<!--          and kr.use_flg = 'Y'-->
-<!--        group by keyword_id-->
-<!--    </select>-->
+    <!--  블로그 수  -->
+    <select id="selectBlogCnt" parameterType="String" resultType="Integer">
+        select count(*)
+        from blog b
+        where user_id = (<include refid="selectUserIdByEmail"/>)
+    </select>
 
 </mapper>

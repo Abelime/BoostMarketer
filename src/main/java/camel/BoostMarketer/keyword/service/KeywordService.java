@@ -58,8 +58,8 @@ public class KeywordService {
 
         //내가 등록한 키워드
         keywordMapper.registerUserKeyword(keywordDto, email);
-
-        List<BlogDto> blogDtoList = blogMapper.selectBlogInfo(email);
+        //TODO 수정해야함!!
+        List<BlogDto> blogDtoList = blogMapper.selectBlogInfo(email, "", null);
 
         List<String> blogIdList = blogDtoList.stream()
                 .map(BlogDto::getBlogId)
