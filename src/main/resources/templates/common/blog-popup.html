@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="/assets/img/favicon.png">
+  <title>
+    BoostMarketer - 마케팅을 위한 플랫폼
+  </title>
+  <!-- CSS Files -->
+  <link id="pagestyle" href="/assets/css/soft-ui-dashboard.css?v=1.0.7" rel="stylesheet" />
+  <link href="/css/table.css" rel="stylesheet" />
+</head>
+<style>
+  .post-hashtag {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: start; /* Keeps tags aligned to the start */
+  }
+
+  .hashtag {
+    background-color: #f0f0f0; /* Even lighter gray */
+    color: #555; /* Lighter text color */
+    padding: 4px 9px; /* Slightly smaller padding */
+    border-radius: 15px; /* Less pronounced border-radius */
+    margin: 4px; /* Slightly reduced space between tags */
+    font-size: 11px; /* Slightly smaller text */
+    border: 1px solid #e0e0e0; /* Lighter border */
+    opacity: 0.8; /* Slightly transparent */
+    overflow: hidden; /* Ensures content doesn't spill out */
+    text-overflow: ellipsis; /* Adds an ellipsis for text that overflows */
+    white-space: nowrap; /* Prevents text from wrapping to a new line */
+  }
+
+  td {
+    min-width: 100px; /* Minimum width */
+    max-width: 300px; /* Maximum width */
+    overflow: hidden; /* Hide the overflow */
+    white-space: nowrap; /* Text in one line */
+    text-overflow: ellipsis; /* End with ellipsis */
+  }
+</style>
+
+<body class="g-sidenav-show  bg-gray-100">
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    <div class="container-fluid py-4">
+      <div class="row">
+        <div class="col-12">
+          <div class="card mb-4">
+            <div class="card-body px-0 pt-0 pb-2">
+              <div class="table-responsive p-0">
+                <table class="table align-items-center mb-0">
+                  <thead>
+                    <tr>
+                      <th class="text-uppercase text-secondary text-xs font-weight-bolder">블로그 정보</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <a target="_blank" th:href="'https://blog.naver.com/' + ${blogInfoDto.blogId}">
+                        <div class="d-flex px-2 py-1">
+                          <div>
+                              <img th:src="${!#strings.isEmpty(blogInfoDto.blogImg) ? blogInfoDto.blogImg : 'assets/img/logo-ct-dark.png'}" class="avatar avatar-content me-3" alt="user1">
+                          </div>
+                          <div class="d-flex flex-column justify-content-center">
+                            <a target="_blank" th:href="'https://blog.naver.com/' + ${blogInfoDto.blogId}">
+                              <h6 class="mb-0 text-sm" th:text="${blogInfoDto.blogName}"></h6>
+                            </a>
+                            <a class="text-xs text-secondary mb-0 link-primary" target="_blank" th:href="'https://blog.naver.com/' + ${blogInfoDto.blogId}" th:text="'https://blog.naver.com/' + ${blogInfoDto.blogId}"></a>
+                          </div>
+                        </div>
+                        </a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card-body px-0 pt-0 pb-2 justify-content-center mt-2">
+              <div class="table-responsive p-0">
+                <table class="table align-items-center mb-0">
+                  <thead>
+                  <tr>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder">게시글 제목</th>
+                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 15%">작성일자</th>
+                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 30%">키워드</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr th:each="list : ${postInfoList}">
+                    <td class="align-middle">
+                      <a target="_blank" th:href="'https://blog.naver.com/' + ${blogInfoDto.blogId} + '/' + ${list.postNo}"><p class="btn btn-link text-dark text-xs font-weight-bold mb-0" th:text="${list.postTitle}"></p></a>
+                      <div class="post-hashtag">
+                        <div class="hashtag select" th:each="tag : ${#strings.arraySplit(list.hashtag, ',')}"
+                             th:text="'#' + ${tag.trim()}"></div>
+                      </div>
+                    </td>
+                    <td class="align-middle text-center">
+                      <p class="text-xs font-weight-bold mb-0" th:text="${list.postDate}"></p>
+                    </td>
+                    <td class="align-middle text-center">
+                      <a th:each="keyword : ${keywordRankInfo}" th:if="${list.postNo} eq ${keyword.postNo}" style="display: block;" class="text-dark px-3 mb-0" target="_blank" th:onclick="">
+                        <p class="text-xs font-weight-bold" style="display: inline; padding-right: 5px" th:text="${keyword.keywordName}"></p>
+                        <p class="text-xs font-weight-bold" style="display: inline; color: #00c73c" th:text="'[' + ${keyword.rankPc} + '위]'"></p>
+                      </a>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

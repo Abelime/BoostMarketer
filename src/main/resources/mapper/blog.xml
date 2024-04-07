@@ -209,4 +209,35 @@
         where user_id = (<include refid="selectUserIdByEmail"/>)
     </select>
 
+    <!--  블로그 정보(단일) -->
+    <select id="selectBlogInfoOne" parameterType="String" resultType="BlogDto">
+        select blog_id, blog_name, blog_img
+        from blog b
+        where blog_id = #{blogId}
+        LIMIT 1
+    </select>
+
+    <!--  게시글 정보(팝업창) -->
+    <select id="selectPostByBlogId" parameterType="map" resultType="BlogPostDto">
+        SELECT bp.post_no,
+               bp.post_title,
+               bp.hashtag,
+               bp.post_date
+        FROM blog_post bp
+                 JOIN
+             keyword_rank kr ON bp.post_no = kr.post_no
+                 JOIN
+             user_keywords uk ON kr.keyword_id = uk.keyword_id and uk.user_id = (<include refid="selectUserIdByEmail"/>)
+        WHERE bp.blog_id = #{blogId}
+        GROUP BY bp.post_no, bp.post_title, bp.post_date
+        order by bp.post_no desc
+    </select>
+
+    <!--  내가 등록한 블로그 ID 조회 -->
+    <select id="selectBlogIdList" parameterType="String" resultType="String">
+        select blog_id
+        from blog b
+        where user_id = (<include refid="selectUserIdByEmail"/>)
+    </select>
+
 </mapper>

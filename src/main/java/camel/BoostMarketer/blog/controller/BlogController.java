@@ -55,4 +55,14 @@ public class BlogController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping(value = "/blog/popup/{blogId}")
+    public String keywordPopUp(Model model,@PathVariable("blogId") String blogId) throws Exception {
+        Map<String, Object> resultMap = blogService.getRankedKeywordsByBlog(blogId);
+
+        model.addAttribute("blogInfoDto", resultMap.get("blogInfoDto"));
+        model.addAttribute("postInfoList", resultMap.get("postInfoList"));
+        model.addAttribute("keywordRankInfo", resultMap.get("keywordRankInfo"));
+        return "common/blog-popup";
+    }
+
 }

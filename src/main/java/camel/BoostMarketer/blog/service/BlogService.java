@@ -4,6 +4,7 @@ import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.dto.BlogPostDto;
 import camel.BoostMarketer.blog.mapper.BlogMapper;
 import camel.BoostMarketer.common.dto.CommonBlogDto;
+import camel.BoostMarketer.keyword.mapper.KeywordMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +20,8 @@ import static camel.BoostMarketer.common.api.Crawler.blogInfoCrawler;
 public class BlogService {
 
     private final BlogMapper blogMapper;
+
+    private final KeywordMapper keywordMapper;
 
     public Map<String, Object> selectBlogInfo(int page, int pageSize, String sort) throws Exception {
         Map<String, Object> resultMap = new HashMap<>();
@@ -115,5 +118,20 @@ public class BlogService {
     public List<HashMap<String, Object>> getRankedBlogsByKeyword(Long keywordId) throws Exception {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return blogMapper.getRankedBlogsByKeyword(keywordId, email);
+    }
+
+    public HashMap<String, Object> getRankedKeywordsByBlog(String blogId) throws Exception {
+        HashMap<String, Object> resultMap = new HashMap<>();
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        BlogDto blogInfoDto = blogMapper.selectBlogInfoOne(blogId);
+        List<BlogPostDto> postInfoList = blogMapper.selectPostByBlogId(blogId, email);
+        List<HashMap<String, Object>> keywordRankInfo = keywordMapper.selectRankKeywordByPost(blogId, email);
+
+        resultMap.put("blogInfoDto", blogInfoDto);
+        resultMap.put("postInfoList", postInfoList);
+        resultMap.put("keywordRankInfo", keywordRankInfo);
+
+        return resultMap;
     }
 }

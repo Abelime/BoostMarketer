@@ -83,7 +83,7 @@ public class KeywordController {
         }
         model.addAttribute("keywordName", keywordName);
         model.addAttribute("resultList", resultList);
-        return "common/popup";
+        return "common/keyword-popup";
     }
 
 

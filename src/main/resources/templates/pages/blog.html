@@ -133,11 +133,11 @@
                 <table class="table align-items-center mb-0">
                   <thead>
                     <tr>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">정보</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">게시글 수</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">상위 노출 게시글 수</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">최신화 일자</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">
+                      <th class="text-uppercase text-secondary text-xs font-weight-bolder">정보</th>
+                      <th class="text-uppercase text-secondary text-xs font-weight-bolder ps-0">게시글 수</th>
+                      <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">상위 노출 게시글 수</th>
+                      <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">최신화 일자</th>
+                      <th class="text-center text-uppercase text-xs font-weight-bolder">
                         <a class="btn btn-link text-dark px-3 mb-0" href="#" th:onclick="updateBlog('ALL')"><i class="fas fa-sync-alt text-dark me-2" aria-hidden="true"></i>전체 최신화 요청</a>
                       </th>
                     </tr>
@@ -145,31 +145,36 @@
                   <tbody>
                     <tr th:each="blog : ${blogList}">
                       <td>
+                        <a target="_blank" th:href="'https://blog.naver.com/' + ${blog.blogId}">
                         <div class="d-flex px-2 py-1">
                           <div>
-                            <img th:src="${!#strings.isEmpty(blog.blogImg) ? blog.blogImg : 'assets/img/logo-ct-dark.png'}" class="avatar avatar-content me-3" alt="user1">
+                              <img th:src="${!#strings.isEmpty(blog.blogImg) ? blog.blogImg : 'assets/img/logo-ct-dark.png'}" class="avatar avatar-content me-3" alt="user1">
                           </div>
                           <div class="d-flex flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm" th:text="${blog.blogName}"></h6>
-                            <a class="text-xs text-secondary mb-0 link-primary" target="_blank" th:href="'https://blog.naver.com/' + ${blog.blogId}" th:text="'https://blog.naver.com/' + ${blog.blogId}">john@creative-tim.com</a>
+                            <a target="_blank" th:href="'https://blog.naver.com/' + ${blog.blogId}">
+                              <h6 class="mb-0 text-sm" th:text="${blog.blogName}"></h6>
+                            </a>
+                            <a class="text-xs text-secondary mb-0 link-primary" target="_blank" th:href="'https://blog.naver.com/' + ${blog.blogId}" th:text="'https://blog.naver.com/' + ${blog.blogId}"></a>
                           </div>
                         </div>
+                        </a>
                       </td>
                       <td>
                         <p class="text-xs font-weight-bold mb-0" th:text="${blog.postCnt == 0 ? '0' : #numbers.formatInteger(blog.postCnt, 1, 'COMMA')}"></p>
-<!--                        <p class="text-xs text-secondary mb-0" th:text="${blog.postCnt}"></p>-->
                       </td>
                       <td class="align-middle text-center text-sm">
-                        <p class="text-xs font-weight-bold mb-0" th:text="${blog.topPostsCount}"></p>
-<!--                        <span class="badge badge-sm bg-gradient-success">상위노출 글 </span>-->
+                        <p class="text-xs font-weight-bold mb-0" style="display: inline-block;" th:text="${blog.topPostsCount}" th:if="${blog.topPostsCount == 0}"></p>
+                        <a class="btn btn-link text-dark" target="_blank" th:onclick="openPopUp([[${blog.blogId}]]);" th:unless="${blog.topPostsCount == 0}">
+                          <p class="text-xs font-weight-bold mb-0" style="display: inline-block;" th:text="${blog.topPostsCount}"></p>
+                          <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                        </a>
                       </td>
                       <td class="align-middle text-center">
                         <p class="text-xs font-weight-bold mb-0" th:text="${blog.updateDt}"></p>
-<!--                        <p class="text-xs text-secondary mb-0">12:13</p>-->
                       </td>
                       <td class="align-middle text-center">
-                        <a class="btn btn-link text-dark px-3 mb-0" href="#" th:onclick="updateBlog([[${blog.blogId}]]);"><i class="fas fa-sync-alt text-dark me-2" aria-hidden="true"></i>최신화 요청</a>
-                        <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="#" th:onclick="deleteBlog([[${blog.blogId}]]);"><i class="far fa-trash-alt me-2"></i>삭제</a>
+                        <a class="btn btn-link text-dark px-3 mb-0" th:onclick="updateBlog([[${blog.blogId}]]);"><i class="fas fa-sync-alt text-dark me-2" aria-hidden="true"></i>최신화 요청</a>
+                        <a class="btn btn-link text-danger text-gradient px-3 mb-0" th:onclick="deleteBlog([[${blog.blogId}]]);"><i class="far fa-trash-alt me-2"></i>삭제</a>
                       </td>
                       <input type="hidden" name="blogId" th:value="${blog.blogId}"/>
                     </tr>
@@ -217,8 +222,8 @@
   <!--   Core JS Files   -->
   <script src="/assets/js/core/popper.min.js"></script>
   <script src="/assets/js/core/bootstrap.min.js"></script>
-  <script src="/assets/js/plugins/perfect-scrollbar.min.js"></script>
-  <script src="/assets/js/plugins/smooth-scrollbar.min.js"></script>
+<!--  <script src="/assets/js/plugins/perfect-scrollbar.min.js"></script>-->
+<!--  <script src="/assets/js/plugins/smooth-scrollbar.min.js"></script>-->
   <script>
     var win = navigator.platform.indexOf('Win') > -1;
     if (win && document.querySelector('#sidenav-scrollbar')) {
@@ -387,6 +392,13 @@
                 });
       }
     })
+  }
+
+  function openPopUp(blogId){
+    var url = "/blog/popup/"+blogId;
+    var name = "blog_popup";
+    var option = "width = 1100, height = 500, top = 100, left = 200, location = no"
+    window.open(url, name, option);
   }
 
 

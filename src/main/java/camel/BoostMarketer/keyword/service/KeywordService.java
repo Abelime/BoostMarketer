@@ -1,6 +1,5 @@
 package camel.BoostMarketer.keyword.service;
 
-import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.mapper.BlogMapper;
 import camel.BoostMarketer.common.api.Crawler;
 import camel.BoostMarketer.common.api.NaverSearchAdApi;
@@ -53,17 +52,14 @@ public class KeywordService {
         //검색량 조회
         NaverSearchAdApi.apiAccess(keywordDto);
 
-        //사전등록
+        //키워드 등록(사전)
         keywordMapper.registerKeywordDict(keywordDto);
 
-        //내가 등록한 키워드
+        //키워드 등록(유저)
         keywordMapper.registerUserKeyword(keywordDto, email);
-        //TODO 수정해야함!!
-        List<BlogDto> blogDtoList = blogMapper.selectBlogInfo(email, "", null);
 
-        List<String> blogIdList = blogDtoList.stream()
-                .map(BlogDto::getBlogId)
-                .toList();
+        //등록한 blogId 조회
+        List<String> blogIdList = blogMapper.selectBlogIdList(email);
 
         //랭킹 체크 로직(크롤링)
         List<KeywordDto> keywordDtoList = Crawler.newRankCrawler(blogIdList, keywordDto.getKeywordName(), keywordDto.getKeywordId());

@@ -38,4 +38,10 @@ public interface BlogMapper {
     List<HashMap<String, Object>> getRankedBlogsByKeyword(@Param("keywordId") Long keywordId, @Param("email") String email) throws Exception;
 
     int selectBlogCnt(String email) throws Exception;
+
+    BlogDto selectBlogInfoOne(String blogId) throws Exception;
+
+    List<BlogPostDto> selectPostByBlogId(@Param("blogId") String blogId, @Param("email") String email) throws Exception;
+
+    List<String> selectBlogIdList(String email) throws Exception;
 }

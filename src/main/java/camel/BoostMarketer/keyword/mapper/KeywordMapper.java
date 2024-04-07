@@ -28,4 +28,6 @@ public interface KeywordMapper {
 
     void keywordFix(@Param("email") String email, @Param("keywordId") Long keywordId) throws Exception;
 
+    List<HashMap<String, Object>> selectRankKeywordByPost(@Param("blogId") String blogId,@Param("email") String email) throws Exception;
+
 }
