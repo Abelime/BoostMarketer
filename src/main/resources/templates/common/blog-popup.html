@@ -22,11 +22,11 @@
 
   .hashtag {
     background-color: #f0f0f0; /* Even lighter gray */
-    color: #555; /* Lighter text color */
+    color: black; /* Lighter text color */
     padding: 4px 9px; /* Slightly smaller padding */
     border-radius: 15px; /* Less pronounced border-radius */
     margin: 4px; /* Slightly reduced space between tags */
-    font-size: 11px; /* Slightly smaller text */
+    font-size: 12px; /* Slightly smaller text */
     border: 1px solid #e0e0e0; /* Lighter border */
     opacity: 0.8; /* Slightly transparent */
     overflow: hidden; /* Ensures content doesn't spill out */
@@ -92,7 +92,7 @@
                   <tbody>
                   <tr th:each="list : ${postInfoList}">
                     <td class="align-middle">
-                      <a target="_blank" th:href="'https://blog.naver.com/' + ${blogInfoDto.blogId} + '/' + ${list.postNo}"><p class="btn btn-link text-dark text-xs font-weight-bold mb-0" th:text="${list.postTitle}"></p></a>
+                      <a target="_blank" th:href="'https://blog.naver.com/' + ${blogInfoDto.blogId} + '/' + ${list.postNo}"><p class="btn btn-link text-dark text-sm font-weight-bold mb-0" th:text="${list.postTitle}"></p></a>
                       <div class="post-hashtag">
                         <div class="hashtag select" th:each="tag : ${#strings.arraySplit(list.hashtag, ',')}"
                              th:text="'#' + ${tag.trim()}"></div>
@@ -103,8 +103,8 @@
                     </td>
                     <td class="align-middle text-center">
                       <a th:each="keyword : ${keywordRankInfo}" th:if="${list.postNo} eq ${keyword.postNo}" style="display: block;" class="text-dark px-3 mb-0" target="_blank" th:onclick="">
-                        <p class="text-xs font-weight-bold" style="display: inline; padding-right: 5px" th:text="${keyword.keywordName}"></p>
-                        <p class="text-xs font-weight-bold" style="display: inline; color: #00c73c" th:text="'[' + ${keyword.rankPc} + '위]'"></p>
+                        <p class="text-sm font-weight-bold" style="display: inline; padding-right: 5px" th:text="${keyword.keywordName}"></p>
+                        <p class="text-sm font-weight-bold" style="display: inline; color: #00c73c" th:text="'[' + ${keyword.rankPc} + '위]'"></p>
                       </a>
                     </td>
                   </tr>
