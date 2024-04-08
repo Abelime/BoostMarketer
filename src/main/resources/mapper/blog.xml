@@ -222,7 +222,7 @@
     <select id="selectPostByBlogId" parameterType="map" resultType="map">
         SELECT bp.post_no as postNo,
                bp.post_title as postTitle,
-               bp.hashtag as hashtag,
+            COALESCE(bp.hashtag, '') as hashtag,
                bp.post_date as postDate,
             COALESCE(kr.total_search_exposure,0)  as totalSearchExposure
         FROM blog_post bp
