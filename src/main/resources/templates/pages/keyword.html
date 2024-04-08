@@ -284,8 +284,10 @@
                       <option value="category" th:selected="${sort == 'category'}">카테고리 순</option>
                       <option value="highSearch" th:selected="${sort == 'highSearch'}">검색량 높은순</option>
                       <option value="lowSearch" th:selected="${sort == 'lowSearch'}">검색량 낮은순</option>
-                      <option value="highRank" th:selected="${sort == 'highRank'}">노출순위 높은순</option>
-                      <option value="lowRank" th:selected="${sort == 'lowRank'}">노출순위 낮은순</option>
+                      <option value="highRank" th:selected="${sort == 'highRank'}">블로그탭 높은순</option>
+                      <option value="lowRank" th:selected="${sort == 'lowRank'}">블로그탭 낮은순</option>
+                      <option value="highExposure" th:selected="${sort == 'highExposure'}">노출수 많은순</option>
+                      <option value="lowExposure" th:selected="${sort == 'lowExposure'}">노출수 작은순</option>
                     </select>
                   </div>
                 </div>
@@ -307,7 +309,8 @@
                   <tr>
                     <th rowspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">키워드</th>
                     <th colspan="3" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">월 검색량</th>
-                    <th colspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">노출 순위</th>
+                    <th colspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">블로그탭 순위</th>
+                    <th colspan="1" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">통합검색</th>
                     <th rowspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 10%">조회하기</th>
                     <th rowspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 10%"></th>
                   </tr>
@@ -317,6 +320,7 @@
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">총 검색량</th>
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 5</th>
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">TOP 10</th>
+                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">노출수</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -353,6 +357,9 @@
                     </td>
                     <td class="align-middle text-center" th:styleappend="${keyword.rankPc10 != 0} ? 'background-color: #fffff5;' : ''">
                       <p class="text-xs font-weight-bold mb-0" th:text="${keyword.rankPc10}"></p>
+                    </td>
+                    <td class="align-middle text-center" th:styleappend="${keyword.totalSearchExposure != 0} ? 'background-color: #fffff5;' : ''">
+                      <p class="text-xs font-weight-bold mb-0" th:text="${keyword.totalSearchExposure}"></p>
                     </td>
                     <td class="align-middle text-center">
                       <a class="btn btn-link text-dark px-3 mb-0" target="_blank" th:href="@{https://search.naver.com/search.naver(where='nexearch', sm='top_hty', fbm='0', ie='utf8', query=${keyword.keywordName})}">

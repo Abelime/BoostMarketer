@@ -21,6 +21,7 @@ public class KeywordDto extends CommonBlogDto {
     private int totalSearch;
     private int rankPc5;
     private int rankPc10;
+    private int totalSearchExposure;
     private int keywordFix;
 
 }

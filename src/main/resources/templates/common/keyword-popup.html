@@ -20,6 +20,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="apple-touch-icon" sizes="76x76" href="/assets/img/apple-icon.png">
   <link rel="icon" type="image/png" href="/assets/img/favicon.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <title>
     BoostMarketer - 마케팅을 위한 플랫폼
   </title>
@@ -45,7 +46,8 @@
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 15%">블로그명</th>
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 25%">게시글 제목</th>
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 10%">작성일자</th>
-                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 10%">순위</th>
+                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 10%">블로그 탭 순위</th>
+                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 10%">통합검색 노출 여부</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -70,7 +72,18 @@
                       <p class="text-xs font-weight-bold mb-0" th:text="${list.postDate}"></p>
                     </td>
                     <td class="align-middle text-center" th:styleappend="${list.rankPc != 0} ? 'background-color: #fffff5;' : ''">
-                      <p class="text-xs font-weight-bold mb-0" th:text="${list.rankPc}"></p>
+                      <p class="text-xs font-weight-bold mb-0" th:if="${list.rankPc != 0}" th:text="${list.rankPc}"></p>
+                      <span th:if="${list.rankPc == 0}" class="text-danger">
+                          <i class="fa fa-times"></i>
+                      </span>
+                    </td>
+                    <td class="align-middle text-center" th:styleappend="${list.totalSearchExposure != 0} ? 'background-color: #fffff5;' : ''">
+                        <span th:if="${list.totalSearchExposure != 0}" class="text-success">
+                            <i class="fa fa-check"></i>
+                        </span>
+                        <span th:if="${list.totalSearchExposure == 0}" class="text-danger">
+                            <i class="fa fa-times"></i>
+                        </span>
                     </td>
                   </tr>
                   </tbody>

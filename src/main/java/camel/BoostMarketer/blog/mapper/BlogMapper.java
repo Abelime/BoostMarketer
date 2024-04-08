@@ -41,7 +41,7 @@ public interface BlogMapper {
 
     BlogDto selectBlogInfoOne(String blogId) throws Exception;
 
-    List<BlogPostDto> selectPostByBlogId(@Param("blogId") String blogId, @Param("email") String email) throws Exception;
+    List<HashMap<String, Object>> selectPostByBlogId(@Param("blogId") String blogId, @Param("email") String email) throws Exception;
 
     List<String> selectBlogIdList(String email) throws Exception;
 }

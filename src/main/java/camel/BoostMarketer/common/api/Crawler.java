@@ -3,9 +3,7 @@ package camel.BoostMarketer.common.api;
 import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.dto.BlogPostDto;
 import camel.BoostMarketer.blog.dto.RequestBlogDto;
-import camel.BoostMarketer.common.ConvertBlogUrl;
 import camel.BoostMarketer.common.util.DateUtil;
-import camel.BoostMarketer.keyword.dto.KeywordDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -349,8 +347,8 @@ public class Crawler {
         return postDtoList;
     }
 
-    public static List<KeywordDto> newRankCrawler(List<String> blogIds, String keyword, Long keywordId) {
-        List<KeywordDto> keywordDtoList = new ArrayList<>();
+    public static Map<String, Integer> blogTabCrawler(List<String> blogIds, String keyword) {
+        Map<String, Integer> resultMap = new HashMap<>();
 
         try {
             String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
@@ -368,13 +366,7 @@ public class Crawler {
                 String crawlerUrl = aTag.attr("href");
                 for (String blogId : blogIds) {
                     if (crawlerUrl.contains("/" + blogId + "/")) {
-                        String postNo = ConvertBlogUrl.urlToPostNo(crawlerUrl);
-                        KeywordDto keywordDto = new KeywordDto();
-                        keywordDto.setKeywordId(keywordId);
-                        keywordDto.setRankPc(aTags.indexOf(aTag) + 1);
-                        keywordDto.setKeywordName(keyword);
-                        keywordDto.setPostNo(postNo);
-                        keywordDtoList.add(keywordDto);
+                        resultMap.put(crawlerUrl, aTags.indexOf(aTag) + 1);
                     }
                 }
                 if(aTags.indexOf(aTag) == 9) break; //10등까지 순위 확인
@@ -384,7 +376,62 @@ public class Crawler {
             logger.error("Error occurred while fetching keyword ranks for keyword: " + keyword + " on " + "PC", e);
         }
 
-        return keywordDtoList;
+        return resultMap;
     }
 
+    //통합검색 노출 확인
+    public static List<String> totalSearchCrawler(List<String> blogIds, String keyword, Long keywordId) {
+        List<String> result = new ArrayList<>();
+
+        try {
+            String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+            String url = "https://search.naver.com/search.naver?query=" + encodedKeyword;
+            String referrer = "https://www.naver.com/";
+
+            Document document = Jsoup.connect(url)
+                    .referrer(referrer)
+                    .headers(getHeaders())
+                    .get();
+
+            Set<String> set = extractHrefValues(document);
+
+            for (String blogUrl : set) {
+                for (String blogId : blogIds) {
+                    if (blogUrl.contains("/" + blogId + "/")) {
+                        result.add(blogUrl);
+                    }
+                }
+            }
+
+            System.out.println(result.size());
+
+        } catch (Exception e) {
+            logger.error("Error occurred while fetching total_search for keyword: " + keyword, e);
+        }
+
+        return result;
+    }
+
+    private static Set<String> extractHrefValues(Document document) {
+        Set<String> hrefValues = new HashSet<>();
+
+        String[] selectors = new String[]{
+                ".title_link", ".link_tit",
+                ".fds-comps-right-image-text-content",
+                ".fds-comps-right-image-text-title-wrap"
+        };
+
+        for (String selector : selectors) {
+            Elements selectedElements = document.select(selector);
+
+            selectedElements.forEach(element -> {
+                String hrefValue = element.attr("href");
+                if (hrefValue.startsWith("https://blog.naver.com/")) {
+                    hrefValues.add(hrefValue);
+                }
+            });
+        }
+
+        return hrefValues;
+    }
 }

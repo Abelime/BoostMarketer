@@ -125,7 +125,7 @@ public class BlogService {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         BlogDto blogInfoDto = blogMapper.selectBlogInfoOne(blogId);
-        List<BlogPostDto> postInfoList = blogMapper.selectPostByBlogId(blogId, email);
+        List<HashMap<String, Object>>  postInfoList = blogMapper.selectPostByBlogId(blogId, email);
         List<HashMap<String, Object>> keywordRankInfo = keywordMapper.selectRankKeywordByPost(blogId, email);
 
         resultMap.put("blogInfoDto", blogInfoDto);

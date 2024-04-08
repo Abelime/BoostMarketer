@@ -189,7 +189,8 @@
                bp.post_date    as postDate,
                b.blog_img      as blogImg,
                kd.keyword_name as keywordName,
-               kr.rank_pc      as rankPc
+        COALESCE(kr.rank_pc,0) as rankPc,
+       	COALESCE(kr.total_search_exposure,0)  as totalSearchExposure
         FROM blog_post bp
                  LEFT JOIN
              blog b ON bp.blog_id = b.blog_id
@@ -218,11 +219,12 @@
     </select>
 
     <!--  게시글 정보(팝업창) -->
-    <select id="selectPostByBlogId" parameterType="map" resultType="BlogPostDto">
-        SELECT bp.post_no,
-               bp.post_title,
-               bp.hashtag,
-               bp.post_date
+    <select id="selectPostByBlogId" parameterType="map" resultType="map">
+        SELECT bp.post_no as postNo,
+               bp.post_title as postTitle,
+               bp.hashtag as hashtag,
+               bp.post_date as postDate,
+            COALESCE(kr.total_search_exposure,0)  as totalSearchExposure
         FROM blog_post bp
                  JOIN
              keyword_rank kr ON bp.post_no = kr.post_no

@@ -1,6 +1,7 @@
 package camel.BoostMarketer.keyword.service;
 
 import camel.BoostMarketer.blog.mapper.BlogMapper;
+import camel.BoostMarketer.common.ConvertBlogUrl;
 import camel.BoostMarketer.common.api.Crawler;
 import camel.BoostMarketer.common.api.NaverSearchAdApi;
 import camel.BoostMarketer.common.util.ExcelUtil;
@@ -14,10 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -61,8 +59,35 @@ public class KeywordService {
         //등록한 blogId 조회
         List<String> blogIdList = blogMapper.selectBlogIdList(email);
 
-        //랭킹 체크 로직(크롤링)
-        List<KeywordDto> keywordDtoList = Crawler.newRankCrawler(blogIdList, keywordDto.getKeywordName(), keywordDto.getKeywordId());
+        //블로그 탭 랭킹(크롤링)
+        Map<String, Integer> blogTabResult = Crawler.blogTabCrawler(blogIdList, keywordDto.getKeywordName());
+
+        //통합검색 노출(크롤링)
+        List<String> totalSearchResult = Crawler.totalSearchCrawler(blogIdList, keywordDto.getKeywordName(), keywordDto.getKeywordId());
+
+        List<KeywordDto> keywordDtoList = new ArrayList<>();
+
+        for (String blogUrl : blogTabResult.keySet()) {
+            KeywordDto rankDto = new KeywordDto();
+            rankDto.setKeywordId(keywordDto.getKeywordId());
+            rankDto.setRankPc(blogTabResult.get(blogUrl));
+            rankDto.setPostNo(ConvertBlogUrl.urlToPostNo(blogUrl));
+            if(!totalSearchResult.isEmpty() && totalSearchResult.contains(blogUrl)){
+                rankDto.setTotalSearchExposure(1);
+                totalSearchResult.remove(blogUrl);
+            }
+            keywordDtoList.add(rankDto);
+        }
+
+        if(!totalSearchResult.isEmpty()){
+            for (String blogUrl : totalSearchResult) {
+                KeywordDto dto = new KeywordDto();
+                dto.setKeywordId(keywordDto.getKeywordId());
+                dto.setPostNo(ConvertBlogUrl.urlToPostNo(blogUrl));
+                dto.setTotalSearchExposure(1);
+                keywordDtoList.add(dto);
+            }
+        }
 
         if(!keywordDtoList.isEmpty()){
             keywordMapper.registerKeywordRank(keywordDtoList);
