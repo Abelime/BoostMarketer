@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #chart-container {
+            width: 35%;
+            margin: auto;
+        }
+        canvas {
+            max-width: 100%; /* Canvas의 최대 너비 설정 */
+            height: auto; /* 높이를 자동으로 조정하여 가로 비율을 유지함 */
+        }
+    </style>
+</head>
+<body>
+<label for="startDate_Sel">시작 날짜:</label>
+<input type="date" id="startDate_Sel" name="startDate_Sel" ><br><br>
+
+<label for="endDate_Sel">종료 날짜:</label>
+<input type="date" id="endDate_Sel" name="endDate_Sel" ><br><br>
+
+<button id="submitBtn">이동</button>
+<div id="chart-container">
+    <canvas id="line-chart"></canvas>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var dataList = /*[[${dataList}]]*/ [];
+
+    var ctx = document.getElementById('line-chart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dataList.map(data => data['period']),
+            datasets: [{
+                label: 'Ratio',
+                data: dataList.map(data => data['ratio']),
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    /*]]>*/
+</script>
+<script>
+    $(document).ready(function(){
+        $("#submitBtn").click(function(){
+            // 시작 날짜와 종료 날짜의 값을 가져옵니다.
+            var startDate = $("#startDate_Sel").val();
+            var endDate = $("#endDate_Sel").val();
+
+            // URL을 조합합니다.
+            var url = "/trends?startDate=" + startDate + "&endDate=" + endDate;
+
+            // 조합된 URL로 이동합니다.
+            window.location.href = url;
+        });
+    });
+</script>
+</body>
+</html>

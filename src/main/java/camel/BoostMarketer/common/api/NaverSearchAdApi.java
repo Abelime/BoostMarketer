@@ -33,6 +33,7 @@ public class NaverSearchAdApi {
 
         HttpUrl.Builder urlBuilder = HttpUrl.parse(API_URL + path).newBuilder();
         urlBuilder.addQueryParameter("hintKeywords", keyword);
+        urlBuilder.addQueryParameter("month", "2");
         urlBuilder.addQueryParameter("showDetail", "1");
 
         String url = urlBuilder.build().toString();

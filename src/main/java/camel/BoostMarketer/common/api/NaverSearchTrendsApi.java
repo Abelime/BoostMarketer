@@ -18,7 +18,7 @@ public class NaverSearchTrendsApi {
     private final String clientId = "bJ0En5s3dtcOMl5glNR7"; //애플리케이션 클라이언트 아이디
     private final String clientSecret = "51WKT5ZwvL"; //애플리케이션 클라이언트 시크릿
 
-    public List<HashMap<String, Object>> apiAccess(String keyword, String startDate, String endDate) {
+    public List<HashMap<String, Object>> apiAccess(String keyword, String timeUnit, String startDate, String endDate) {
 
         String apiUrl = "https://openapi.naver.com/v1/datalab/search";
 
@@ -29,7 +29,7 @@ public class NaverSearchTrendsApi {
 
         String requestBody = "{\"startDate\":\""+startDate+"\"," +
                 "\"endDate\":\""+endDate+"\"," +
-                "\"timeUnit\":\"date\"," +
+                "\"timeUnit\":\""+timeUnit+"\"," +
                 "\"keywordGroups\":[{\"groupName\":\" "+keyword+"\"," + "\"keywords\":[\""+keyword+"\"]}]}";
 
         String responseBody = post(apiUrl, requestHeaders, requestBody);
