@@ -25,12 +25,12 @@ public class SecurityConfig {
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/user/**").permitAll()
 //                        .requestMatchers("/my/**").hasAnyRole("ADMIN", "USER")
-                        .requestMatchers("/assets/**","/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/assets/**","/css/**", "/js/**", "/images/**", "/**").permitAll()
                         .anyRequest().authenticated()
                 );
 
         http
-                .formLogin((auth) -> auth.loginPage("/user/sign-in")
+                    .formLogin((auth) -> auth.loginPage("/user/sign-in")
                         .loginProcessingUrl("/user/loginProc")
                         .defaultSuccessUrl("/")
                         .permitAll()
