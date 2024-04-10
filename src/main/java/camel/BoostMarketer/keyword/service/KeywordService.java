@@ -63,20 +63,20 @@ public class KeywordService {
         Map<String, Integer> blogTabResult = Crawler.blogTabCrawler(blogIdList, keywordDto.getKeywordName());
 
         //통합검색 노출(크롤링)
-        List<String> totalSearchResult = Crawler.totalSearchCrawler(blogIdList, keywordDto.getKeywordName(), keywordDto.getKeywordId());
+        List<String> totalSearchResult = Crawler.totalSearchCrawler(blogIdList, keywordDto.getKeywordName());
 
         List<KeywordDto> keywordDtoList = new ArrayList<>();
 
         for (String blogUrl : blogTabResult.keySet()) {
-            KeywordDto rankDto = new KeywordDto();
-            rankDto.setKeywordId(keywordDto.getKeywordId());
-            rankDto.setRankPc(blogTabResult.get(blogUrl));
-            rankDto.setPostNo(ConvertBlogUrl.urlToPostNo(blogUrl));
+            KeywordDto dto = new KeywordDto();
+            dto.setKeywordId(keywordDto.getKeywordId());
+            dto.setRankPc(blogTabResult.get(blogUrl));
+            dto.setPostNo(ConvertBlogUrl.urlToPostNo(blogUrl));
             if(!totalSearchResult.isEmpty() && totalSearchResult.contains(blogUrl)){
-                rankDto.setTotalSearchExposure(1);
+                dto.setTotalSearchExposure(1);
                 totalSearchResult.remove(blogUrl);
             }
-            keywordDtoList.add(rankDto);
+            keywordDtoList.add(dto);
         }
 
         if(!totalSearchResult.isEmpty()){

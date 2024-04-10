@@ -28,7 +28,9 @@
         <foreach item="item" collection="list" separator=",">
             (#{item.blogId}, #{item.postNo, jdbcType=INTEGER}, #{item.postTitle}, #{item.postDate}, #{item.hashtag})
         </foreach>
+        ON DUPLICATE KEY UPDATE updated_at = now()
     </insert>
+
 
         <!--  블로그 정보 조회  -->
     <select id="checkIfBlogExists" parameterType="String" resultType="BlogDto">
@@ -106,15 +108,25 @@
         WHERE blog_id = #{blogId}
     </update>
 
-    <!--  블로그 최신화 일자 갱신(다수)  -->
+    <!--  블로그 최신화 일자 갱신(다수)(배치)  -->
     <update id="allBlogUpdatedAt" parameterType="String">
         UPDATE blog
         SET updated_at = now()
-        where blog_id in (select blog_id
-                          from blog
-                          where user_id =
-                                (<include refid="selectUserIdByEmail"/>))
+        <where>
+            <if test="email != null and email != ''">
+                blog_id in
+                (
+                    select blog_id
+                    from blog
+                    where user_id =
+                    (
+                        <include refid="selectUserIdByEmail"/>
+                    )
+                )
+            </if>
+        </where>
     </update>
+
 
     <!--  블로그 삭제  -->
     <delete id="deleteBlog" parameterType="String">
@@ -240,6 +252,20 @@
         select blog_id
         from blog b
         where user_id = (<include refid="selectUserIdByEmail"/>)
+    </select>
+
+    <!-- 모든 블로그 마지막 글번호 조회(배치)  -->
+    <select id="selectAllLastPostNo" resultType="BlogPostDto">
+        SELECT blog_id, MAX(post_no) AS post_no
+        FROM blog_post
+        group by blog_id
+    </select>
+
+    <!-- 유저별 블로그ID 조회(배치)  -->
+    <select id="findBlogIdByUserId" parameterType="Long" resultType="String">
+        select blog_id
+        from blog
+        where user_id = #{userId}
     </select>
 
 </mapper>

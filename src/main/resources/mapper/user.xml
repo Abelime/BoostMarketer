@@ -5,12 +5,14 @@
 
 <mapper namespace="camel.BoostMarketer.user.mapper.UserMapper">
 
+    <!-- 중복 회원 검증 -->
     <select id="findByUser" parameterType="String" resultType="Integer">
         select count(*) cnt
           from user
          where email = #{email}
     </select>
 
+    <!-- 회원 가입 -->
     <insert id="save" parameterType="UserDto">
         INSERT INTO user (email, password)
         VALUES ( #{email}
@@ -21,6 +23,12 @@
         SELECT id, email, password
           FROM user
          WHERE email = #{email}
+    </select>
+
+    <select id="findByIds" parameterType="UserDto" resultType="Long">
+        SELECT id
+        FROM user
+        order by id
     </select>
 
 </mapper>

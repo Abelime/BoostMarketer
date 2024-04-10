@@ -209,4 +209,39 @@
         order by bp.post_no, kr.rank_pc
     </select>
 
+    <!-- 유저별 키워드 조회(배치) -->
+    <select id="findKeywordNameByUserId" parameterType="Long" resultType="KeywordDto">
+        select kd.keyword_id, kd.keyword_name
+        from keyword_dict kd
+                 join user_keywords uk on kd.keyword_id = uk.keyword_id
+        where uk.user_id = #{userId}
+        order by keyword_id
+    </select>
+
+    <!--  키워드 검색량 업데이트(배치)  -->
+    <update id="updateKeywordDict" parameterType="KeywordDto">
+        update keyword_dict
+        set month_search_pc     = #{monthSearchPc},
+            month_search_mobile = #{monthSearchMobile}
+        where keyword_id = #{keywordId}
+    </update>
+
+    <!--  키워드 순위 업데이트(배치)  -->
+    <insert id="updateKeywordRank" parameterType="KeywordDto">
+        INSERT INTO keyword_rank (keyword_id, rank_pc, post_no, total_search_exposure, updated_at)
+        VALUES (#{keywordId}, #{rankPc}, #{postNo}, #{totalSearchExposure}, NOW())
+        ON DUPLICATE KEY UPDATE rank_pc               = #{rankPc},
+                                total_search_exposure = #{totalSearchExposure},
+                                updated_at            = NOW()
+    </insert>
+
+
+    <!--  키워드 순위 데이터 삭제(배치)  -->
+    <delete id="deleteRankData">
+        DELETE
+        FROM keyword_rank
+        WHERE DATE(updated_at) != CURDATE();
+    </delete>
+
+
 </mapper>

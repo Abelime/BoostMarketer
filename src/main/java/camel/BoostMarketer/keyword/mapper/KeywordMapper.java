@@ -30,4 +30,11 @@ public interface KeywordMapper {
 
     List<HashMap<String, Object>> selectRankKeywordByPost(@Param("blogId") String blogId,@Param("email") String email) throws Exception;
 
+    List<KeywordDto> findKeywordNameByUserId(Long userId) throws Exception;
+
+    void updateKeywordDict(KeywordDto keywordDto) throws Exception;
+
+    void updateKeywordRank(KeywordDto keywordDto) throws Exception;
+
+    void deleteRankData() throws Exception;
 }

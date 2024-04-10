@@ -155,7 +155,8 @@ public class Crawler {
 //        headers.put("Accept-Encoding", "gzip, deflate, br");
         headers.put("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7");
 //        headers.put("Referer", "https://search.naver.com/search.naver?");
-        headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36");
+
+        headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36");
 //        headers.put("Proxy-Authorization", "Basic " + base64Auth); 프록시 설정
 
         return headers;
@@ -380,13 +381,13 @@ public class Crawler {
     }
 
     //통합검색 노출 확인
-    public static List<String> totalSearchCrawler(List<String> blogIds, String keyword, Long keywordId) {
+    public static List<String> totalSearchCrawler(List<String> blogIds, String keyword) {
         List<String> result = new ArrayList<>();
 
         try {
             String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
-            String url = "https://search.naver.com/search.naver?query=" + encodedKeyword;
-            String referrer = "https://www.naver.com/";
+            String url = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword + " &oquery="  + encodedKeyword + "tqi=imk3isqo1LwssDUBj5VssssstYC-334687";
+            String referrer = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword + " &oquery="  + encodedKeyword + "tqi=imk3jsqo15VsskdtRIZssssssSR-306878";
 
             Document document = Jsoup.connect(url)
                     .referrer(referrer)
@@ -402,8 +403,6 @@ public class Crawler {
                     }
                 }
             }
-
-            System.out.println(result.size());
 
         } catch (Exception e) {
             logger.error("Error occurred while fetching total_search for keyword: " + keyword, e);
@@ -434,4 +433,5 @@ public class Crawler {
 
         return hrefValues;
     }
+
 }
