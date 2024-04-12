@@ -76,7 +76,6 @@
                  (<include refid="selectUserIdByEmail"/>) u ON uk.user_id = u.id
                 <if test="category != 0">
                     AND uk.category = #{category}
-                    or uk.keyword_fix = -1
                 </if>
                  LEFT JOIN
         <![CDATA[
@@ -171,7 +170,6 @@
              WHERE uk.user_id = (<include refid="selectUserIdByEmail"/>)
                <if test="category != 0">
                    AND uk.category = #{category}
-                   or uk.keyword_fix = -1
                </if>
             ) AS keywordCount,
             (SELECT COUNT(DISTINCT (kr.keyword_id))
