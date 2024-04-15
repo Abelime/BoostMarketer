@@ -164,7 +164,7 @@
             <![CDATA[
             COUNT(CASE WHEN rank_pc > 0 AND rank_pc <= 5 THEN 1 END)          AS rankPc5,
             COUNT(CASE WHEN rank_pc > 5 AND rank_pc <= 10 THEN 1 END)         AS rankPc10,
-            COALESCE(total_search_exposure, 0)                                AS totalSearchExposure
+            COUNT(total_search_exposure) AS totalSearchExposure
             ]]>
         FROM
             blog_post bp
