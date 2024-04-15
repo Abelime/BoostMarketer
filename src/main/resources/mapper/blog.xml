@@ -61,7 +61,7 @@
                              WHERE u.email = #{email}
                          )
         WHERE u.email = #{email}
-        GROUP BY bg.blog_id, bg.blog_name, bg.blog_img
+        GROUP BY bg.blog_id, bg.blog_name, bg.blog_img, bg.created_at
         order by
         <choose>
             <when test="sort == 'general'">
@@ -142,6 +142,16 @@
         WHERE blog_id = #{blogId}
     </delete>
 
+    <!--  최신글 COUNT [1달] -->
+    <select id="selectRecentPostCnt" parameterType="String" resultType="Integer">
+        SELECT COUNT(*) cnt
+        FROM blog_post bp
+                 JOIN
+             blog b ON bp.blog_id = b.blog_id
+        WHERE b.user_id = (<include refid="selectUserIdByEmail"/>)
+          AND bp.post_date >= CURDATE() - INTERVAL 1 MONTH
+    </select>
+
     <!--  최신글 조회 [1달] -->
     <select id="selectRecentPost" parameterType="String" resultType="map">
         SELECT
@@ -153,7 +163,8 @@
             b.blog_img as blogImg,
             <![CDATA[
             COUNT(CASE WHEN rank_pc > 0 AND rank_pc <= 5 THEN 1 END)          AS rankPc5,
-            COUNT(CASE WHEN rank_pc > 5 AND rank_pc <= 10 THEN 1 END)         AS rankPc10
+            COUNT(CASE WHEN rank_pc > 5 AND rank_pc <= 10 THEN 1 END)         AS rankPc10,
+            COALESCE(total_search_exposure, 0)                                AS totalSearchExposure
             ]]>
         FROM
             blog_post bp
@@ -170,7 +181,22 @@
             b.user_id = (<include refid="selectUserIdByEmail"/>)
             AND bp.post_date >= CURDATE() - INTERVAL 1 MONTH
         GROUP BY b.blog_name, bp.blog_id, bp.post_no, bp.post_title, bp.post_date,b.blog_img
-        order BY post_date desc
+        order BY
+        <choose>
+            <when test="sort == 'recentPostDate'">
+                post_date desc
+            </when>
+            <when test="sort == 'pastPostDate'">
+                post_date
+            </when>
+            <when test="sort == 'highRank'">
+                rankPc5 desc, rankPc10 desc
+            </when>
+            <when test="sort == 'lowRank'">
+                rankPc5, rankPc10
+            </when>
+        </choose>
+
     </select>
 
     <!--  게시글 수, 상위노출 게시글 수  -->
@@ -252,6 +278,13 @@
         select blog_id
         from blog b
         where user_id = (<include refid="selectUserIdByEmail"/>)
+    </select>
+
+    <!-- 글정보 가져오기 -->
+    <select id="selectPostByPostNo" parameterType="String" resultType="BlogPostDto">
+        select post_title, post_date, hashtag
+        from blog_post bp
+        WHERE post_no = #{postNo}
     </select>
 
     <!-- 모든 블로그 마지막 글번호 조회(배치)  -->

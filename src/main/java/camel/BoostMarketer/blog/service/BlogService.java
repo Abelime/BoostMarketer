@@ -107,8 +107,18 @@ public class BlogService {
         }
     }
 
-    public List<HashMap<String, Object>> selectRecentPost(String email) throws Exception {
-        return blogMapper.selectRecentPost(email);
+    public Map<String, Object> selectRecentPost(String email, int page, int pageSize, String sort) throws Exception {
+        Map<String, Object> resultMap = new HashMap<>();
+
+        int offset = (page - 1) * pageSize;
+        RowBounds rowBounds = new RowBounds(offset, pageSize);
+
+        int recentPostCount = blogMapper.selectRecentPostCnt(email);
+        List<HashMap<String, Object>> resultList = blogMapper.selectRecentPost(email, sort, rowBounds);
+
+        resultMap.put("resultList", resultList);
+        resultMap.put("totalCount", recentPostCount);
+        return resultMap;
     }
 
     public HashMap<String, Object> selectPostCntInfo(String email) throws Exception {
@@ -133,5 +143,9 @@ public class BlogService {
         resultMap.put("keywordRankInfo", keywordRankInfo);
 
         return resultMap;
+    }
+
+    public BlogPostDto selectPostInfo(String postNo) throws Exception {
+        return blogMapper.selectPostByPostNo(postNo);
     }
 }

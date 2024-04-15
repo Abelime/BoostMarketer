@@ -190,7 +190,7 @@
             )
     </update>
 
-    <!-- 게시글에 해당하는 키워드 순위 -->
+    <!-- 블로그 모든 게시글에 해당하는 키워드 순위 -->
     <select id="selectRankKeywordByPost" parameterType="map" resultType="map">
         SELECT bp.post_no as postNo,
                kd.keyword_name as keywordName,
@@ -205,6 +205,21 @@
              keyword_dict kd ON kr.keyword_id = kd.keyword_id
         WHERE bp.blog_id = #{blogId}
         order by bp.post_no, kr.rank_pc
+    </select>
+
+        <!-- 게시글에 해당하는 키워드 순위 -->
+    <select id="selectRankKeywordByPostNo" parameterType="String" resultType="KeywordDto">
+        select kd.keyword_name,
+               kd.month_search_pc,
+               kd.month_search_mobile,
+               (kd.month_search_pc + kd.month_search_mobile) as total_search,
+               kr.rank_pc,
+               kr.total_search_exposure
+        from keyword_rank kr
+                 JOIN
+             keyword_dict kd on kr.keyword_id = kd.keyword_id
+        WHERE kr.post_no = #{postNo}
+        order by rank_pc
     </select>
 
     <!-- 유저별 키워드 조회(배치) -->
@@ -233,13 +248,11 @@
                                 updated_at            = NOW()
     </insert>
 
-
     <!--  키워드 순위 데이터 삭제(배치)  -->
     <delete id="deleteRankData">
         DELETE
         FROM keyword_rank
         WHERE DATE(updated_at) != CURDATE();
     </delete>
-
 
 </mapper>

@@ -36,7 +36,7 @@ public class KeywordController {
                            @RequestParam(value = "sort", defaultValue = "category") String sort) throws Exception {
 
 
-        Map<String, Object> resultMap = keywordService.selectKeywordInfo(page, pageSize, category, sort);
+        Map<String, Object> resultMap = keywordService.selectKeywordsInfo(page, pageSize, category, sort);
 
         model.addAttribute("sort", sort);
         model.addAttribute("inputCategory", inputCategory);

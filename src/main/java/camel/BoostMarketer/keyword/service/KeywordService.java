@@ -27,7 +27,7 @@ public class KeywordService {
 
     private final UserMapper userMapper;
 
-    public Map<String, Object> selectKeywordInfo(int page, int pageSize, int category, String sort) throws Exception {
+    public Map<String, Object> selectKeywordsInfo(int page, int pageSize, int category, String sort) throws Exception {
         Map<String, Object> resultMap = new HashMap<>();
 
         int offset = (page - 1) * pageSize;
@@ -136,5 +136,9 @@ public class KeywordService {
     public void keywordFix(Long keywordId) throws Exception {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         keywordMapper.keywordFix(email,keywordId);
+    }
+
+    public List<KeywordDto> selectKeywordInfo(String postNo) throws Exception {
+        return keywordMapper.selectRankKeywordByPostNo(postNo);
     }
 }

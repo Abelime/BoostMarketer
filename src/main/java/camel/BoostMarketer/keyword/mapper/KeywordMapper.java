@@ -37,4 +37,6 @@ public interface KeywordMapper {
     void updateKeywordRank(KeywordDto keywordDto) throws Exception;
 
     void deleteRankData() throws Exception;
+
+    List<KeywordDto> selectRankKeywordByPostNo(String postNo) throws Exception;
 }

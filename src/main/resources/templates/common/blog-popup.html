@@ -106,7 +106,7 @@
                     <td class="align-middle text-center">
                       <a th:each="keyword : ${keywordRankInfo}" th:if="${list.postNo} eq ${keyword.postNo}" style="display: block;" class="text-dark px-3 mb-0" target="_blank" th:onclick="">
                         <p class="text-sm font-weight-bold" style="display: inline; padding-right: 5px" th:text="${keyword.keywordName}"></p>
-                        <p class="text-sm font-weight-bold" style="display: inline; color: #00c73c" th:text="'[' + ${keyword.rankPc} + '위]'"></p>
+                        <p class="text-sm font-weight-bold" style="display: inline; color: #00c73c" th:text="${keyword.rankPc} == 0 ? '-' : '[' + ${keyword.rankPc} + '위]'"></p>
                       </a>
                     </td>
                     <td class="align-middle text-center" th:styleappend="${list.totalSearchExposure != 0} ? 'background-color: #fffff5;' : ''">

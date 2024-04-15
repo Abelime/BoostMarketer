@@ -31,7 +31,7 @@ public interface BlogMapper {
 
     BlogDto checkIfBlogExists(String blogId) throws Exception;
 
-    List<HashMap<String, Object>> selectRecentPost(String email) throws Exception;
+    List<HashMap<String, Object>> selectRecentPost(@Param("email") String email, @Param("sort") String sort, RowBounds rowBounds) throws Exception;
 
     HashMap<String, Object> selectPostCntInfo(String email) throws Exception;
 
@@ -48,4 +48,8 @@ public interface BlogMapper {
     List<BlogPostDto> selectAllLastPostNo() throws Exception;
 
     List<String> findBlogIdByUserId(Long userId) throws Exception;
+
+    BlogPostDto selectPostByPostNo(String postNo) throws Exception;
+
+    int selectRecentPostCnt(String email) throws Exception;
 }
