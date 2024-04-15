@@ -23,4 +23,13 @@ public class AnalysisController {
         //return new ResponseEntity<>(HttpStatus.CREATED);
         return "pages/test";
     }
+
+    @GetMapping(value = "/trends2")
+    public String registerTrends2(Model model, HttpServletRequest request) throws Exception {
+
+        model.addAttribute("dataList",
+                analysisService.searchTrends2(request.getParameter("startYear"),request.getParameter("startMonth"),request.getParameter("endYear"),request.getParameter("endMonth")));
+        //return new ResponseEntity<>(HttpStatus.CREATED);
+        return "pages/test";
+    }
 }

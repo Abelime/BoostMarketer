@@ -7,23 +7,60 @@
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         #chart-container {
-            width: 35%;
+            width: 80%;
             margin: auto;
         }
         canvas {
             max-width: 100%; /* Canvas의 최대 너비 설정 */
             height: auto; /* 높이를 자동으로 조정하여 가로 비율을 유지함 */
         }
+        .month-inputs {
+            display: none;
+        }
     </style>
 </head>
 <body>
-<label for="startDate_Sel">시작 날짜:</label>
-<input type="date" id="startDate_Sel" name="startDate_Sel" ><br><br>
+<label for="dateType_Sel">날짜 단위 선택:</label>
+<select id="dateType_Sel">
+    <option value="daily" selected>일별</option>
+    <option value="monthly">월별</option>
+</select>
+<br><br>
 
-<label for="endDate_Sel">종료 날짜:</label>
-<input type="date" id="endDate_Sel" name="endDate_Sel" ><br><br>
+<div id="dailyInputs">
+    <label for="startDate_Sel">시작 날짜:</label>
+    <input type="date" id="startDate_Sel" name="startDate_Sel" ><br><br>
 
-<button id="submitBtn">이동</button>
+    <label for="endDate_Sel">종료 날짜:</label>
+    <input type="date" id="endDate_Sel" name="endDate_Sel" ><br><br>
+
+    <button id="submitBtn">이동</button>
+</div>
+
+<div id="monthlyInputs" class="month-inputs">
+    <label for="startYear_Sel">시작 년:</label>
+    <select id="startYear_Sel">
+        <!-- 여기에 올해까지의 년도를 추가합니다 -->
+        <!-- JavaScript를 사용하여 올해의 년도를 동적으로 생성할 수도 있습니다 -->
+    </select>
+    <label for="startMonth_Sel">시작 월:</label>
+    <select id="startMonth_Sel">
+
+    </select><br><br>
+
+    <label for="endYear_Sel">종료 년:</label>
+    <select id="endYear_Sel">
+        <!-- 여기에 올해까지의 년도를 추가합니다 -->
+        <!-- JavaScript를 사용하여 올해의 년도를 동적으로 생성할 수도 있습니다 -->
+    </select>
+    <label for="endMonth_Sel">종료 월:</label>
+    <select id="endMonth_Sel">
+
+    </select><br><br>
+
+    <button id="submitBtn2">월단위 검색</button>
+</div>
+
 <div id="chart-container">
     <canvas id="line-chart"></canvas>
 </div>
@@ -57,6 +94,32 @@
 </script>
 <script>
     $(document).ready(function(){
+
+        var currentYear = new Date().getFullYear();
+        var startYearSelect = $("#startYear_Sel");
+        var endYearSelect = $("#endYear_Sel");
+        for (var year = 2016; year <= currentYear; year++) {
+            startYearSelect.append("<option value='" + year + "'>" + year + "</option>");
+            endYearSelect.append("<option value='" + year + "'>" + year + "</option>");
+        }
+        // 시작 월과 종료 월을 동적으로 생성합니다
+        var startMonthSelect = $("#startMonth_Sel");
+        var endMonthSelect = $("#endMonth_Sel");
+        for (var month = 1; month <= 12; month++) {
+            startMonthSelect.append("<option value='" + month + "'>" + month + "</option>");
+            endMonthSelect.append("<option value='" + month + "'>" + month + "</option>");
+        }
+
+        $("#dateType_Sel").change(function(){
+            if ($(this).val() === "daily") {
+                $("#dailyInputs").show();
+                $("#monthlyInputs").hide();
+            } else if ($(this).val() === "monthly") {
+                $("#dailyInputs").hide();
+                $("#monthlyInputs").show();
+            }
+        });
+
         $("#submitBtn").click(function(){
             // 시작 날짜와 종료 날짜의 값을 가져옵니다.
             var startDate = $("#startDate_Sel").val();
@@ -68,7 +131,20 @@
             // 조합된 URL로 이동합니다.
             window.location.href = url;
         });
+
+        $("#submitBtn2").click(function(){
+            var startYear = $("#startYear_Sel").val();
+            var startMonth = $("#startMonth_Sel").val();
+            var endYear = $("#endYear_Sel").val();
+            var endMonth = $("#endMonth_Sel").val();
+
+            var url = "/trends2?startYear=" + startYear + "&startMonth=" + startMonth + "&endYear=" + endYear + "&endMonth=" + endMonth;
+            window.location.href = url;
+        });
+
+
     });
+
 </script>
 </body>
 </html>
