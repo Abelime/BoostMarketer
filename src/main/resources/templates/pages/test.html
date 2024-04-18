@@ -60,6 +60,13 @@
 
     <button id="submitBtn2">월단위 검색</button>
 </div>
+<input type="text" id="keyword">
+<table border="1">
+    <tr th:each="item : ${dataList2}">
+        <td th:text="${item.section}">값</td>
+        <td th:text="${item.cnt}">값</td>
+    </tr>
+</table>
 
 <div id="chart-container">
     <canvas id="line-chart"></canvas>
@@ -124,9 +131,10 @@
             // 시작 날짜와 종료 날짜의 값을 가져옵니다.
             var startDate = $("#startDate_Sel").val();
             var endDate = $("#endDate_Sel").val();
+            var keyword = $("#keyword").val();
 
             // URL을 조합합니다.
-            var url = "/trends?startDate=" + startDate + "&endDate=" + endDate;
+            var url = "/trends?startDate=" + startDate + "&endDate=" + endDate + "&keyword=" + keyword;
 
             // 조합된 URL로 이동합니다.
             window.location.href = url;
@@ -137,8 +145,9 @@
             var startMonth = $("#startMonth_Sel").val();
             var endYear = $("#endYear_Sel").val();
             var endMonth = $("#endMonth_Sel").val();
+            var keyword = $("#keyword").val();
 
-            var url = "/trends2?startYear=" + startYear + "&startMonth=" + startMonth + "&endYear=" + endYear + "&endMonth=" + endMonth;
+            var url = "/trends2?startYear=" + startYear + "&startMonth=" + startMonth + "&endYear=" + endYear + "&endMonth=" + endMonth + "&keyword=" + keyword;;
             window.location.href = url;
         });
 

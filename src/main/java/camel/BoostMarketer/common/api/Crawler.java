@@ -434,4 +434,53 @@ public class Crawler {
         return hrefValues;
     }
 
+    public static List<HashMap<String, String>> sectionSearchCrawler(String keyword) {
+        List<HashMap<String, String>> result = new ArrayList<>();
+        keyword = keyword==null?"가방":keyword;
+        try {
+            String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+            String url = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword + " &oquery="  + encodedKeyword + "tqi=imk3isqo1LwssDUBj5VssssstYC-334687";
+            String referrer = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword + " &oquery="  + encodedKeyword + "tqi=imk3jsqo15VsskdtRIZssssssSR-306878";
+
+            Document document = Jsoup.connect(url)
+                    .referrer(referrer)
+                    .headers(getHeaders())
+                    .get();
+
+            // style="display: none;"이 포함된 태그와 그 하위 태그 제거
+            Elements elementsToRemove = document.select("[style*='display: none']");
+            elementsToRemove.remove();
+
+
+            Elements elements = document.select("div.api_subject_bx");
+            aa :for (Element element : elements) {
+                Elements elements2 = element.select("h2:not([style*='display: none']), span.fds-comps-header-headline:not([style*='display: none']),section.sc_new.sp_ntotal,section.sc_new.sp_intent_fashion,ul.lst_total,ico_kin_snippet");
+                for (Element element2 : elements2) {
+                    HashMap<String, String> map = new HashMap<>();
+                    if(element2.text().equals("연관 검색어")){
+                        break aa;
+                    }else if (!elements2.select("div.bx_snippet").isEmpty()) {
+                        map.put("section","지식스니펫");
+                    }else if (!elements2.select("ul.lst_total").isEmpty()) {
+                        map.put("section","웹사이트");
+                    } else {
+                        map.put("section",element2.text());
+                    }
+                    element.select("div.snippet_rel_wrap").remove();
+                    Elements elements3 = element.select("li.lst,li.box,li.bx,a.fds-comps-keyword-chip,div.fds-ugc-block-mod,a.fashion_card,a.product");
+                    map.put("cnt",String.valueOf(elements3.size()));
+                    result.add(map);
+                }
+            }
+
+
+
+        } catch (Exception e) {
+            logger.error("Error occurred while fetching total_search for keyword: " + keyword, e);
+        }
+
+        return result;
+    }
+
+
 }
