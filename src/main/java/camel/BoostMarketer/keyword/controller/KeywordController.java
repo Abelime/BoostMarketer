@@ -86,5 +86,24 @@ public class KeywordController {
         return "common/keyword-popup";
     }
 
+    @PutMapping("/keywords")
+    public ResponseEntity<?> changeCategory(@RequestBody Map<String, Object> payload) throws Exception {
+        int category = (int) payload.get("category");
+        List<String> keywordIdList = (List<String>) payload.get("checkboxValues");
+        keywordService.changeCategory(category, keywordIdList);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/keywords")
+    public ResponseEntity<?> deleteKeywords(@RequestBody Map<String, List<Long>> data) throws Exception {
+        List<Long> keywordIds = data.get("keywordIds");
+        for (Long keywordId : keywordIds) {
+            keywordService.keywordDelete(keywordId);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
 }

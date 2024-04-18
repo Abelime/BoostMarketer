@@ -367,7 +367,7 @@
                   let postRow = `
                 <tr>
                     <td class="align-middle">
-                        <a target="_blank">
+                        <a target="_blank" href="https://blog.naver.com/${post.blogId}/${post.postNo}">
                             <p class="btn btn-link text-dark text-sm font-weight-bold mb-0">${post.postTitle}</p>
                         </a>
                         <div class="post-hashtag">
@@ -379,7 +379,7 @@
                     </td>
                     <td class="align-middle text-center">
                         ${data.keywordDtos.map(keyword => `
-                            <a style="display: block;" class="text-dark px-3 mb-0">
+                            <a target="_blank" href="https://search.naver.com/search.naver?query=${keyword.keywordName}" style="display: block;" class="btn btn-link text-dark px-3 mb-0">
                                 <p class="text-sm font-weight-bold" style="display: inline; padding-right: 5px">${keyword.keywordName}</p>
                                 <p class="text-sm font-weight-bold" style="display: inline; color: #00c73c">${keyword.rankPc === 0 ? '-' : '[' + keyword.rankPc + '위]'}</p>
                                 <p class="text-sm font-weight-bold" style="display: inline;">

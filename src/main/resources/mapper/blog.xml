@@ -47,7 +47,8 @@
                bg.blog_img,
                COUNT(DISTINCT bp.post_no)                        AS post_cnt,
                DATE_FORMAT(MAX(bg.updated_at), '%Y-%m-%d %H:%i') AS UpdateDt,
-               COUNT(DISTINCT kr.post_no)                        AS top_posts_count
+               COUNT(DISTINCT CASE WHEN kr.rank_pc != 0 THEN kr.post_no END) AS top_posts_count,
+               COUNT(DISTINCT CASE WHEN kr.total_search_exposure != 0 THEN kr.post_no END) AS total_search_posts_count
         FROM user u
                  JOIN
              blog bg ON u.id = bg.user_id
@@ -261,8 +262,7 @@
         SELECT bp.post_no as postNo,
                bp.post_title as postTitle,
             COALESCE(bp.hashtag, '') as hashtag,
-               bp.post_date as postDate,
-            COALESCE(kr.total_search_exposure,0)  as totalSearchExposure
+               bp.post_date as postDate
         FROM blog_post bp
                  JOIN
              keyword_rank kr ON bp.post_no = kr.post_no
@@ -282,7 +282,7 @@
 
     <!-- 글정보 가져오기 -->
     <select id="selectPostByPostNo" parameterType="String" resultType="BlogPostDto">
-        select post_title, post_date, hashtag
+        select blog_id, post_no, post_title, post_date, hashtag
         from blog_post bp
         WHERE post_no = #{postNo}
     </select>

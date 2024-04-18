@@ -141,4 +141,8 @@ public class KeywordService {
     public List<KeywordDto> selectKeywordInfo(String postNo) throws Exception {
         return keywordMapper.selectRankKeywordByPostNo(postNo);
     }
+
+    public void changeCategory(int category, List<String> keywordIdList) throws Exception {
+        keywordMapper.updateKeywordCategory(category, keywordIdList);
+    }
 }

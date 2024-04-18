@@ -135,7 +135,8 @@
                     <tr>
                       <th class="text-uppercase text-secondary text-xs font-weight-bolder">정보</th>
                       <th class="text-uppercase text-secondary text-xs font-weight-bolder ps-0">게시글 수</th>
-                      <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">상위 노출 게시글 수</th>
+                      <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">상위 노출 게시글 수(블로그탭)</th>
+                      <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">통합 검색 노출 게시글 수</th>
                       <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">최신화 일자</th>
                       <th class="text-center text-uppercase text-xs font-weight-bolder">
                         <a class="btn btn-link text-dark px-3 mb-0" href="#" th:onclick="updateBlog('ALL')"><i class="fas fa-sync-alt text-dark me-2" aria-hidden="true"></i>전체 최신화 요청</a>
@@ -166,6 +167,13 @@
                         <p class="text-xs font-weight-bold mb-0" style="display: inline-block;" th:text="${blog.topPostsCount}" th:if="${blog.topPostsCount == 0}"></p>
                         <a class="btn btn-link text-dark" target="_blank" th:onclick="openPopUp([[${blog.blogId}]]);" th:unless="${blog.topPostsCount == 0}">
                           <p class="text-xs font-weight-bold mb-0" style="display: inline-block;" th:text="${blog.topPostsCount}"></p>
+                          <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                        </a>
+                      </td>
+                      <td class="align-middle text-center text-sm">
+                        <p class="text-xs font-weight-bold mb-0" style="display: inline-block;" th:text="${blog.totalSearchPostsCount}" th:if="${blog.totalSearchPostsCount == 0}"></p>
+                        <a class="btn btn-link text-dark" target="_blank" th:onclick="openPopUp([[${blog.blogId}]]);" th:unless="${blog.totalSearchPostsCount == 0}">
+                          <p class="text-xs font-weight-bold mb-0" style="display: inline-block;" th:text="${blog.totalSearchPostsCount}"></p>
                           <i class="fas fa-external-link-alt" aria-hidden="true"></i>
                         </a>
                       </td>

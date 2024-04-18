@@ -87,8 +87,8 @@
                   <tr>
                     <th class="text-uppercase text-secondary text-xs font-weight-bolder">게시글 제목</th>
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 15%">작성일자</th>
-                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 30%">키워드</th>
-                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 10%">통합검색 노출여부</th>
+                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 30%">키워드 [순위] [통합검색노출]</th>
+<!--                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 10%">통합검색 노출여부</th>-->
                   </tr>
                   </thead>
                   <tbody>
@@ -104,19 +104,27 @@
                       <p class="text-xs font-weight-bold mb-0" th:text="${list.postDate}"></p>
                     </td>
                     <td class="align-middle text-center">
-                      <a th:each="keyword : ${keywordRankInfo}" th:if="${list.postNo} eq ${keyword.postNo}" style="display: block;" class="text-dark px-3 mb-0" target="_blank" th:onclick="">
+                      <a th:each="keyword : ${keywordRankInfo}" th:if="${list.postNo} eq ${keyword.postNo}"
+                         th:href="@{https://search.naver.com/search.naver(where='nexearch', sm='top_hty', fbm='0', ie='utf8', query=${keyword.keywordName})}" style="display: block;" class="btn btn-link text-dark px-3 mb-0" target="_blank" th:onclick="">
                         <p class="text-sm font-weight-bold" style="display: inline; padding-right: 5px" th:text="${keyword.keywordName}"></p>
                         <p class="text-sm font-weight-bold" style="display: inline; color: #00c73c" th:text="${keyword.rankPc} == 0 ? '-' : '[' + ${keyword.rankPc} + '위]'"></p>
+                        <p class="text-sm font-weight-bold" style="display: inline;">
+                          [
+                          <span th:class="${keyword.totalSearchExposure == 1 ? 'text-success' : 'text-danger'}">
+                            <i th:class="${keyword.totalSearchExposure == 1 ? 'fa fa-check' : 'fa fa-times'}"></i>
+                          </span>
+                          ]
+                        </p>
                       </a>
                     </td>
-                    <td class="align-middle text-center" th:styleappend="${list.totalSearchExposure != 0} ? 'background-color: #fffff5;' : ''">
-                      <span th:if="${list.totalSearchExposure != 0}" class="text-success">
-                          <i class="fa fa-check"></i>
-                      </span>
-                      <span th:if="${list.totalSearchExposure == 0}" class="text-danger">
-                          <i class="fa fa-times"></i>
-                      </span>
-                    </td>
+<!--                    <td class="align-middle text-center" th:styleappend="${list.totalSearchExposure != 0} ? 'background-color: #fffff5;' : ''">-->
+<!--                      <span th:if="${list.totalSearchExposure != 0}" class="text-success">-->
+<!--                          <i class="fa fa-check"></i>-->
+<!--                      </span>-->
+<!--                      <span th:if="${list.totalSearchExposure == 0}" class="text-danger">-->
+<!--                          <i class="fa fa-times"></i>-->
+<!--                      </span>-->
+<!--                    </td>-->
                   </tr>
                   </tbody>
                 </table>

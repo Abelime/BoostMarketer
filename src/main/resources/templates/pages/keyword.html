@@ -293,7 +293,16 @@
                 </div>
                 <div th:insert="~{common/pageSelect}"></div>
               </div>
-                <div class="button-group">
+<!--                <div class="button-group">-->
+<!--                  <button class="rank-btn" th:classappend="${category} == 0 ? 'selected'" id="total" value="0">전체</button>-->
+<!--                  <button class="rank-btn" th:classappend="${category} == 1 ? 'selected'" id="first" value="1">1순위</button>-->
+<!--                  <button class="rank-btn" th:classappend="${category} == 2 ? 'selected'" id="second" value="2">2순위</button>-->
+<!--                  <button class="rank-btn" th:classappend="${category} == 3 ? 'selected'" id="third" value="3">3순위</button>-->
+<!--                  <button class="rank-btn" th:classappend="${category} == 4 ? 'selected'" id="fourth" value="4">4순위</button>-->
+<!--                  <button class="rank-btn" th:classappend="${category} == 5 ? 'selected'" id="fifth" value="5">5순위</button>-->
+<!--                </div>-->
+              <div class="d-flex">
+                <div class="button-group flex-grow-1" style="display: inline">
                   <button class="rank-btn" th:classappend="${category} == 0 ? 'selected'" id="total" value="0">전체</button>
                   <button class="rank-btn" th:classappend="${category} == 1 ? 'selected'" id="first" value="1">1순위</button>
                   <button class="rank-btn" th:classappend="${category} == 2 ? 'selected'" id="second" value="2">2순위</button>
@@ -301,13 +310,47 @@
                   <button class="rank-btn" th:classappend="${category} == 4 ? 'selected'" id="fourth" value="4">4순위</button>
                   <button class="rank-btn" th:classappend="${category} == 5 ? 'selected'" id="fifth" value="5">5순위</button>
                 </div>
+<!--                <div class="dropdown me-2" style="display: inline">-->
+<!--                  <button class="btn dropdown-toggle text-dark" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">카테고리</button>-->
+<!--                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">-->
+<!--                    <li><a class="dropdown-item" href="javascript:;">1순위</a></li>-->
+<!--                    <li><a class="dropdown-item" href="javascript:;">2순위</a></li>-->
+<!--                    <li><a class="dropdown-item" href="javascript:;">3순위</a></li>-->
+<!--                    <li><a class="dropdown-item" href="javascript:;">4순위</a></li>-->
+<!--                    <li><a class="dropdown-item" href="javascript:;">5순위</a></li>-->
+<!--                  </ul>-->
+<!--                </div>-->
+                <div class="dropdown me-2" style="display: inline">
+                    <button class="btn dropdown-toggle text-dark" type="button" id="categoryChange" data-bs-toggle="dropdown" aria-expanded="false">카테고리 변경</button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li><a class="dropdown-item category-item" href="javascript:void(0);" data-priority="1">1순위</a></li>
+                        <li><a class="dropdown-item category-item" href="javascript:void(0);" data-priority="2">2순위</a></li>
+                        <li><a class="dropdown-item category-item" href="javascript:void(0);" data-priority="3">3순위</a></li>
+                        <li><a class="dropdown-item category-item" href="javascript:void(0);" data-priority="4">4순위</a></li>
+                        <li><a class="dropdown-item category-item" href="javascript:void(0);" data-priority="5">5순위</a></li>
+                    </ul>
+                </div>
+                <div style="display: inline">
+                  <button class="btn text-dark px-3" id="keywordDelete">
+                    키워드 삭제
+                  </button>
+                </div>
+              </div>
             </div>
             <div class="card-body px-0 pt-0 pb-2 justify-content-center mt-2">
               <div class="table-responsive p-0">
                 <table class="table align-items-center mb-0">
                   <thead>
                   <tr>
-                    <th rowspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">키워드</th>
+                    <th rowspan="2" class="text-center" style="width: 17%; padding-left: 13px">
+                      <div class="form-check" style="display: inline; padding-left: 0px !important;">
+                        <input class="form-check-input" type="checkbox" id="selectAll" style="margin-left: 0.4px !important;">
+                        <label class="form-check-label" for="selectAll"></label>
+                      </div>
+                      <p class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="display: inline">
+                        키워드
+                      </p>
+                    </th>
                     <th colspan="3" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">월 검색량</th>
                     <th colspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">블로그탭 순위</th>
                     <th colspan="1" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">통합검색</th>
@@ -325,22 +368,29 @@
                   </thead>
                   <tbody>
                   <tr th:each="keyword : ${keywordList}">
-                    <td class="align-middle text-center" style="position: relative;">
-                      <a href="#" th:onclick="'keywordFix(' + ${keyword.keywordId} + ');'">
-                        <div th:if="${keyword.keywordFix == -1}">
-                          <i class="fas fa-thumbtack text-danger" style="color: #FF6690; position: absolute; left: 25px; top: 50%; transform: translateY(-50%);" aria-hidden="true"></i>
-                        </div>
-                        <div th:unless="${keyword.keywordFix == -1}">
-                          <i class="fas fa-thumbtack text-secondary" style="position: absolute; left: 25px; top: 50%; transform: translateY(-50%);"></i>
-                        </div>
-                      </a>
-                      <span class="text-xs font-weight-bold mb-0" style="padding-left: 10px; display: inline-block; vertical-align: middle;"
+                    <td class="align-middle text-center" style="position: relative; display: flex; align-items: center;">
+                      <div class="form-check me-3">
+                        <input class="form-check-input" type="checkbox" th:value="${keyword.keywordId}" name="checkbox" id="flexCheckDefault">
+                        <label class="form-check-label" for="flexCheckDefault">
+                        </label>
+                      </div>
+                      <div class="me-2">
+                        <a href="#" th:onclick="'keywordFix(' + ${keyword.keywordId} + ');'">
+                          <div th:if="${keyword.keywordFix == -1}">
+                            <i class="fas fa-thumbtack text-danger" aria-hidden="true"></i>
+                          </div>
+                          <div th:unless="${keyword.keywordFix == -1}">
+                            <i class="fas fa-thumbtack text-secondary"></i>
+                          </div>
+                        </a>
+                      </div>
+                      <span class="text-xs font-weight-bold mb-0 ms-3" style="display: inline-block; vertical-align: middle;"
                              th:text="${keyword.keywordName}"
                              th:classappend="${keyword.category == '1' ? 'first' :
-                                                             keyword.category == '2' ? 'second' :
-                                                             keyword.category == '3' ? 'third' :
-                                                             keyword.category == '4' ? 'fourth' :
-                                                             keyword.category == '5' ? 'fifth' : ''}">
+                                            keyword.category == '2' ? 'second' :
+                                            keyword.category == '3' ? 'third' :
+                                            keyword.category == '4' ? 'fourth' :
+                                            keyword.category == '5' ? 'fifth' : ''}">
                       </span>
                     </td>
                     <td class="align-middle text-center">
@@ -533,6 +583,8 @@
     insertFetch()
   });
 
+
+  //키워드 삭제
   function keywordDelete(keywordId) {
     Swal.fire({
       title: "삭제하시겠습니까?",
@@ -562,6 +614,7 @@
 
   }
 
+  //키워드 상위 고정
   function keywordFix(keywordId) {
 
     fetch('/keyword/' + keywordId, {
@@ -578,6 +631,7 @@
 
   }
 
+  //팝업창
   function openPopUp(keywordId){
     var url = "/keyword/popup/"+keywordId;
     var name = "popup";
@@ -643,7 +697,95 @@
     }
 
     createPagination(page, totalPages, startPage, endPage);
+
+    //체크박스 전체 선택
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.form-check-input[type="checkbox"]');
+
+    selectAllCheckbox.addEventListener('change', function (e) {
+      checkboxes.forEach(checkbox => {
+        if (checkbox !== selectAllCheckbox) { // Do not change the state of the master checkbox itself
+          checkbox.checked = selectAllCheckbox.checked;
+        }
+      });
+    });
+
+
+    //체크박스 클릭시 button disabled 작동
+    const checkboxes2 = $('.form-check-input');
+    function updateButtonState() {
+      let isAnyChecked = checkboxes2.is(':checked');
+      $('#categoryChange, #keywordDelete').prop('disabled', !isAnyChecked);
+    }
+    // Attach the change event handler to checkboxes
+    checkboxes2.on('change', updateButtonState);
+    updateButtonState();
+
+
+    //키워드 카테고리 이동
+    $('.category-item').click(function() {
+      const category = $(this).data('priority'); // Get the priority from data attribute
+      const checkedValues = $('input[name="checkbox"]:checked').map(function () {
+        return $(this).val(); // Collect the value of each checked checkbox with name "checkbox"
+      }).get(); // Convert the jQuery map to an array
+
+        fetch('keywords', { // Replace 'YOUR_SERVER_ENDPOINT' with your server URL
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({category: category, checkboxValues: checkedValues})
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('서버 응답이 실패했습니다.');
+          }
+          location.replace('/keyword?pageSize=' + pageSize + '&category=' + category + '&sort=' + sort + '&inputCategory=' + category);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    });
+
+    //키워드 삭제
+    $('#keywordDelete').click(function () {
+      Swal.fire({
+        title: "삭제하시겠습니까?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "삭제",
+        cancelButtonText: '취소',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const checkedValues = $('input[name="checkbox"]:checked').map(function () {
+            return $(this).val(); // Collect the value of each checked checkbox with name "checkbox"
+          }).get(); // Convert the jQuery map to an array
+
+        fetch('/keywords', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({keywordIds: checkedValues})
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('서버 응답이 실패했습니다.');
+            }
+            location.replace('/keyword?pageSize=' + pageSize + '&category=' + category + '&sort=' + sort + '&inputCategory=' + category);
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+        }
+      });
+    });
+
+
   });
+
 
 </script>
   <!-- Github buttons -->
@@ -663,7 +805,7 @@
       Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
     }
   </script>
-  <script src="/assets/js/soft-ui-dashboard.min.js?v=1.0.7"></script>
+<!--  <script src="/assets/js/soft-ui-dashboard.min.js?v=1.0.7"></script>-->
   <script src="/js/common.js"></script>
 </body>
 

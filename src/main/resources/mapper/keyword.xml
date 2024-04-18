@@ -194,7 +194,8 @@
     <select id="selectRankKeywordByPost" parameterType="map" resultType="map">
         SELECT bp.post_no as postNo,
                kd.keyword_name as keywordName,
-            COALESCE(kr.rank_pc,0) as rankPc
+               kr.rank_pc as rankPc,
+               kr.total_search_exposure as totalSearchExposure
         FROM blog_post bp
                  JOIN
              keyword_rank kr ON bp.post_no = kr.post_no
@@ -254,5 +255,14 @@
         FROM keyword_rank
         WHERE DATE(updated_at) != CURDATE();
     </delete>
+
+    <update id="updateKeywordCategory" parameterType="map">
+        UPDATE user_keywords
+        SET category = #{category}
+        WHERE keyword_id IN
+        <foreach item="item" collection="keywordIdList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
 
 </mapper>
