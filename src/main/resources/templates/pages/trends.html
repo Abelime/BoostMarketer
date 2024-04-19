@@ -470,10 +470,10 @@
 <script th:inline="javascript">
   /*<![CDATA[*/
   var dataList = /*[[${dataList}]]*/ [];
-
+  var myChart;
   var ctx = document.getElementById('line-chart').getContext('2d');
   if(dataList != null){
-    var myChart = new Chart(ctx, {
+    myChart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: dataList.map(data => data['period']),
@@ -553,6 +553,13 @@
         $("#dailyInputs").hide();
         $("#monthlyInputs").show();
       }
+      var ctx = document.getElementById('line-chart').getContext('2d');
+
+      // 이전 차트 객체가 존재한다면 삭제
+      if (myChart !== null) {
+        myChart.destroy();
+      }
+
       var param;
       if($("#dateType_Sel").val() == 'daily'){
         param = {
@@ -582,8 +589,27 @@
         //contentType: false,
       })
       .then(response => response.json())
-      .then(data => {
-        // console.log('Success:', data);
+      .then(dataList => {
+        //console.log('Success:', dataList);
+        myChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: dataList.map(data => data['period']),
+            datasets: [{
+              label: 'Ratio',
+              data: dataList.map(data => data['ratio']),
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
       })
       .catch(error => {
         console.error('등록 중 오류가 발생했습니다:', error);
