@@ -68,6 +68,18 @@
     </tr>
 </table>
 
+<table border="1">
+    <tr th:each="item : ${dataList3}">
+        <td>
+            <a th:text="${item.blogName}" th:href="@{${item.blogUrl}}" target="_blank">값</a>
+        </td>
+        <td>
+            <a th:text="${item.glName}" th:href="@{${item.glUrl}}" target="_blank">값</a>
+        </td>
+        <td th:text="${item.glTime}">값</td>
+    </tr>
+</table>
+
 <div id="chart-container">
     <canvas id="line-chart"></canvas>
 </div>

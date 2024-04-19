@@ -30,6 +30,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static camel.BoostMarketer.common.util.HttpUtil.sendHttpRequest;
 
@@ -482,5 +484,52 @@ public class Crawler {
         return result;
     }
 
+    public static List<HashMap<String, String>> blogtabPostingCrawler(String keyword) {
+        List<HashMap<String, String>> result = new ArrayList<>();
+        keyword = keyword==null?"가방":keyword;
+        try {
+            String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+            String url = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword + " &oquery="  + encodedKeyword + "tqi=imk3isqo1LwssDUBj5VssssstYC-334687";
+            String referrer = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword + " &oquery="  + encodedKeyword + "tqi=imk3jsqo15VsskdtRIZssssssSR-306878";
 
+            Document document = Jsoup.connect(url)
+                    .referrer(referrer)
+                    .headers(getHeaders())
+                    .get();
+
+            // style="display: none;"이 포함된 태그와 그 하위 태그 제거
+            Elements elementsToRemove = document.select("[style*='display: none']");
+            elementsToRemove.remove();
+
+            Elements elements = document.select("div.fds-ugc-block-mod-list");
+
+            for(Element element : elements){
+                Elements elements2 = element.select("div.fds-ugc-block-mod");
+                for(Element element2 : elements2){
+                    HashMap<String, String> map = new HashMap<>();
+                    Elements blog = element2.select("a.fds-info-inner-text");
+                    map.put("blogUrl",blog.attr("href"));
+                    map.put("blogName",blog.select("span").text());
+                    String regex = "(\\d+일 전)|(\\d+주 전)";
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(element2.select("span.fds-info-sub-inner-text").text());
+                    if (matcher.find()) {
+                        map.put("glTime",matcher.group());
+                    }else {
+                        map.put("glTime",element2.select("span.fds-info-sub-inner-text").text());
+                    }
+
+                    Elements gl = element2.select("a.fds-comps-right-image-text-title");
+                    map.put("glUrl",gl.attr("href"));
+                    map.put("glName",gl.select("span").text());
+                    result.add(map);
+                }
+            }
+
+
+        }catch (Exception e) {
+            logger.error("Error occurred while fetching total_search for keyword: " + keyword, e);
+        }
+        return result;
+    }
 }

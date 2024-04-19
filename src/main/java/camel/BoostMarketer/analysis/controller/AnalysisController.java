@@ -25,9 +25,11 @@ public class AnalysisController {
         }
         if(request.getParameter("keyword")!=null && !request.getParameter("keyword").equals("")){
             model.addAttribute("dataList2", Crawler.sectionSearchCrawler(request.getParameter("keyword")));
+            model.addAttribute("dataList3", Crawler.blogtabPostingCrawler(request.getParameter("keyword")));
         }
+
         //return new ResponseEntity<>(HttpStatus.CREATED);
-        return "pages/test";
+        return "pages/trends";
     }
 
     @GetMapping(value = "/trends2")
@@ -37,6 +39,7 @@ public class AnalysisController {
                 analysisService.searchTrends2(request.getParameter("startYear"),request.getParameter("startMonth"),request.getParameter("endYear"),request.getParameter("endMonth")));
         if(request.getParameter("keyword")!=null && !request.getParameter("keyword").equals("")){
             model.addAttribute("dataList2", Crawler.sectionSearchCrawler(request.getParameter("keyword")));
+            model.addAttribute("dataList3", Crawler.blogtabPostingCrawler(request.getParameter("keyword")));
         }
         //return new ResponseEntity<>(HttpStatus.CREATED);
         return "pages/test";
