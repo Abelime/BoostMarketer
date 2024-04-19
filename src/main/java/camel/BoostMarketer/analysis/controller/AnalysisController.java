@@ -60,12 +60,12 @@ public class AnalysisController {
     @PostMapping(value = "/trendsChart")
     public ResponseEntity<?> registerTrendsChart(@RequestBody Map<String, String> requestData, HttpServletRequest request) throws Exception {
         List<HashMap<String, Object>> responseData = new ArrayList<>();
-        if(request.getParameter("dateType_Sel").equals("daily")){
-            responseData = analysisService.searchTrends(request.getParameter("keyword"),request.getParameter("startDate"),request.getParameter("endDate"));
-        }else{
-            responseData = analysisService.searchTrends2(request.getParameter("keyword"),request.getParameter("startYear"),request.getParameter("startMonth"),request.getParameter("endYear"),request.getParameter("endMonth"));
-        }
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+//        if(request.getParameter("dateType_Sel").equals("daily")){
+//            responseData = analysisService.searchTrends(request.getParameter("keyword"),request.getParameter("startDate"),request.getParameter("endDate"));
+//        }else{
+//            responseData = analysisService.searchTrends2(request.getParameter("keyword"),request.getParameter("startYear"),request.getParameter("startMonth"),request.getParameter("endYear"),request.getParameter("endMonth"));
+//        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
