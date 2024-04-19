@@ -1,20 +1,19 @@
 package camel.BoostMarketer.common.util;
 
 import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class ExcelUtil {
 
-    public void excelUpload(MultipartFile file, List<HashMap<String, Object>> list) throws Exception {
+    public static void excelUpload(MultipartFile file, List<HashMap<String, Object>> list) throws Exception {
         HashMap<String, Object> data;
         Workbook workbook;
         Sheet sheet;
@@ -51,7 +50,7 @@ public class ExcelUtil {
     }
 
 
-    public static String getStringValue(Cell cell, int columnIndex) {
+    private static String getStringValue(Cell cell, int columnIndex) {
         String rtnValue = "";
 
         switch (cell.getCellType()) {
@@ -74,5 +73,45 @@ public class ExcelUtil {
                 break;
         }
         return rtnValue;
+    }
+
+    public static ByteArrayInputStream createExcelFile(List<String> categories) {
+        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream();) {
+            Sheet sheet = workbook.createSheet("keyword_excel");
+
+            // Define header style with borders
+            CellStyle headerStyle = workbook.createCellStyle();
+            headerStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+            // Set font
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerStyle.setFont(headerFont);
+
+            // Set borders
+            headerStyle.setBorderTop(BorderStyle.MEDIUM);
+            headerStyle.setBorderBottom(BorderStyle.MEDIUM);
+            headerStyle.setBorderLeft(BorderStyle.MEDIUM);
+            headerStyle.setBorderRight(BorderStyle.MEDIUM);
+
+            // Set alignment
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+            headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+            // Creating the header row with styles
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < categories.size(); i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(categories.get(i));
+                cell.setCellStyle(headerStyle);
+                sheet.setColumnWidth(i, 20 * 256); // Width set to about 20 characters wide
+            }
+
+            workbook.write(out);
+            return new ByteArrayInputStream(out.toByteArray());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to import data to Excel file: " + e.getMessage());
+        }
     }
 }

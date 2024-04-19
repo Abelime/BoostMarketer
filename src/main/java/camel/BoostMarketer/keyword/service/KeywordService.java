@@ -15,7 +15,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -27,15 +30,15 @@ public class KeywordService {
 
     private final UserMapper userMapper;
 
-    public Map<String, Object> selectKeywordsInfo(int page, int pageSize, int category, String sort) throws Exception {
+    public Map<String, Object> selectKeywordsInfo(int page, int pageSize, int filterCategory, String sort) throws Exception {
         Map<String, Object> resultMap = new HashMap<>();
 
         int offset = (page - 1) * pageSize;
         RowBounds rowBounds = new RowBounds(offset, pageSize);
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        HashMap<String, Object> keywordCntInfo = keywordMapper.selectKeywordCntInfo(email, category);
-        List<KeywordDto> keywordDtoList = keywordMapper.selectKeywordInfo(email, category, sort, rowBounds);
+        HashMap<String, Object> keywordCntInfo = keywordMapper.selectKeywordCntInfo(email, filterCategory);
+        List<KeywordDto> keywordDtoList = keywordMapper.selectKeywordInfo(email, filterCategory, sort, rowBounds);
 
         resultMap.put("keywordRankCount", keywordCntInfo.get("keywordRankCount"));
         resultMap.put("keywordCount", keywordCntInfo.get("keywordCount"));
@@ -99,13 +102,12 @@ public class KeywordService {
         List<HashMap<String, Object>> list = new ArrayList<>();
         KeywordDto keywordDto;
 
-        ExcelUtil util = new ExcelUtil();
-        util.excelUpload(file, list);
+        ExcelUtil.excelUpload(file, list);
 
         for (HashMap<String, Object> map : list) {
             keywordDto = new KeywordDto();
             for (Map.Entry<String, Object> entry : map.entrySet()) {
-                keywordDto.setCategory(entry.getKey().replaceAll("[^0-9]", ""));
+                keywordDto.setCategoryName(entry.getKey());
                 if (!entry.getValue().toString().isEmpty()) {
                     keywordDto.setKeywordName(entry.getValue().toString());
                     registerKeyword(keywordDto);
@@ -144,5 +146,22 @@ public class KeywordService {
 
     public void changeCategory(int category, List<String> keywordIdList) throws Exception {
         keywordMapper.updateKeywordCategory(category, keywordIdList);
+    }
+
+    public void updateCategory(List<Integer> categoryIdList, List<String> categoryNameList) throws Exception {
+        Map<String, Object> param = new HashMap<>();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        param.put("email", email);
+
+        for(int i=0; i<categoryIdList.size(); i++){
+            param.put("categoryId", categoryIdList.get(i));
+            param.put("categoryName", categoryNameList.get(i));
+            keywordMapper.updateCategory(param);
+        }
+    }
+
+    public List<KeywordDto> selectCategoryInfo() throws Exception {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return keywordMapper.selectCategory(email);
     }
 }
