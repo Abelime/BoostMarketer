@@ -519,7 +519,7 @@ public class Crawler {
                         map.put("glTime",element2.select("span.fds-info-sub-inner-text").text());
                     }
 
-                    Elements gl = element2.select("a.fds-comps-right-image-text-title");
+                    Elements gl = element2.select("a.fds-comps-right-image-text-title,a.fds-comps-right-image-text-title-wrap");
                     map.put("glUrl",gl.attr("href"));
                     map.put("glName",gl.select("span").text());
                     result.add(map);

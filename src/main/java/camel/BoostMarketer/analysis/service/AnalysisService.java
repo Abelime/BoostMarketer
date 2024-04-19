@@ -19,7 +19,7 @@ public class AnalysisService {
 
     private final NaverSearchTrendsApi naverSearchTrendsApi;
 
-    public List<HashMap<String, Object>> searchTrends(String startDate_Sel, String endDate_Sel) throws Exception {
+    public List<HashMap<String, Object>> searchTrends(String text, String startDate_Sel, String endDate_Sel) throws Exception {
 
         // 현재 날짜 가져오기
         LocalDate currentDate = LocalDate.now();
@@ -28,7 +28,6 @@ public class AnalysisService {
         // 원하는 형식으로 날짜를 문자열로 변환
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-        String text = "가방";
         String startDate = sameDayLastMonth.format(formatter);    //당월
         String endDate = currentDate.format(formatter);     //당월
         List<HashMap<String, Object>> dataList = naverSearchTrendsApi.apiAccess(text,"date",startDate,endDate);
@@ -84,9 +83,8 @@ public class AnalysisService {
         return newDataList;
     }
 
-    public List<HashMap<String, Object>> searchTrends2(String startYear, String startMonth, String endYear, String endMonth) throws Exception {
+    public List<HashMap<String, Object>> searchTrends2(String text, String startYear, String startMonth, String endYear, String endMonth) throws Exception {
 
-        String text = "가방";
         // 현재 날짜 가져오기
         LocalDate currentDate = LocalDate.now();
         // 현재 달의 이전 달로 설정
@@ -101,7 +99,7 @@ public class AnalysisService {
         String formattedDate = lastDayOfPreviousMonth.format(formatter);
 
         //이전달 ratio
-        List<HashMap<String, Object>> trendsList = searchTrends(formattedFirstDay,formattedDate);
+        List<HashMap<String, Object>> trendsList = searchTrends(text,formattedFirstDay,formattedDate);
         int trends_sum = 0;
         for(HashMap<String, Object> map : trendsList){
             trends_sum += (int) map.get("ratio");

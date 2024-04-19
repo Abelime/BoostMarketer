@@ -270,7 +270,7 @@
         </div>
         <div class="col-4">
           <div class="input-group">
-            <input type="text" id="keyword" class="form-control" placeholder="희망하는 키워드를 등록해주세요">
+            <input type="text" id="keyword" th:value="${keyword}" class="form-control" placeholder="희망하는 키워드를 등록해주세요">
             <a href="#" id="submitBtn">
               <div class="icon icon-shape bg-gradient-success shadow text-center border-radius-md">
                 <i class="fa fa-pencil text-lg opacity-10" aria-hidden="true"></i>
@@ -345,7 +345,6 @@
 
                   </select><br><br>
 
-                  <button id="submitBtn2">월단위 검색</button>
                 </div>
               </div>
 
@@ -365,7 +364,38 @@
 
       </div>
     </div>
-    <div class="row mt-5">
+    <div class="row mt-3">
+      <div class="col-12">
+        <div class="card mb-4">
+          <div class="card-header pb-0">
+            <div class="d-flex bd-highlight">
+              <div class="p-2 flex-grow-1 bd-highlight">
+                <h6>섹션 배치 목록 </h6>
+              </div>
+            </div>
+          </div>
+          <div class="card-body px-0 pt-0 pb-2 justify-content-center mt-2">
+            <div class="table-responsive p-0">
+              <table class="table align-items-center mb-0">
+                <thead>
+                  <tr class="text-center">
+                    <th>섹션</th>
+                    <th>노출</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="item : ${dataList2}">
+                    <td th:text="${item.section}">값</td>
+                    <td th:text="${item.cnt}">값</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-3">
       <div class="col-12">
         <div class="card mb-4">
           <div class="card-header pb-0">
@@ -373,6 +403,30 @@
               <div class="p-2 flex-grow-1 bd-highlight">
                 <h6>블로그 탭 포스팅 목록 </h6>
               </div>
+            </div>
+          </div>
+          <div class="card-body px-0 pt-0 pb-2 justify-content-center mt-2">
+            <div class="table-responsive p-0">
+              <table class="table align-items-center mb-0">
+                <thead>
+                <tr class="text-center">
+                  <th>블로그명</th>
+                  <th>제목</th>
+                  <th>작성일</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${dataList3}">
+                  <td>
+                    <a th:text="${item.blogName}" th:href="@{${item.blogUrl}}" target="_blank">값</a>
+                  </td>
+                  <td>
+                    <a th:text="${item.glName}" th:href="@{${item.glUrl}}" target="_blank">값</a>
+                  </td>
+                  <td th:text="${item.glTime}">값</td>
+                </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -418,25 +472,28 @@
   var dataList = /*[[${dataList}]]*/ [];
 
   var ctx = document.getElementById('line-chart').getContext('2d');
-  var myChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: dataList.map(data => data['period']),
-      datasets: [{
-        label: 'Ratio',
-        data: dataList.map(data => data['ratio']),
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true
+  if(dataList != null){
+    var myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: dataList.map(data => data['period']),
+        datasets: [{
+          label: 'Ratio',
+          data: dataList.map(data => data['ratio']),
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
         }
       }
-    }
-  });
+    });
+  }
+
   /*]]>*/
 </script>
 <script>
@@ -446,7 +503,7 @@
     var startYearSelect = $("#startYear_Sel");
     var endYearSelect = $("#endYear_Sel");
     for (var year = 2016; year <= currentYear; year++) {
-      startYearSelect.append("<option value='" + year + "'>" + year + "</option>");
+      startYearSelect.append("<option value='" + year + "' >" + year + "</option>");
       endYearSelect.append("<option value='" + year + "'>" + year + "</option>");
     }
     // 시작 월과 종료 월을 동적으로 생성합니다
@@ -456,6 +513,37 @@
       startMonthSelect.append("<option value='" + month + "'>" + month + "</option>");
       endMonthSelect.append("<option value='" + month + "'>" + month + "</option>");
     }
+    var currentYear = new Date().getFullYear();
+    var currentMonth = new Date().getMonth() + 1; // 월은 0부터 시작하므로 1을 더합니다.
+    // 시작 년도와 종료 년도의 기본값 설정
+    startYearSelect.val(currentYear-1);
+    endYearSelect.val(currentYear);
+
+    // 시작 월과 종료 월의 기본값 설정
+    startMonthSelect.val(currentMonth);
+    endMonthSelect.val(currentMonth-1);
+
+    // 오늘 날짜를 가져오는 함수
+    function getToday() {
+      var today = new Date();
+      var year = today.getFullYear();
+      var month = (today.getMonth() + 1).toString().padStart(2, '0'); // 월은 0부터 시작하므로 +1을 해줍니다.
+      var day = today.getDate().toString().padStart(2, '0');
+      return year + '-' + month + '-' + day;
+    }
+    // 한 달 전의 오늘 날짜를 가져오는 함수
+    function getOneMonthAgo() {
+      var today = new Date();
+      var oneMonthAgo = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+      var year = oneMonthAgo.getFullYear();
+      var month = (oneMonthAgo.getMonth() + 1).toString().padStart(2, '0');
+      var day = oneMonthAgo.getDate().toString().padStart(2, '0');
+      return year + '-' + month + '-' + day;
+    }
+    // endDate_Sel을 오늘 날짜로 설정
+    document.getElementById('endDate_Sel').value = getToday();
+    // startDate_Sel을 한 달 전의 오늘로 설정
+    document.getElementById('startDate_Sel').value = getOneMonthAgo();
 
     $("#dateType_Sel").change(function(){
       if ($(this).val() === "daily") {
@@ -465,32 +553,69 @@
         $("#dailyInputs").hide();
         $("#monthlyInputs").show();
       }
+      var param;
+      if($("#dateType_Sel").val() == 'daily'){
+        param = {
+          'keyword' : $("#keyword").val(),
+          'dateType_Sel' : $("#dateType_Sel").val(),
+          'startDate' : $("#startDate").val(),
+          'endDate' : $("#endDate").val()
+        };
+      }else{
+        param = {
+          'keyword' : $("#keyword").val(),
+          'dateType_Sel' : $("#dateType_Sel").val(),
+          'startYear' : $("#startYear_Sel").val(),
+          'startMonth' : $("#startMonth_Sel").val(),
+          'endYear' : $("#endYear_Sel").val(),
+          'endMonth' : $("#endMonth_Sel").val()
+        };
+      }
+      console.log('param:', JSON.stringify(param));
+      fetch('/trendsChart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(param),
+        //processData: false,
+        //contentType: false,
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Success:', data);
+      })
+      .catch(error => {
+        console.error('등록 중 오류가 발생했습니다:', error);
+      })
+      .finally(() => {
+        FunLoadingBarEnd();
+      });
     });
 
     $("#submitBtn").click(function(){
-      // 시작 날짜와 종료 날짜의 값을 가져옵니다.
-      var startDate = $("#startDate_Sel").val();
-      var endDate = $("#endDate_Sel").val();
-      var keyword = $("#keyword").val();
+      var url = "";
+      if($("#dateType_Sel").val() == 'daily'){
+        // 시작 날짜와 종료 날짜의 값을 가져옵니다.
+        var startDate = $("#startDate_Sel").val();
+        var endDate = $("#endDate_Sel").val();
+        var keyword = $("#keyword").val();
 
-      // URL을 조합합니다.
-      var url = "/trends?startDate=" + startDate + "&endDate=" + endDate + "&keyword=" + keyword;
+        // URL을 조합합니다.
+        url = "/trends?startDate=" + startDate + "&endDate=" + endDate + "&keyword=" + keyword;
+      }else{
+        var startYear = $("#startYear_Sel").val();
+        var startMonth = $("#startMonth_Sel").val();
+        var endYear = $("#endYear_Sel").val();
+        var endMonth = $("#endMonth_Sel").val();
+        var keyword = $("#keyword").val();
+
+        url = "/trends2?startYear=" + startYear + "&startMonth=" + startMonth + "&endYear=" + endYear + "&endMonth=" + endMonth + "&keyword=" + keyword;;
+      }
 
       // 조합된 URL로 이동합니다.
       window.location.href = url;
     });
-
-    $("#submitBtn2").click(function(){
-      var startYear = $("#startYear_Sel").val();
-      var startMonth = $("#startMonth_Sel").val();
-      var endYear = $("#endYear_Sel").val();
-      var endMonth = $("#endMonth_Sel").val();
-      var keyword = $("#keyword").val();
-
-      var url = "/trends2?startYear=" + startYear + "&startMonth=" + startMonth + "&endYear=" + endYear + "&endMonth=" + endMonth + "&keyword=" + keyword;;
-      window.location.href = url;
-    });
-
 
   });
 
