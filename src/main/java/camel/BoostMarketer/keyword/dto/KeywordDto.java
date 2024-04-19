@@ -13,7 +13,8 @@ import org.apache.ibatis.type.Alias;
 public class KeywordDto extends CommonBlogDto {
     private Long keywordId;
     private String keywordName; //키워드
-    private String category; //키워드
+    private int categoryId;
+    private String categoryName;
     private int rankPc; //순위
     private String rankDate;
     private int monthSearchPc;

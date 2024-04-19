@@ -27,10 +27,10 @@
 
     <!--  키워드 등록(유저)  -->
     <insert id="registerUserKeyword" parameterType="map">
-        INSERT INTO user_keywords (user_id, keyword_id, category)
+        INSERT INTO user_keywords (user_id, keyword_id, category_id)
         SELECT (<include refid="selectUserIdByEmail"/>),
                #{keywordDto.keywordId},
-               #{keywordDto.category}
+               #{keywordDto.categoryId}``
         FROM DUAL
         WHERE NOT EXISTS (SELECT 1
                           FROM user_keywords
@@ -57,7 +57,7 @@
     <select id="selectKeywordInfo" parameterType="String" resultType="KeywordDto">
         SELECT kd.keyword_id,
                kd.keyword_name,
-               uk.category,
+               uk.category_id,
                kd.month_search_pc,
                kd.month_search_mobile,
         month_search_pc + month_search_mobile AS total_search,
@@ -74,8 +74,8 @@
              user_keywords uk ON kd.keyword_id = uk.keyword_id
                  INNER JOIN
                  (<include refid="selectUserIdByEmail"/>) u ON uk.user_id = u.id
-                <if test="category != 0">
-                    AND uk.category = #{category}
+                <if test="categoryId != 0">
+                    AND uk.category_id = #{categoryId}
                 </if>
                  LEFT JOIN
         <![CDATA[
@@ -94,7 +94,7 @@
         order by uk.keyword_fix
         <choose>
             <when test="sort == 'category'">
-                ,uk.category
+                ,uk.category_id
             </when>
             <when test="sort == 'highSearch'">
                 ,total_search desc
@@ -168,8 +168,8 @@
             (SELECT COUNT(*)
              FROM user_keywords uk
              WHERE uk.user_id = (<include refid="selectUserIdByEmail"/>)
-               <if test="category != 0">
-                   AND uk.category = #{category}
+               <if test="categoryId != 0">
+                   AND uk.category_id = #{categoryId}
                </if>
             ) AS keywordCount,
             (SELECT COUNT(DISTINCT (kr.keyword_id))
@@ -256,13 +256,32 @@
         WHERE DATE(updated_at) != CURDATE();
     </delete>
 
+    <!--  키워드 카테고리 이동  -->
     <update id="updateKeywordCategory" parameterType="map">
         UPDATE user_keywords
-        SET category = #{category}
+        SET category_id = #{category}
         WHERE keyword_id IN
         <foreach item="item" collection="keywordIdList" open="(" separator="," close=")">
             #{item}
         </foreach>
     </update>
+
+    <!--  카테고리 Name 수정  -->
+    <update id="updateCategory" parameterType="map">
+        UPDATE user_category
+        SET category_name = #{categoryName}
+        WHERE category_id = #{categoryId}
+        AND user_id = (
+        <include refid="selectUserIdByEmail"/>
+            )
+    </update>
+
+    <!-- 카테고리 정보 조회 -->
+    <select id="selectCategory" parameterType="String" resultType="KeywordDto">
+        select category_id
+             , category_name
+        from user_category uc
+        where user_id = (<include refid="selectUserIdByEmail"/>)
+    </select>
 
 </mapper>

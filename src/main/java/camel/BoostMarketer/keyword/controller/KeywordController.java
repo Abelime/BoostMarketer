@@ -1,11 +1,13 @@
 package camel.BoostMarketer.keyword.controller;
 
 import camel.BoostMarketer.blog.service.BlogService;
+import camel.BoostMarketer.common.util.ExcelUtil;
 import camel.BoostMarketer.keyword.dto.KeywordDto;
 import camel.BoostMarketer.keyword.service.KeywordService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,9 +15,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Controller
@@ -31,16 +35,18 @@ public class KeywordController {
     public String blogForm(Model model,
                            @RequestParam(value = "page", defaultValue = "1") int page,
                            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-                           @RequestParam(value = "category", defaultValue = "0") int category,
+                           @RequestParam(value = "filterCategory", defaultValue = "0") int filterCategory,
                            @RequestParam(value = "inputCategory", defaultValue = "0") int inputCategory,
                            @RequestParam(value = "sort", defaultValue = "category") String sort) throws Exception {
 
 
-        Map<String, Object> resultMap = keywordService.selectKeywordsInfo(page, pageSize, category, sort);
+        Map<String, Object> resultMap = keywordService.selectKeywordsInfo(page, pageSize, filterCategory, sort);
+        List<KeywordDto> categoryList = keywordService.selectCategoryInfo();
 
+        model.addAttribute("categoryList", categoryList);
         model.addAttribute("sort", sort);
         model.addAttribute("inputCategory", inputCategory);
-        model.addAttribute("category", category);
+        model.addAttribute("filterCategory", filterCategory);
         model.addAttribute("page", page);
         model.addAttribute("pageSize", pageSize);
         model.addAttribute("totalCount", resultMap.get("keywordCount"));
@@ -67,10 +73,10 @@ public class KeywordController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(value = "/keyword/excelUpload")
+    @PostMapping(value = "/keyword-excelUpload")
     public ResponseEntity<?> keywordExcelUpload(@RequestParam("file") MultipartFile file) throws Exception {
         keywordService.keywordExcelUpload(file);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping(value = "/keyword/popup/{keywordId}")
@@ -103,6 +109,30 @@ public class KeywordController {
         }
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/keyword/category")
+    public ResponseEntity<?> updateCategory(@RequestBody Map<String, Object> param) throws Exception {
+        List<Integer> categoryIdList = (List<Integer>) param.get("categoryId");
+        List<String> categoryNameList = (List<String>) param.get("categoryName");
+
+        keywordService.updateCategory(categoryIdList, categoryNameList);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/excel")
+    public ResponseEntity<byte[]> downloadExcel() throws Exception {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=keyword_excel.xlsx");
+        List<String> categories = keywordService.selectCategoryInfo().stream()
+                                                                     .map(KeywordDto::getCategoryName)
+                                                                     .collect(Collectors.toList());
+
+        ByteArrayInputStream in = ExcelUtil.createExcelFile(categories);
+
+        return ResponseEntity.ok()
+                             .headers(headers)
+                             .body(in.readAllBytes());
     }
 
 

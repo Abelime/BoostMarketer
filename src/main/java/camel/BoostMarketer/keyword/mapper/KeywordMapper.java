@@ -6,6 +6,7 @@ import org.apache.ibatis.session.RowBounds;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface KeywordMapper {
     void registerKeywordDict(KeywordDto keywordDto) throws Exception;
@@ -14,7 +15,7 @@ public interface KeywordMapper {
 
     void registerKeywordRank(List<KeywordDto> keywordDtoList) throws Exception;
 
-    List<KeywordDto> selectKeywordInfo(@Param("email") String email, @Param("category") int category, @Param("sort") String sort, RowBounds row) throws Exception;
+    List<KeywordDto> selectKeywordInfo(@Param("email") String email, @Param("categoryId") int filterCategory, @Param("sort") String sort, RowBounds row) throws Exception;
 
     void deleteKeyDict(HashMap<String, Object> map) throws Exception;
 
@@ -24,11 +25,11 @@ public interface KeywordMapper {
 
     void deleteUserKey(HashMap<String, Object> map) throws Exception;
 
-    HashMap<String, Object> selectKeywordCntInfo(@Param("email") String email, @Param("category") int category) throws Exception;
+    HashMap<String, Object> selectKeywordCntInfo(@Param("email") String email, @Param("categoryId") int filterCategory) throws Exception;
 
     void keywordFix(@Param("email") String email, @Param("keywordId") Long keywordId) throws Exception;
 
-    List<HashMap<String, Object>> selectRankKeywordByPost(@Param("blogId") String blogId,@Param("email") String email) throws Exception;
+    List<HashMap<String, Object>> selectRankKeywordByPost(@Param("blogId") String blogId, @Param("email") String email) throws Exception;
 
     List<KeywordDto> findKeywordNameByUserId(Long userId) throws Exception;
 
@@ -40,5 +41,9 @@ public interface KeywordMapper {
 
     List<KeywordDto> selectRankKeywordByPostNo(String postNo) throws Exception;
 
-    void updateKeywordCategory(@Param("category") int category,@Param("keywordIdList") List<String> keywordIdList) throws Exception;
+    void updateKeywordCategory(@Param("categoryId") int category, @Param("keywordIdList") List<String> keywordIdList) throws Exception;
+
+    void updateCategory(Map<String, Object> param) throws Exception;
+
+    List<KeywordDto> selectCategory(String email) throws Exception;
 }

@@ -72,15 +72,6 @@
     margin-right: 5px; /* Space between icon and text */
   }
 
-  .btn-custom-blue {
-    border-color: #007bff; /* Bootstrap primary blue */
-    color: #007bff;
-  }
-
-  .btn-custom-blue:hover {
-    background-color: #e7f3ff; /* Lighter blue background on hover */
-  }
-
   /* FontAwesome icons */
   .icon-left {
     margin-right: 8px;
@@ -196,6 +187,10 @@
     border-color: #34ce57; /* Light green border for focus */
   }
 
+  .category-filter.active {
+    background-color: #e9ecef;
+    color: #03c75a;
+  }
 
 </style>
 
@@ -250,12 +245,12 @@
           <div class="flex-container">
             <div class="custom-select-wrapper">
               <select class="custom-select" id="category">
-                <option>카테고리</option>
-                <option value="1" th:selected="${inputCategory == 1}">1순위</option>
-                <option value="2" th:selected="${inputCategory == 2}">2순위</option>
-                <option value="3" th:selected="${inputCategory == 3}">3순위</option>
-                <option value="4" th:selected="${inputCategory == 4}">4순위</option>
-                <option value="5" th:selected="${inputCategory == 5}">5순위</option>
+                  <option value="0">카테고리</option>
+                  <option th:each="category : ${categoryList}"
+                          th:value="${category.categoryId}"
+                          th:text="${category.categoryName}"
+                          th:selected="${inputCategory == category.categoryId}">
+                  </option>
               </select>
             </div>
             <div class="col-4">
@@ -293,7 +288,8 @@
                 </div>
                 <div th:insert="~{common/pageSelect}"></div>
               </div>
-<!--                <div class="button-group">-->
+              <div class="d-flex">
+<!--                <div class="button-group flex-grow-1" style="display: inline">-->
 <!--                  <button class="rank-btn" th:classappend="${category} == 0 ? 'selected'" id="total" value="0">전체</button>-->
 <!--                  <button class="rank-btn" th:classappend="${category} == 1 ? 'selected'" id="first" value="1">1순위</button>-->
 <!--                  <button class="rank-btn" th:classappend="${category} == 2 ? 'selected'" id="second" value="2">2순위</button>-->
@@ -301,36 +297,31 @@
 <!--                  <button class="rank-btn" th:classappend="${category} == 4 ? 'selected'" id="fourth" value="4">4순위</button>-->
 <!--                  <button class="rank-btn" th:classappend="${category} == 5 ? 'selected'" id="fifth" value="5">5순위</button>-->
 <!--                </div>-->
-              <div class="d-flex">
-                <div class="button-group flex-grow-1" style="display: inline">
-                  <button class="rank-btn" th:classappend="${category} == 0 ? 'selected'" id="total" value="0">전체</button>
-                  <button class="rank-btn" th:classappend="${category} == 1 ? 'selected'" id="first" value="1">1순위</button>
-                  <button class="rank-btn" th:classappend="${category} == 2 ? 'selected'" id="second" value="2">2순위</button>
-                  <button class="rank-btn" th:classappend="${category} == 3 ? 'selected'" id="third" value="3">3순위</button>
-                  <button class="rank-btn" th:classappend="${category} == 4 ? 'selected'" id="fourth" value="4">4순위</button>
-                  <button class="rank-btn" th:classappend="${category} == 5 ? 'selected'" id="fifth" value="5">5순위</button>
+                <div class="dropdown me-2" style="display: inline">
+                  <button class="btn dropdown-toggle text-dark" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">전체</button>
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <li><a class="dropdown-item category-filter" href="javascript:void(0);" data-priority="0">전체</a></li>
+                    <li th:each="category : ${categoryList}">
+                        <a class="dropdown-item category-filter" href="javascript:void(0);" th:data-priority="${category['categoryId']}">
+                            <span th:text="${category['categoryName']}"></span>
+                        </a>
+                    </li>
+                  </ul>
                 </div>
-<!--                <div class="dropdown me-2" style="display: inline">-->
-<!--                  <button class="btn dropdown-toggle text-dark" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">카테고리</button>-->
-<!--                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">-->
-<!--                    <li><a class="dropdown-item" href="javascript:;">1순위</a></li>-->
-<!--                    <li><a class="dropdown-item" href="javascript:;">2순위</a></li>-->
-<!--                    <li><a class="dropdown-item" href="javascript:;">3순위</a></li>-->
-<!--                    <li><a class="dropdown-item" href="javascript:;">4순위</a></li>-->
-<!--                    <li><a class="dropdown-item" href="javascript:;">5순위</a></li>-->
-<!--                  </ul>-->
-<!--                </div>-->
+                <div class="me-2" style="display: inline">
+                  <button id="openModal1" class="btn text-dark px-3" data-bs-toggle="modal" data-bs-target="#categoryModal">카테고리 관리</button>
+                </div>
                 <div class="dropdown me-2" style="display: inline">
                     <button class="btn dropdown-toggle text-dark" type="button" id="categoryChange" data-bs-toggle="dropdown" aria-expanded="false">카테고리 변경</button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <li><a class="dropdown-item category-item" href="javascript:void(0);" data-priority="1">1순위</a></li>
-                        <li><a class="dropdown-item category-item" href="javascript:void(0);" data-priority="2">2순위</a></li>
-                        <li><a class="dropdown-item category-item" href="javascript:void(0);" data-priority="3">3순위</a></li>
-                        <li><a class="dropdown-item category-item" href="javascript:void(0);" data-priority="4">4순위</a></li>
-                        <li><a class="dropdown-item category-item" href="javascript:void(0);" data-priority="5">5순위</a></li>
+                      <li th:each="category : ${categoryList}">
+                          <a class="dropdown-item category-update" href="javascript:void(0);" th:data-priority="${category['categoryId']}">
+                              <span th:text="${category['categoryName']}"></span>
+                          </a>
+                      </li>
                     </ul>
                 </div>
-                <div style="display: inline">
+                <div class="me-2" style="display: inline">
                   <button class="btn text-dark px-3" id="keywordDelete">
                     키워드 삭제
                   </button>
@@ -385,12 +376,12 @@
                         </a>
                       </div>
                       <span class="text-xs font-weight-bold mb-0 ms-3" style="display: inline-block; vertical-align: middle;"
-                             th:text="${keyword.keywordName}"
-                             th:classappend="${keyword.category == '1' ? 'first' :
-                                            keyword.category == '2' ? 'second' :
-                                            keyword.category == '3' ? 'third' :
-                                            keyword.category == '4' ? 'fourth' :
-                                            keyword.category == '5' ? 'fifth' : ''}">
+                             th:text="${keyword.keywordName}">
+<!--                             th:classappend="${keyword.category == '1' ? 'first' :-->
+<!--                                            keyword.category == '2' ? 'second' :-->
+<!--                                            keyword.category == '3' ? 'third' :-->
+<!--                                            keyword.category == '4' ? 'fourth' :-->
+<!--                                            keyword.category == '5' ? 'fifth' : ''}">-->
                       </span>
                     </td>
                     <td class="align-middle text-center">
@@ -424,9 +415,8 @@
                         <i class="fas fa-external-link-alt" aria-hidden="true"></i>
                         자세히
                       </a>
-                      <a class="btn btn-link text-danger text-gradient px-3 mb-0" th:onclick="'keywordDelete(' + ${keyword.keywordId} + ');'"><i class="far fa-trash-alt me-2"></i>삭제</a>
+<!--                      <a class="btn btn-link text-danger text-gradient px-3 mb-0" th:onclick="'keywordDelete(' + ${keyword.keywordId} + ');'"><i class="far fa-trash-alt me-2"></i>삭제</a>-->
                     </td>
-                    <input type="hidden" name="keywordCategory" th:value="${keyword.category}"/>
                   </tr>
                   </tbody>
                 </table>
@@ -444,7 +434,7 @@
     </div>
   </main>
 
-<!-- Modal -->
+<!-- 엑셀 등록 modal -->
 <div class="modal fade" id="exampleModalMessage" tabindex="-1" role="dialog" aria-labelledby="exampleModalMessageTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
@@ -455,15 +445,38 @@
         </button>
       </div>
       <div class="modal-body">
-
           <div class="form-group">
             <input type="file" id="excelFileInput" class="form-control">
           </div>
-
       </div>
       <div class="modal-footer">
         <button type="button" id="closeBtn" class="btn bg-gradient-secondary" data-bs-dismiss="modal">닫기</button>
         <button type="button" id="confirmBtn" class="btn bg-gradient-success">등록</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 카테고리 관리 modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-labelledby="categoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="categoryModalLabel">카테고리 관리</h5>
+        <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <ul class="list-group">
+              <li class="list-group-item d-flex justify-content-between align-items-center" th:each="category : ${categoryList}">
+                  <input type="text" class="form-control category-input" th:value="${category['categoryName']}">
+              </li>
+          </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">닫기</button>
+        <button type="button" id="saveChangesBtn" class="btn bg-gradient-success">변경사항 저장</button>
       </div>
     </div>
   </div>
@@ -476,33 +489,33 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
   /*<![CDATA[*/
-  const category = [[${category}]];
+  const filterCategory = [[${filterCategory}]];
   const inputCategory = [[${inputCategory}]];
   const sort = '[[${sort}]]';
   const pageSize = [[${pageSize}]];
   /*]]>*/
 
   // Adding click event listeners to each rank button
-  const rankButtons = document.querySelectorAll('.rank-btn');
-  rankButtons.forEach(button => {
-    button.addEventListener('click', function () {
-      document.querySelectorAll('.rank-btn').forEach(btn => btn.classList.remove('selected'));
-      this.classList.add('selected');
-      var category = this.value;
-
-      window.location.href = '/keyword?pageSize=' + pageSize + '&category=' + category + '&sort=' + sort + '&inputCategory=' + inputCategory;
-    });
-  });
+  // const rankButtons = document.querySelectorAll('.rank-btn');
+  // rankButtons.forEach(button => {
+  //   button.addEventListener('click', function () {
+  //     document.querySelectorAll('.rank-btn').forEach(btn => btn.classList.remove('selected'));
+  //     this.classList.add('selected');
+  //     var filterCategory = this.value;
+  //
+  //     window.location.href = '/keyword?pageSize=' + pageSize + '&filterCategory=' + filterCategory + '&sort=' + sort + '&inputCategory=' + inputCategory;
+  //   });
+  // });
 
   function insertFetch(){
     const keywordName = $('#keyword').val().trim();
-    const category = $('#category').val().trim();
+    const categoryId = $('#category').val().trim();
 
     if (keywordName === '') {
       return;
     }
 
-    if (category === '카테고리') {
+    if (categoryId === '0') {
       alert('카테고리를 선택해주세요.');
       $('#category').focus();
       return;
@@ -515,14 +528,14 @@
       },
       body: JSON.stringify({
         keywordName: keywordName,
-        category: category
+        categoryId: categoryId
       })
     })
             .then(response => {
               if (!response.ok) {
                 throw new Error('서버 응답이 실패했습니다.');
               }
-              location.replace('/keyword?pageSize=' + pageSize + '&category=' + category + '&sort=' + sort + '&inputCategory=' + category);
+              location.replace('/keyword?pageSize=' + pageSize + '&filterCategory=' + filterCategory + '&sort=' + sort + '&inputCategory=' + categoryId);
             })
             .catch(error => {
               console.error('등록 중 오류가 발생했습니다:', error);
@@ -542,7 +555,7 @@
       formData.append("file", file);
 
       FunLoadingBarStart();
-      fetch('/keyword/excelUpload', {
+      fetch('/keyword-excelUpload', {
         method: 'POST',
         body: formData,
         processData: false,
@@ -553,7 +566,7 @@
                   throw new Error('서버 응답이 실패했습니다.');
                 }
                 $("#closeBtn").trigger("click");
-                location.replace('/keyword?pageSize=' + pageSize + '&category=' + category + '&sort=' + sort + '&inputCategory=' + inputCategory);
+                  location.replace('/keyword?pageSize=' + pageSize + '&filterCategory=' + filterCategory + '&sort=' + sort + '&inputCategory=' + inputCategory);
               })
               .catch(error => {
                 console.error('등록 중 오류가 발생했습니다:', error);
@@ -561,14 +574,13 @@
               .finally(() => {
                 FunLoadingBarEnd();
               });
-      //$("#excelFileInput").val('');
     } else {
       console.log('파일이 선택되지 않았습니다.');
     }
   });
 
   $('#excelDownload').click(function(event) {
-    location.href="excel/keyword_excel.xlsx"
+    location.href="/excel"
   });
 
   $('#keyword').keypress(function(event) {
@@ -603,7 +615,7 @@
             if (!response.ok) {
               throw new Error('서버 응답이 실패했습니다.');
             }
-          location.replace('/keyword?pageSize=' + pageSize + '&category=' + category + '&sort=' + sort + '&inputCategory=' + inputCategory);
+            location.replace('/keyword?pageSize=' + pageSize + '&filterCategory=' + filterCategory + '&sort=' + sort + '&inputCategory=' + inputCategory);
           })
           .catch(error => {
             console.error('등록 중 오류가 발생했습니다:', error);
@@ -623,11 +635,11 @@
       if (!response.ok) {
         throw new Error('서버 응답이 실패했습니다.');
       }
-      location.replace('/keyword?pageSize=' + pageSize + '&category=' + category + '&sort=' + sort + '&inputCategory=' + inputCategory);
+        location.replace('/keyword?pageSize=' + pageSize + '&filterCategory=' + filterCategory + '&sort=' + sort + '&inputCategory=' + inputCategory);
     })
-            .catch(error => {
-              console.error('등록 중 오류가 발생했습니다:', error);
-            });
+    .catch(error => {
+      console.error('등록 중 오류가 발생했습니다:', error);
+    });
 
   }
 
@@ -693,7 +705,7 @@
     }
 
     window.changePage = function (page) {
-      window.location.href = '/keyword?page=' + page + '&pageSize=' + pageSize + '&category=' + category  + '&sort=' + sort + '&inputCategory=' + inputCategory;
+      window.location.href = '/keyword?page=' + page + '&pageSize=' + pageSize + '&filterCategory=' + filterCategory  + '&sort=' + sort + '&inputCategory=' + inputCategory;
     }
 
     createPagination(page, totalPages, startPage, endPage);
@@ -721,15 +733,14 @@
     checkboxes2.on('change', updateButtonState);
     updateButtonState();
 
-
     //키워드 카테고리 이동
-    $('.category-item').click(function() {
+    $('.category-update').click(function() {
       const category = $(this).data('priority'); // Get the priority from data attribute
       const checkedValues = $('input[name="checkbox"]:checked').map(function () {
         return $(this).val(); // Collect the value of each checked checkbox with name "checkbox"
       }).get(); // Convert the jQuery map to an array
 
-        fetch('keywords', { // Replace 'YOUR_SERVER_ENDPOINT' with your server URL
+        fetch('keywords', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -740,7 +751,7 @@
           if (!response.ok) {
             throw new Error('서버 응답이 실패했습니다.');
           }
-          location.replace('/keyword?pageSize=' + pageSize + '&category=' + category + '&sort=' + sort + '&inputCategory=' + category);
+            location.replace('/keyword?pageSize=' + pageSize + '&filterCategory=' + filterCategory + '&sort=' + sort + '&inputCategory=' + inputCategory);
         })
         .catch((error) => {
             console.error('Error:', error);
@@ -774,7 +785,7 @@
             if (!response.ok) {
               throw new Error('서버 응답이 실패했습니다.');
             }
-            location.replace('/keyword?pageSize=' + pageSize + '&category=' + category + '&sort=' + sort + '&inputCategory=' + category);
+              location.replace('/keyword?pageSize=' + pageSize + '&filterCategory=' + filterCategory + '&sort=' + sort + '&inputCategory=' + inputCategory);
           })
           .catch(error => {
             console.error('Error:', error);
@@ -783,9 +794,79 @@
       });
     });
 
-
   });
 
+  //카테고리 필터
+  let activeCategory = 0;
+
+  function getUrlParameter(name) {
+    const url = new URL(window.location.href);
+    return url.searchParams.get(name);
+  }
+
+  function setDropdownText(categoryName) {
+    $('#dropdownMenuButton').text(categoryName);
+  }
+
+  function updateSelectedCategory() {
+    $('.category-filter').removeClass('active');
+    $('.category-filter[data-priority="' + activeCategory + '"]').addClass('active');
+  }
+
+  $(document).ready(function() {
+    const categoryFromUrl = getUrlParameter('filterCategory');
+    if (categoryFromUrl) {
+      activeCategory = parseInt(categoryFromUrl);
+      const categoryName = $('.category-filter[data-priority="' + categoryFromUrl + '"]').text().trim();
+      setDropdownText(categoryName);
+    }
+    updateSelectedCategory();
+  });
+
+  $('.category-filter').click(function() {
+    const filterCategory = $(this).data('priority');
+      location.replace('/keyword?pageSize=' + pageSize + '&filterCategory=' + filterCategory + '&sort=' + sort + '&inputCategory=' + inputCategory);
+  });
+
+  // 초기 카테고리 값 저장
+  const initialCategories = [];
+  $('.category-input').each(function() {
+    initialCategories.push($(this).val().trim());
+  });
+
+  $('#saveChangesBtn').click(function() {
+    const categoryName = [];
+    const categoryId = [];
+    $('.category-input').each(function(index) {
+      const newCategoryName = $(this).val().trim();
+      const initialCategoryName = initialCategories[index];
+
+      if (newCategoryName !== '' && newCategoryName !== initialCategoryName) {
+        categoryId.push(++index);
+        categoryName.push(newCategoryName);
+      }
+    });
+
+    if (categoryName.length > 0) {
+      // 서버로 업데이트된 카테고리 전송
+      fetch('/keyword/category', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({categoryId: categoryId, categoryName: categoryName})
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('서버 응답이 실패했습니다.');
+        }
+          location.replace('/keyword?pageSize=' + pageSize + '&filterCategory=' + filterCategory + '&sort=' + sort + '&inputCategory=' + inputCategory);
+      })
+      .catch(error => {
+        console.error('네트워크 오류:', error);
+      });
+    }
+  });
 
 </script>
   <!-- Github buttons -->
@@ -796,15 +877,6 @@
   <script src="/assets/js/core/bootstrap.min.js"></script>
 <!--  <script src="/assets/js/plugins/perfect-scrollbar.min.js"></script>-->
 <!--  <script src="/assets/js/plugins/smooth-scrollbar.min.js"></script>-->
-  <script>
-    var win = navigator.platform.indexOf('Win') > -1;
-    if (win && document.querySelector('#sidenav-scrollbar')) {
-      var options = {
-        damping: '0.5'
-      }
-      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
-    }
-  </script>
 <!--  <script src="/assets/js/soft-ui-dashboard.min.js?v=1.0.7"></script>-->
   <script src="/js/common.js"></script>
 </body>
