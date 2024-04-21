@@ -21,10 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RequiredArgsConstructor
 @EnableAsync
@@ -62,26 +59,19 @@ public class KeywordService {
 
     public void registerKeyword(KeywordDto keywordDto) throws Exception {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        int attempts = 0;
 
-        //검색량 조회
-        NaverSearchAdApi.apiAccess(keywordDto);
+        keywordRegister(keywordDto, email); //키워드 등록
 
-        //키워드 등록(사전)
-        keywordMapper.registerKeywordDict(keywordDto);
+        List<String> blogIdList = blogMapper.selectBlogIdList(email);//등록한 blogId 조회
 
-        //키워드 등록(유저)
-        keywordMapper.registerUserKeyword(keywordDto, email);
-
-        //등록한 blogId 조회
-        List<String> blogIdList = blogMapper.selectBlogIdList(email);
-
-        //블로그 탭 랭킹(크롤링)
-        Map<String, Integer> blogTabResult = Crawler.blogTabCrawler(blogIdList, keywordDto.getKeywordName());
-
-        //통합검색 노출(크롤링)
-        List<String> totalSearchResult = Crawler.totalSearchCrawler(blogIdList, keywordDto.getKeywordName());
-
-        insertUniqueCrawlerData(keywordDto, blogTabResult, totalSearchResult);
+        taskExecutor.execute(() -> {
+            try {
+                cralwerProcess(Collections.singletonList(keywordDto), blogIdList, attempts);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
 
     }
 
@@ -101,14 +91,7 @@ public class KeywordService {
                 keywordDto.setCategoryId(Integer.parseInt(entry.getKey()));
                 if (!entry.getValue().toString().isEmpty()) {
                     keywordDto.setKeywordName(entry.getValue().toString());
-
-                    //검색량 조회
-                    NaverSearchAdApi.apiAccess(keywordDto);
-                    //키워드 등록(사전)
-                    keywordMapper.registerKeywordDict(keywordDto);
-                    //키워드 등록(유저)
-                    keywordMapper.registerUserKeyword(keywordDto, email);
-
+                    keywordRegister(keywordDto, email); //키워드 등록
                     keywordDtoList.add(keywordDto);
                 }
             }
@@ -122,6 +105,15 @@ public class KeywordService {
             }
         });
 
+    }
+
+    private void keywordRegister(KeywordDto keywordDto, String email) throws Exception {
+        //검색량 조회
+        NaverSearchAdApi.apiAccess(keywordDto);
+        //키워드 등록(사전)
+        keywordMapper.registerKeywordDict(keywordDto);
+        //키워드 등록(유저)
+        keywordMapper.registerUserKeyword(keywordDto, email);
     }
 
     @Async

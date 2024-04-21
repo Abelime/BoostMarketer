@@ -71,12 +71,8 @@
         month_search_pc + month_search_mobile AS total_search,
                COALESCE(kr.rank_pc_5, 0)      AS rank_pc_5,
                COALESCE(kr.rank_pc_10, 0)     AS rank_pc_10,
-               rank_pc_cnt,
-               uk.keyword_fix,
-        (SELECT count(*)
-          FROM keyword_rank
-         WHERE keyword_id = kd.keyword_id
-          AND total_search_exposure >0)       AS total_search_exposure
+               COALESCE(kr.total_search_exposure, 0) AS total_search_exposure,
+               uk.keyword_fix
         FROM keyword_dict kd
                  INNER JOIN
              user_keywords uk ON kd.keyword_id = uk.keyword_id
@@ -90,7 +86,7 @@
              (SELECT keyword_id,
                      COUNT(CASE WHEN rank_pc > 0 AND rank_pc <= 5 THEN 1 END)          AS rank_pc_5,
                      COUNT(CASE WHEN rank_pc > 5 AND rank_pc <= 10 THEN 1 END)         AS rank_pc_10,
-                     COUNT(rank_pc) as rank_pc_cnt
+                     COUNT(CASE WHEN total_search_exposure > 0 THEN 1 END)             AS total_search_exposure
         ]]>
               FROM keyword_rank
               WHERE post_no IN (SELECT post_no
@@ -111,10 +107,10 @@
                 ,total_search
             </when>
             <when test="sort == 'highRank'">
-                ,rank_pc_cnt desc ,rank_pc_5 desc, rank_pc_10 desc
+                ,rank_pc_5 desc, rank_pc_10 desc
             </when>
             <when test="sort == 'lowRank'">
-                ,rank_pc_cnt, rank_pc_5, rank_pc_10
+                , rank_pc_5, rank_pc_10
             </when>
             <when test="sort == 'highExposure'">
                 ,total_search_exposure desc
