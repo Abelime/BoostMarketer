@@ -1,10 +1,18 @@
 package camel.BoostMarketer.config;
 
-import camel.BoostMarketer.blog.service.BlogBatchService;
-import camel.BoostMarketer.keyword.service.KeywordBatchService;
+import camel.BoostMarketer.config.tasklet.BlogTasklet;
+import camel.BoostMarketer.config.tasklet.KeywordCrawlerTasklet;
+import camel.BoostMarketer.config.tasklet.KeywordSearchTasklet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
 
 
 @Slf4j
@@ -12,31 +20,41 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class BatchConfig {
 
-    private final BlogBatchService blogBatchService;
+    private final BlogTasklet blogTasklet;
 
-    private final KeywordBatchService keywordBatchService;
+    private final KeywordSearchTasklet keywordSearchTasklet;
 
-//    @Bean
-//    public Job blogDataJob(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager) {
-//        return new JobBuilder("blogDataJob", jobRepository)
-//                .start(blogStep(jobRepository, platformTransactionManager))
-//                .next(keywordStep(jobRepository, platformTransactionManager))
-//                .build();
-//    }
-//
-//    @Bean
-//    public Step blogStep(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager){
-//        return new StepBuilder("blogStep", jobRepository)
-//                .tasklet(new BlogTasklet(blogBatchService), platformTransactionManager)
-//                .build();
-//    }
-//
-//    @Bean
-//    public Step keywordStep(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager){
-//        return new StepBuilder("keywordStep", jobRepository)
-//                .tasklet(new KeywordTasklet(keywordBatchService), platformTransactionManager)
-//                .build();
-//    }
+    private final KeywordCrawlerTasklet keywordCrawlerTasklet;
+
+    @Bean
+    public Job blogDataJob(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager) {
+        return new JobBuilder("blogDataJob", jobRepository)
+                .start(blogUpdateStep(jobRepository, platformTransactionManager))
+                .next(keywordSearchUpdateStep(jobRepository, platformTransactionManager))
+                .next(keywordCrawlerStep(jobRepository, platformTransactionManager))
+                .build();
+    }
+
+    @Bean
+    public Step blogUpdateStep(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager){
+        return new StepBuilder("blogUpdateStep", jobRepository)
+                .tasklet(blogTasklet, platformTransactionManager)
+                .build();
+    }
+
+    @Bean
+    public Step keywordSearchUpdateStep(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager){
+        return new StepBuilder("keywordSearchUpdateStep", jobRepository)
+                .tasklet(keywordSearchTasklet, platformTransactionManager)
+                .build();
+    }
+
+    @Bean
+    public Step keywordCrawlerStep(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager){
+        return new StepBuilder("keywordCrawlerStep", jobRepository)
+                .tasklet(keywordCrawlerTasklet, platformTransactionManager)
+                .build();
+    }
 
 
 }

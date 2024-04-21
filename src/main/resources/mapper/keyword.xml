@@ -30,7 +30,7 @@
         INSERT INTO user_keywords (user_id, keyword_id, category_id)
         SELECT (<include refid="selectUserIdByEmail"/>),
                #{keywordDto.keywordId},
-               #{keywordDto.categoryId}``
+               #{keywordDto.categoryId}
         FROM DUAL
         WHERE NOT EXISTS (SELECT 1
                           FROM user_keywords
@@ -52,6 +52,14 @@
             )
         </foreach>
     </insert>
+
+    <!--  키워드 순위 정보 등록 및 업데이트  -->
+    <update id="upsertKeywordRank" parameterType="java.util.List">
+        REPLACE INTO keyword_rank (post_no, keyword_id, rank_pc, total_search_exposure)
+        <foreach item="item" collection="list" separator=" UNION ALL ">
+            SELECT #{item.postNo}, #{item.keywordId}, #{item.rankPc}, #{item.totalSearchExposure}
+        </foreach>
+    </update>
 
     <!--  키워드 정보 조회  -->
     <select id="selectKeywordInfo" parameterType="String" resultType="KeywordDto">
@@ -122,18 +130,29 @@
     <delete id="deleteKeyDict" parameterType="map">
         DELETE
         FROM keyword_dict
-        WHERE keyword_id = #{keywordId}
-        AND 0=(SELECT count(*)
-                FROM user_keywords
-                WHERE user_id != #{id}
-                AND keyword_id = #{keywordId})
+        WHERE keyword_id IN
+            <foreach item="keywordId" collection="keywordIds" open="(" separator="," close=")">
+                #{keywordId}
+            </foreach>
+        AND NOT EXISTS (
+            SELECT 1
+            FROM user_keywords
+            WHERE user_id != #{id}
+              AND keyword_id IN
+                <foreach item="keywordId" collection="keywordIds" open="(" separator="," close=")">
+                    #{keywordId}
+                </foreach>
+        )
     </delete>
 
     <!--  키워드 순위 삭제  -->
     <delete id="deleteKeyRank1" parameterType="map">
         DELETE
         FROM keyword_rank
-        WHERE keyword_id = #{keywordId}
+        WHERE keyword_id IN
+        <foreach item="keywordId" collection="keywordIds" open="(" separator="," close=")">
+            #{keywordId}
+        </foreach>
         AND post_no in (    SELECT post_no
                             FROM blog_post bp
                             INNER JOIN blog b ON (bp.blog_id = b.blog_id)
@@ -147,11 +166,18 @@
     <delete id="deleteKeyRank2" parameterType="map">
         DELETE
         FROM keyword_rank
-        WHERE keyword_id = #{keywordId}
-        AND 0=(   SELECT count(*) FROM user_keywords
-                    WHERE user_id != #{id}
-                    AND keyword_id = #{keywordId}
-        )
+        WHERE keyword_id IN
+        <foreach item="keywordId" collection="keywordIds" open="(" separator="," close=")">
+            #{keywordId}
+        </foreach>
+          AND NOT EXISTS (SELECT 1
+                          FROM user_keywords
+                          WHERE user_id != #{id}
+                            AND keyword_id IN
+                            <foreach item="keywordId" collection="keywordIds" open="(" separator="," close=")">
+                                #{keywordId}
+                            </foreach>
+                          )
     </delete>
 
     <!--  유저 키워드 삭제  -->
@@ -159,7 +185,10 @@
         DELETE
         FROM user_keywords
         WHERE user_id = #{id}
-        AND keyword_id = #{keywordId}
+        AND keyword_id IN
+          <foreach item="keywordId" collection="keywordIds" open="(" separator="," close=")">
+              #{keywordId}
+          </foreach>
     </delete>
 
     <!--  키워드 수, 상위노출 키워드 수  -->
@@ -229,6 +258,13 @@
         from keyword_dict kd
                  join user_keywords uk on kd.keyword_id = uk.keyword_id
         where uk.user_id = #{userId}
+        order by keyword_id
+    </select>
+
+    <!-- 모든 키워드 조회(배치) -->
+    <select id="findAllKeyword" resultType="KeywordDto">
+        select keyword_id, keyword_name
+        from keyword_dict kd
         order by keyword_id
     </select>
 

@@ -13,7 +13,7 @@ public interface KeywordMapper {
 
     void registerUserKeyword(@Param("keywordDto") KeywordDto keywordDto, @Param("email") String email) throws Exception;
 
-    void registerKeywordRank(List<KeywordDto> keywordDtoList) throws Exception;
+    void upsertKeywordRank(List<KeywordDto> keywordDtoList) throws Exception;
 
     List<KeywordDto> selectKeywordInfo(@Param("email") String email, @Param("categoryId") int filterCategory, @Param("sort") String sort, RowBounds row) throws Exception;
 
@@ -46,4 +46,8 @@ public interface KeywordMapper {
     void updateCategory(Map<String, Object> param) throws Exception;
 
     List<KeywordDto> selectCategory(String email) throws Exception;
+
+    List<KeywordDto> findAllKeyword() throws Exception;
+
+
 }

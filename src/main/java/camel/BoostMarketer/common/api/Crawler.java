@@ -2,18 +2,16 @@ package camel.BoostMarketer.common.api;
 
 import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.dto.BlogPostDto;
-import camel.BoostMarketer.blog.dto.RequestBlogDto;
 import camel.BoostMarketer.common.util.DateUtil;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import generator.RandomUserAgentGenerator;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -22,13 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.HtmlUtils;
 
-import java.io.IOException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,180 +33,9 @@ import static camel.BoostMarketer.common.util.HttpUtil.sendHttpRequest;
 
 public class Crawler {
 
-    private final static ObjectMapper mapper = new ObjectMapper();
-
-    private final static String proxyHost = "brd.superproxy.io"; //프록시
-    private final static int proxyPort = 22225; // 프록시 서버 포트
-
     private final static Logger logger = LoggerFactory.getLogger(Crawler.class);
 
-//    public static List<Integer> rankCrawler(RequestBlogDto requestBlogDto) {
-//        Instant startTime = Instant.now(); // 시작 시간 기록
-//        List<String> keyWordList = requestBlogDto.getKeyWord();
-//        List<Integer> rankList = new ArrayList<>();
-//
-//        // 키워드 리스트를 순회하며 크롤링을 수행합니다.
-//        for (String keyword : keyWordList) {
-//            try {
-//                // 검색어를 UTF-8 형식으로 인코딩합니다.
-//                String text = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
-//                // URL을 생성합니다.
-//                String url = "https://search.naver.com/search.naver?ssc=tab.blog.all&query=" + text;
-//
-//                // 예외 처리를 추가하여 Jsoup을 사용하여 웹페이지를 가져옵니다.
-//                Document doc;
-//                doc = Jsoup.connect(url).get();
-//                // 블로그 검색 결과에서 링크를 가져옵니다.
-//                Elements aTag = doc.select(".title_area a");
-//
-//                // 링크를 순회하며 블로그 URL과 일치하는지 확인합니다.
-//                for (int i = 0; i < aTag.size(); i++) {
-//                    String crawlerUrl = aTag.get(i).attr("href");
-//                    if (crawlerUrl.equals(requestBlogDto.getBlogUrl())) {
-//                        rankList.add(++i);
-//                        break;
-//                    } else if (i == aTag.size() - 1) { //마지막 까지 일치하지 않으면
-//                        rankList.add(0);
-//                    }
-//                }
-//                Thread.sleep(500);
-//            } catch (Exception e) {
-//                logger.error("Error occurred while fetching keyword ranks for keyword: " + keyword, e);
-//                // 예외가 발생한 경우 해당 키워드의 순위를 -1로 설정합니다.
-//                rankList.add(-1);
-//            }
-//
-//        }
-//        Instant endTime = Instant.now(); // 종료 시간 기록
-//        Duration duration = Duration.between(startTime, endTime); // 걸린 시간 계산
-//        logger.debug("rankList: {} ", rankList);
-//        logger.debug("검색어 순위 계산에 소요된 시간: {} 밀리초", duration.toMillis());
-//
-//        return rankList;
-//    }
-
-    public static List<Integer> rankCrawler(RequestBlogDto requestBlogDto) throws IOException {
-        List<Integer> rankList = new ArrayList<>();
-        Instant startTime = Instant.now(); // 시작 시간 기록
-
-        // System 프로퍼티를 이용하여 전역 프록시 설정을 합니다.
-//        System.setProperty("http.proxyHost", proxyHost);
-//        System.setProperty("http.proxyPort", String.valueOf(proxyPort));
-//
-//        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
-
-        // 병렬로 각 키워드에 대한 순위를 계산합니다.
-        requestBlogDto.getKeyWord().parallelStream().forEach(keyword -> {
-            try {
-                // 검색어를 UTF-8 형식으로 인코딩합니다.
-                String text = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
-
-                // URL을 생성합니다.
-                String url = "http://search.naver.com/search.naver?ssc=tab.blog.all&query=" + text;
-
-                // Jsoup 연결 객체 생성 및 사용자 에이전트 설정
-                Connection conn = Jsoup.connect(url)
-                        .referrer("https://www.naver.com/") // Set a referrer
-//                        .proxy(proxy)
-                        .headers(getHeaders()); // Set custom headers
-
-
-                // 웹페이지를 가져옵니다.
-                Document doc = conn.get();
-
-                // 블로그 검색 결과에서 링크를 가져옵니다.
-                Elements aTag = doc.select(".title_area a");
-
-                // 링크를 순회하며 블로그 URL과 일치하는지 확인합니다.
-                for (int i = 0; i < aTag.size(); i++) {
-                    String crawlerUrl = aTag.get(i).attr("href");
-                    if (crawlerUrl.equals(requestBlogDto.getBlogUrl())) {
-                        rankList.add(i + 1);
-                        return; // 순회를 중단하고 람다 표현식을 빠져나갑니다.
-                    }
-                }
-                // 블로그 URL과 일치하는 링크를 찾지 못한 경우
-                rankList.add(0);
-            } catch (Exception e) {
-                logger.error("Error occurred while fetching keyword ranks for keyword: " + keyword, e);
-                // 예외가 발생한 경우 해당 키워드의 순위를 -1로 설정합니다.
-                rankList.add(-1);
-            }
-        });
-
-        Instant endTime = Instant.now(); // 종료 시간 기록
-        Duration duration = Duration.between(startTime, endTime); // 걸린 시간 계산
-        logger.debug("rankList: {} ", rankList);
-        logger.debug("검색어 순위 계산에 소요된 시간: {} 밀리초", duration.toMillis());
-        return rankList;
-    }
-
-    private static Map<String, String> getHeaders() {
-        //  프록시 설정 인증 정보 설정
-        /*String authUser = "brd-customer-hl_79e5bff5-zone-web_unlocker1";
-        String authPassword = "il48wb3obr1n";
-        String base64Auth = java.util.Base64.getEncoder().encodeToString((authUser + ":" + authPassword).getBytes());*/
-
-        Map<String, String> headers = new HashMap<>();
-//        headers.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");
-//        headers.put("Accept-Encoding", "gzip, deflate, br");
-        headers.put("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7");
-//        headers.put("Referer", "https://search.naver.com/search.naver?");
-
-        headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36");
-//        headers.put("Proxy-Authorization", "Basic " + base64Auth); 프록시 설정
-
-        return headers;
-    }
-
-
-    //개시물 정보 크롤링
-    public static Map<String, Object> postInfoCrawler(String paramUrl, String postNo) throws Exception {
-        Map<String, Object> resultMap = new HashMap<>();
-        String url = "https://blog.naver.com/PostViewBottomTitleListAsync.naver?" + paramUrl;
-
-        String resultStr = sendHttpRequest(url);
-
-        JsonNode postView = mapper.readTree(resultStr);
-
-        if (postView != null) {
-            JsonNode postList = postView.get("postList");
-            for (JsonNode post : postList) {
-                if (post.get("logNo").asText().equals(postNo)) {
-                    String postTitle = URLDecoder.decode(post.get("filteredEncodedTitle").asText(), StandardCharsets.UTF_8);
-                    String postDate = post.get("addDate").asText();
-                    int commentCnt = post.get("commentCount").asInt();
-
-                    resultMap.put("postTitle", postTitle);
-                    resultMap.put("postDate", postDate);
-                    resultMap.put("commentCnt", commentCnt);
-
-                    break;
-                }
-            }
-        }
-
-        String hashtag = postTagCrawler(paramUrl);
-        resultMap.put("hashtag", hashtag);
-
-        return resultMap;
-    }
-
-
-    //해시태그 크롤링
-    public static String postTagCrawler(String paramUrl) throws Exception {
-        String tagName = "";
-        String url = "https://blog.naver.com/BlogTagListInfo.naver?" + paramUrl;
-        String resultStr = sendHttpRequest(url);
-
-        JsonNode tag = mapper.readTree(resultStr);
-
-        if (tag.get("taglist").get(0) != null) {
-            tagName = URLDecoder.decode(tag.get("taglist").get(0).get("tagName").asText(), StandardCharsets.UTF_8);
-        }
-
-        return tagName;
-    }
+    public static Map<String, String> headerData = new HashMap<>();
 
     //방문 숫자 크롤링
     public static int visitorCntCrawler(String blogId) throws Exception {
@@ -350,69 +174,66 @@ public class Crawler {
         return postDtoList;
     }
 
-    public static Map<String, Integer> blogTabCrawler(List<String> blogIds, String keyword) {
+    //블로그 탭 순위 크롤링(Jsoup)
+    public static Map<String, Integer> blogTabCrawler(List<String> blogIds, String keyword) throws Exception {
+        logger.info("블로그탭 크롤링 : " + "[" + keyword + "]");
         Map<String, Integer> resultMap = new HashMap<>();
 
-        try {
-            String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
-            String url = "https://search.naver.com/search.naver?ssc=tab.blog.all&query=" + encodedKeyword;
-            String referrer = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword;
+        String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+        String url = "https://search.naver.com/search.naver?ssc=tab.blog.all&sm=tab_jum&query=" + encodedKeyword;
+        String referrer = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword;
 
-            Document document = Jsoup.connect(url)
-                    .referrer(referrer)
-                    .headers(getHeaders())
-                    .get();
 
-            Elements aTags = document.select(".title_area a");
+        Document document = Jsoup.connect(url)
+                .referrer(referrer)
+                .headers(headerData)
+                .get();
 
-            for (Element aTag : aTags) {
-                String crawlerUrl = aTag.attr("href");
-                for (String blogId : blogIds) {
-                    if (crawlerUrl.contains("/" + blogId + "/")) {
-                        resultMap.put(crawlerUrl, aTags.indexOf(aTag) + 1);
-                    }
+        Elements aTags = document.select(".title_area a");
+
+        for (Element aTag : aTags) {
+            String crawlerUrl = aTag.attr("href");
+            crawlerUrl = crawlerUrl.replace("m.blog", "blog");
+            for (String blogId : blogIds) {
+                if (crawlerUrl.contains("/" + blogId + "/")) {
+                    resultMap.put(crawlerUrl, aTags.indexOf(aTag) + 1);
                 }
-                if(aTags.indexOf(aTag) == 9) break; //10등까지 순위 확인
             }
-
-        } catch (Exception e) {
-            logger.error("Error occurred while fetching keyword ranks for keyword: " + keyword + " on " + "PC", e);
+            if (aTags.indexOf(aTag) == 9) break; //10등까지 순위 확인
         }
 
         return resultMap;
     }
 
-    //통합검색 노출 확인
-    public static List<String> totalSearchCrawler(List<String> blogIds, String keyword) {
+    //통합검색 노출 확인(Jsoup)
+    public static List<String> totalSearchCrawler(List<String> blogIds, String keyword) throws Exception {
+        logger.info("통합검색 크롤링 : " + "[" + keyword + "]");
         List<String> result = new ArrayList<>();
 
-        try {
-            String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
-            String url = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword + " &oquery="  + encodedKeyword + "tqi=imk3isqo1LwssDUBj5VssssstYC-334687";
-            String referrer = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword + " &oquery="  + encodedKeyword + "tqi=imk3jsqo15VsskdtRIZssssssSR-306878";
+        String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+        String url = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword;
+        String referrer = "https://www.naver.com/";
 
-            Document document = Jsoup.connect(url)
-                    .referrer(referrer)
-                    .headers(getHeaders())
-                    .get();
+        Document document = Jsoup.connect(url)
+                .referrer(referrer)
+                .headers(headerData)
+                .get();
 
-            Set<String> set = extractHrefValues(document);
+        Set<String> set = extractHrefValues(document);
 
-            for (String blogUrl : set) {
-                for (String blogId : blogIds) {
-                    if (blogUrl.contains("/" + blogId + "/")) {
-                        result.add(blogUrl);
-                    }
+        for (String blogUrl : set) {
+            for (String blogId : blogIds) {
+                if (blogUrl.contains("/" + blogId + "/")) {
+                    blogUrl = blogUrl.replace("m.blog", "blog");
+                    result.add(blogUrl);
                 }
             }
-
-        } catch (Exception e) {
-            logger.error("Error occurred while fetching total_search for keyword: " + keyword, e);
         }
 
         return result;
     }
 
+    //통합검색 블로그URL 태그
     private static Set<String> extractHrefValues(Document document) {
         Set<String> hrefValues = new HashSet<>();
 
@@ -442,11 +263,11 @@ public class Crawler {
         try {
             String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
             String url = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword + " &oquery="  + encodedKeyword + "tqi=imk3isqo1LwssDUBj5VssssstYC-334687";
-            String referrer = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword + " &oquery="  + encodedKeyword + "tqi=imk3jsqo15VsskdtRIZssssssSR-306878";
+            String referrer = "https://www.naver.com/";
 
             Document document = Jsoup.connect(url)
                     .referrer(referrer)
-                    .headers(getHeaders())
+                    .headers(headerData)
                     .get();
 
             // style="display: none;"이 포함된 태그와 그 하위 태그 제거
@@ -489,12 +310,12 @@ public class Crawler {
         keyword = keyword==null?"가방":keyword;
         try {
             String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
-            String url = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword + " &oquery="  + encodedKeyword + "tqi=imk3isqo1LwssDUBj5VssssstYC-334687";
-            String referrer = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword + " &oquery="  + encodedKeyword + "tqi=imk3jsqo15VsskdtRIZssssssSR-306878";
+            String url = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword;
+            String referrer = "https://www.naver.com/";
 
             Document document = Jsoup.connect(url)
                     .referrer(referrer)
-                    .headers(getHeaders())
+                    .headers(headerData)
                     .get();
 
             // style="display: none;"이 포함된 태그와 그 하위 태그 제거
@@ -531,5 +352,38 @@ public class Crawler {
             logger.error("Error occurred while fetching total_search for keyword: " + keyword, e);
         }
         return result;
+    }
+
+//    public static Map<String, String> getHeaders() {
+//        headerData.put("User-Agent", RandomUserAgentGenerator.getNextNonMobile());
+//        return headerData;
+//    }
+
+    public static void sleep(String reason) {
+        try {
+            if(reason.equals("Exception")){
+                Thread.sleep(10000);
+            }else if(reason.equals("random")){
+                Random random = new Random();
+                int sleepTime = 400 + random.nextInt(200);
+                Thread.sleep(sleepTime);
+            }
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public static void updateHeaderData(int attempts) {
+        Map<String, String> headerData = Crawler.headerData;
+        if (attempts == 0) {
+            headerData.put("User-Agent", RandomUserAgentGenerator.getNextNonMobile());
+        } else if (attempts == 1) {
+            headerData.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");
+        } else if (attempts == 2) {
+            headerData.put("Accept-Encoding", "gzip, deflate, br, zstd");
+        } else if (attempts == 3) {
+            headerData.put("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7");
+        }
     }
 }

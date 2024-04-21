@@ -35,10 +35,15 @@ public class ExcelUtil {
                 cell = row.getCell(columnIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 
                 String value = getStringValue(cell, columnIndex);
-                if (idx == 0) {
-                    keyList.add(value);
-                } else {
-                    data.put(keyList.get(columnIndex), value);
+//                if (idx == 0) {
+//                    keyList.add(value);
+//                } else {
+//                    data.put(String.valueOf(++columnIndex), value);
+//                }
+
+                if (idx != 0) {
+                    int num = columnIndex+1;
+                    data.put(String.valueOf(num), value);
                 }
             }
             if (idx != 0) {
@@ -46,7 +51,6 @@ public class ExcelUtil {
             }
             idx++;
         }
-        System.out.println("list: " + list);
     }
 
 

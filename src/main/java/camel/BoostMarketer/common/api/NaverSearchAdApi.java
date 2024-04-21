@@ -7,6 +7,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -21,19 +23,20 @@ public class NaverSearchAdApi {
     private static final String SECRET_KEY = "AQAAAAAMIyrKK5R9P8z2k2Ve8M27vi1m88Bz0MhZP21Gg/ZUMg==";
     private static final String CUSTOMER_ID = "3098541";
     private static final String path = "/keywordstool";
+    private final static Logger logger = LoggerFactory.getLogger(NaverSearchAdApi.class);
 
-    public static void apiAccess(KeywordDto keywordDto) throws NoSuchAlgorithmException, InvalidKeyException {
+    public static void apiAccess(KeywordDto keywordDto) throws NoSuchAlgorithmException, InvalidKeyException, InterruptedException {
         OkHttpClient client = new OkHttpClient();
-
 
         String keyword = keywordDto.getKeywordName();
         keyword = keyword.replace(" ", "");
+
+        logger.debug("검색량 조회 API : " + "[" + keyword + "]");
 
         String timestamp = String.valueOf(System.currentTimeMillis());
 
         HttpUrl.Builder urlBuilder = HttpUrl.parse(API_URL + path).newBuilder();
         urlBuilder.addQueryParameter("hintKeywords", keyword);
-        urlBuilder.addQueryParameter("month", "2");
         urlBuilder.addQueryParameter("showDetail", "1");
 
         String url = urlBuilder.build().toString();
@@ -47,11 +50,12 @@ public class NaverSearchAdApi {
                 .addHeader("X-Timestamp", timestamp)
                 .addHeader("X-Signature", signature)
                 .build();
-
+        String responseBody = "";
         try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) throw new RuntimeException("API 요청 실패: " + response);
-
-            String responseBody = response.body().string();
+//            if (!response.isSuccessful()){
+//                throw new RuntimeException("API 요청 실패: " + response);
+//            }
+            responseBody = response.body().string();
 
             if (!responseBody.isEmpty()) {
                 JSONObject jsonObject = new JSONObject(responseBody);
@@ -68,12 +72,15 @@ public class NaverSearchAdApi {
                 keywordDto.setMonthSearchPc(monthlyPcQcCnt);
                 keywordDto.setMonthSearchMobile(monthlyMobileQcCnt);
 
-            } else {
-                return;
             }
 
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (RuntimeException e) {
+            if (responseBody.contains("429")) {
+                Thread.sleep(300);
+                apiAccess(keywordDto);
+            }
         }
     }
 

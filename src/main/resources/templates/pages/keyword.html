@@ -597,7 +597,7 @@
 
 
   //키워드 삭제
-  function keywordDelete(keywordId) {
+  function keywordDelete(keywordIds) {
     Swal.fire({
       title: "삭제하시겠습니까?",
       icon: "warning",
@@ -608,22 +608,26 @@
       cancelButtonText: '취소',
     }).then((result) => {
       if (result.isConfirmed) {
-
-        fetch('/keyword/'+keywordId, {
+        fetch('/keyword', {
           method: 'DELETE',
-        }).then(response => {
-            if (!response.ok) {
-              throw new Error('서버 응답이 실패했습니다.');
-            }
-            location.replace('/keyword?pageSize=' + pageSize + '&filterCategory=' + filterCategory + '&sort=' + sort + '&inputCategory=' + inputCategory);
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            keywordIds: keywordIds
           })
-          .catch(error => {
-            console.error('등록 중 오류가 발생했습니다:', error);
-          });
-
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('서버 응답이 실패했습니다.');
+          }
+          location.replace('/keyword?pageSize=' + pageSize + '&filterCategory=' + filterCategory + '&sort=' + sort + '&inputCategory=' + inputCategory);
+        })
+        .catch(error => {
+          console.error('삭제 중 오류가 발생했습니다:', error);
+        });
       }
     });
-
   }
 
   //키워드 상위 고정
@@ -774,7 +778,7 @@
             return $(this).val(); // Collect the value of each checked checkbox with name "checkbox"
           }).get(); // Convert the jQuery map to an array
 
-        fetch('/keywords', {
+        fetch('/keyword', {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json'

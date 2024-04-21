@@ -61,12 +61,6 @@ public class KeywordController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @DeleteMapping(value = "/keyword/{keywordId}")
-    public ResponseEntity<?> keywordDelete(@PathVariable("keywordId") Long keywordId) throws Exception {
-        keywordService.keywordDelete(keywordId);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
     @PutMapping(value = "/keyword/{keywordId}")
     public ResponseEntity<?> keywordFix(@PathVariable("keywordId") Long keywordId) throws Exception {
         keywordService.keywordFix(keywordId);
@@ -101,12 +95,10 @@ public class KeywordController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @DeleteMapping("/keywords")
-    public ResponseEntity<?> deleteKeywords(@RequestBody Map<String, List<Long>> data) throws Exception {
-        List<Long> keywordIds = data.get("keywordIds");
-        for (Long keywordId : keywordIds) {
-            keywordService.keywordDelete(keywordId);
-        }
+    @DeleteMapping("/keyword")
+    public ResponseEntity<?> deleteKeywords(@RequestBody Map<String, List<Long>> param) throws Exception {
+        List<Long> keywordIds = param.get("keywordIds");
+        keywordService.keywordDelete(keywordIds);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

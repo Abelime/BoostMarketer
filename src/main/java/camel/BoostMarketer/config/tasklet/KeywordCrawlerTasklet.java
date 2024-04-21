@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
-public class KeywordTasklet implements Tasklet {
+public class KeywordCrawlerTasklet implements Tasklet {
 
     private final KeywordBatchService keywordBatchService;
 

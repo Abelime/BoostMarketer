@@ -3,7 +3,6 @@ package camel.BoostMarketer.blog.service;
 import camel.BoostMarketer.blog.dto.BlogPostDto;
 import camel.BoostMarketer.blog.mapper.BlogMapper;
 import camel.BoostMarketer.common.api.Crawler;
-import camel.BoostMarketer.keyword.mapper.KeywordMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +16,6 @@ import java.util.Map;
 public class BlogBatchService {
 
     private final BlogMapper blogMapper;
-
-    private final KeywordMapper keywordMapper;
 
     public void updateBlogPost() throws Exception {
         List<BlogPostDto> blogDtoList = blogMapper.selectAllLastPostNo();
