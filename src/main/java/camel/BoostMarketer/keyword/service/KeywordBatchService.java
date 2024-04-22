@@ -50,8 +50,7 @@ public class KeywordBatchService {
             attempts = keywordService.cralwerProcess(keywordList, blogIdList, attempts);
         }
 
-        Map<String, String> headerData = Crawler.headerData;
-        headerData.clear();
+        Crawler.headerData.clear();
 
         //블로그탭 순위X, 통검 노출X = 데이터 삭제
         keywordMapper.deleteRankData();

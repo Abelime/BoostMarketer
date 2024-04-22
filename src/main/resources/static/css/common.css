@@ -35,3 +35,9 @@
   outline: none;
   border-color: #34ce57; /* Light green border for focus */
 }
+
+/* Custom active class for dropdown menu items */
+.dropdown-item.active {
+  background-color: #f0f8ff; /* Light blue background */
+  color: #007bff; /* Blue text color */
+}

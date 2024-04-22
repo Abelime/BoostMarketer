@@ -9,6 +9,7 @@ import camel.BoostMarketer.keyword.dto.KeywordDto;
 import camel.BoostMarketer.keyword.mapper.KeywordMapper;
 import camel.BoostMarketer.user.dto.UserDto;
 import camel.BoostMarketer.user.mapper.UserMapper;
+import generator.RandomUserAgentGenerator;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.session.RowBounds;
 import org.slf4j.Logger;
@@ -73,6 +74,8 @@ public class KeywordService {
             }
         });
 
+        Crawler.headerData.clear();
+
     }
 
     public void keywordExcelUpload(MultipartFile file) throws Exception {
@@ -104,6 +107,8 @@ public class KeywordService {
                 throw new RuntimeException(e);
             }
         });
+
+        Crawler.headerData.clear();
 
     }
 
@@ -181,6 +186,9 @@ public class KeywordService {
 
             while (!success && attempts < 4) {
                 try {
+                    if (Crawler.headerData.get("User-Agent") != null) {
+                        Crawler.headerData.put("User-Agent", RandomUserAgentGenerator.getNextNonMobile());
+                    }
                     cralwerStart(blogIdList, keywordDto);
                     success = true;
                 } catch (Exception e) {

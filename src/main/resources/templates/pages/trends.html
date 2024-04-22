@@ -48,116 +48,6 @@
     justify-content: center;
   }
 
-  /*custom-btn*/
-  .btn-custom {
-    border: 1px solid #ccc; /* Light grey border */
-    background-color: white;
-    color: #333;
-    padding: 10px 20px;
-    border-radius: 20px; /* Rounded edges */
-    margin: 5px;
-    font-size: 0.8rem; /* Smaller font size */
-    transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover effect */
-    cursor: pointer;
-    display: inline-flex; /* Aligns icon and text */
-    align-items: center; /* Aligns items vertically */
-  }
-
-  .btn-custom:hover {
-    background-color: #f0f0f0; /* Light grey background on hover */
-    color: #333;
-  }
-
-  .btn-custom i {
-    margin-right: 5px; /* Space between icon and text */
-  }
-
-  .btn-custom-blue {
-    border-color: #007bff; /* Bootstrap primary blue */
-    color: #007bff;
-  }
-
-  .btn-custom-blue:hover {
-    background-color: #e7f3ff; /* Lighter blue background on hover */
-  }
-
-  /* FontAwesome icons */
-  .icon-left {
-    margin-right: 8px;
-  }
-
-  .button-group {
-    display: flex;
-    gap: 8px; /* Adjust the space between buttons */
-  }
-
-  .rank-btn {
-    padding: 5px 15px; /* Reduced padding for smaller button size */
-    border: none;
-    border-radius: 20px; /* Rounded corners */
-    font-size: 0.8rem; /* Smaller font size */
-    color: #fff; /* White text color */
-    cursor: pointer;
-    transition: background-color 0.3s; /* Smooth transition for background color */
-  }
-
-  /* Light background and darker text for each button */
-  #total {
-    background-color: #e8e8e8; /* Light gray */
-    color: #6c757d; /* Dark gray */
-  }
-
-  .first{
-    color: #28a745; /* Dark green */
-  }
-
-  .second {
-    color: #dc3545; /* Dark red */
-  }
-
-  .third {
-    color: #087f8c; /* Dark teal */
-  }
-
-  .fourth {
-    color: #007bff; /* Dark blue */
-  }
-
-  .fifth {
-    color: #6f42c1; /* Dark purple */
-  }
-
-  #first {
-    background-color: #e9f5db; /* Light green */
-    color: #28a745; /* Dark green */
-  }
-
-  #second {
-    background-color: #fde9e9; /* Light red */
-    color: #dc3545; /* Dark red */
-  }
-
-  #third {
-    background-color: #b2f2eb; /* Light teal */
-    color: #087f8c; /* Dark teal */
-  }
-
-  #fourth {
-    background-color: #e1f0ff; /* Light blue */
-    color: #007bff; /* Dark blue */
-  }
-
-  #fifth {
-    background-color: #dcdcf5; /* Light purple */
-    color: #6f42c1; /* Dark purple */
-  }
-
-  .rank-btn.selected {
-    font-weight: bold;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Shadow to lift the button */
-  }
-
-
   /*custom-select*/
   .custom-select-wrapper {
     width: 110px;
@@ -207,259 +97,244 @@
   .month-inputs {
     display: none;
   }
+
+  /*검색 input 박스*/
+  .search-input {
+    position: relative;
+  }
+
+  .search-input .form-control {
+    padding-right: 40px;
+  }
+
+  .search-input .search-icon {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    color: #aaa;
+  }
 </style>
 
 <body class="g-sidenav-show  bg-gray-100">
 <div th:replace="~{common/aside}"></div>
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
-  <!-- Navbar -->
   <div th:replace="~{common/navbar}"></div>
-  <!-- End Navbar -->
-  <div class="container-fluid py-4">
+  <div class="container-fluid">
     <div class="row">
-      <div class="col-xl-6 col-sm-6 mb-xl-0 mb-4">
-        <div class="card">
-          <div class="card-body p-3">
-            <div class="row">
-              <div class="col-8">
-                <div class="numbers">
-                  <p class="text-sm mb-0 text-capitalize font-weight-bold">키워드 수</p>
-                  <h5 class="font-weight-bolder mb-0" th:text="${totalCount}"></h5>
-                </div>
-              </div>
-              <div class="col-4 text-end">
-                <div class="icon icon-shape bg-gradient-success shadow text-center border-radius-md">
-                  <i class="ni ni-chart-bar-32 text-lg opacity-10" aria-hidden="true"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-xl-6 col-sm-6 mb-xl-0 mb-4">
-        <div class="card">
-          <div class="card-body p-3">
-            <div class="row">
-              <div class="col-8">
-                <div class="numbers">
-                  <p class="text-sm mb-0 text-capitalize font-weight-bold">상위노출 키워드 수</p>
-                  <h5 class="font-weight-bolder mb-0" th:text="${keywordRankCount}"></h5>
-                </div>
-              </div>
-              <div class="col-4 text-end">
-                <div class="icon icon-shape bg-gradient-success shadow text-center border-radius-md">
-                  <i class="ni ni-chart-bar-32 text-lg opacity-10" aria-hidden="true"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row col-12 mt-4">
       <div class="flex-container">
-        <div class="custom-select-wrapper">
-          <select class="custom-select" id="category">
-            <option>카테고리</option>
-            <option value="1" th:selected="${inputCategory == 1}">1순위</option>
-            <option value="2" th:selected="${inputCategory == 2}">2순위</option>
-            <option value="3" th:selected="${inputCategory == 3}">3순위</option>
-            <option value="4" th:selected="${inputCategory == 4}">4순위</option>
-            <option value="5" th:selected="${inputCategory == 5}">5순위</option>
-          </select>
-        </div>
-        <div class="col-4">
-          <div class="input-group">
-            <input type="text" id="keyword" th:value="${keyword}" class="form-control" placeholder="희망하는 키워드를 등록해주세요">
-            <a href="#" id="submitBtn">
-              <div class="icon icon-shape bg-gradient-success shadow text-center border-radius-md">
-                <i class="fa fa-pencil text-lg opacity-10" aria-hidden="true"></i>
-              </div>
-            </a>
-          </div>
+        <div class="col-6">
+          <form>
+            <div class="search-input">
+              <input type="text" class="form-control" placeholder="검색어 키워드 입력">
+              <i class="fas fa-search search-icon"></i>
+            </div>
+          </form>
         </div>
       </div>
     </div>
-    <div class="row mt-5">
-      <div class="col-12">
-        <div class="card mb-4">
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <div class="card">
           <div class="card-header pb-0">
-            <div class="d-flex bd-highlight">
-              <div class="p-2 flex-grow-1 bd-highlight">
-                <h6>검색 트렌드 </h6>
-              </div>
-              <div class="p-2 bd-highlight">
-                <div style="width: 145px;" class="page-select-wrapper">
-                  <select id="page-sort" style="width: 100%;" class="page-select">
-                    <option value="category" th:selected="${sort == 'category'}">카테고리 순</option>
-                    <option value="highSearch" th:selected="${sort == 'highSearch'}">검색량 높은순</option>
-                    <option value="lowSearch" th:selected="${sort == 'lowSearch'}">검색량 낮은순</option>
-                    <option value="highRank" th:selected="${sort == 'highRank'}">블로그탭 높은순</option>
-                    <option value="lowRank" th:selected="${sort == 'lowRank'}">블로그탭 낮은순</option>
-                    <option value="highExposure" th:selected="${sort == 'highExposure'}">노출수 많은순</option>
-                    <option value="lowExposure" th:selected="${sort == 'lowExposure'}">노출수 작은순</option>
-                  </select>
+            <h6 class="mb-0">검색량 통계</h6>
+          </div>
+          <div class="card-body pt-4 p-3">
+            <div class="row">
+              <div class="col-md-4 mb-2">
+                <div class="border-0 p-4 bg-light rounded">
+                  <h6 class="mb-3 text-sm">PC 검색량(월)</h6>
+                  <span class="text-dark font-weight-bold">1,500</span>
                 </div>
               </div>
-              <div th:insert="~{common/pageSelect}"></div>
-            </div>
-
-            <div class="d-flex">
-
-              <div class="dropdown me-2" style="display: inline">
-                <label for="dateType_Sel">날짜 단위 선택:</label>
-                <select id="dateType_Sel">
-                  <option value="daily" selected>일별</option>
-                  <option value="monthly">월별</option>
-                </select>
-                <br><br>
-
-                <div id="dailyInputs">
-                  <label for="startDate_Sel">시작 날짜:</label>
-                  <input type="date" id="startDate_Sel" name="startDate_Sel" ><br><br>
-
-                  <label for="endDate_Sel">종료 날짜:</label>
-                  <input type="date" id="endDate_Sel" name="endDate_Sel" ><br><br>
-
-
-                </div>
-
-                <div id="monthlyInputs" class="month-inputs">
-                  <label for="startYear_Sel">시작 년:</label>
-                  <select id="startYear_Sel">
-                    <!-- 여기에 올해까지의 년도를 추가합니다 -->
-                    <!-- JavaScript를 사용하여 올해의 년도를 동적으로 생성할 수도 있습니다 -->
-                  </select>
-                  <label for="startMonth_Sel">시작 월:</label>
-                  <select id="startMonth_Sel">
-
-                  </select><br><br>
-
-                  <label for="endYear_Sel">종료 년:</label>
-                  <select id="endYear_Sel">
-                    <!-- 여기에 올해까지의 년도를 추가합니다 -->
-                    <!-- JavaScript를 사용하여 올해의 년도를 동적으로 생성할 수도 있습니다 -->
-                  </select>
-                  <label for="endMonth_Sel">종료 월:</label>
-                  <select id="endMonth_Sel">
-
-                  </select><br><br>
-
+              <div class="col-md-4 mb-2">
+                <div class="border-0 p-4 bg-light rounded">
+                  <h6 class="mb-3 text-sm">Mobile 검색량(월)</h6>
+                  <span class="text-dark font-weight-bold">1,500</span>
                 </div>
               </div>
-
-            </div>
-          </div>
-          <div class="card-body px-0 pt-0 pb-2 justify-content-center mt-2">
-            <div class="table-responsive p-0">
-              <div id="chart-container">
-                <canvas id="line-chart"></canvas>
+              <div class="col-md-4 mb-2">
+                <div class="border-0 p-4 bg-light rounded">
+                  <h6 class="mb-3 text-sm">총 검색량(월)</h6>
+                  <span class="text-dark font-weight-bold">1,500</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <nav id="pagination" aria-label="Page navigation example"></nav>
-      <div class="d-flex justify-content-end">
-
-      </div>
-    </div>
-    <div class="row mt-3">
-      <div class="col-12">
-        <div class="card mb-4">
+      <div class="col-md-6">
+        <div class="card">
           <div class="card-header pb-0">
-            <div class="d-flex bd-highlight">
-              <div class="p-2 flex-grow-1 bd-highlight">
-                <h6>섹션 배치 목록 </h6>
-              </div>
-            </div>
+            <h6 class="mb-0">블로그 통계 <span style="color: red">(개발중)</span></h6>
           </div>
-          <div class="card-body px-0 pt-0 pb-2 justify-content-center mt-2">
-            <div class="table-responsive p-0">
-              <table class="table align-items-center mb-0">
-                <thead>
-                  <tr class="text-center">
-                    <th>섹션</th>
-                    <th>노출</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr th:each="item : ${dataList2}">
-                    <td th:text="${item.section}">값</td>
-                    <td th:text="${item.cnt}">값</td>
-                  </tr>
-                </tbody>
-              </table>
+          <div class="card-body pt-4 p-3">
+            <div class="row">
+              <div class="col-md-4 mb-2">
+                <div class="border-0 p-4 bg-light rounded">
+                  <h6 class="mb-3 text-sm">블로그 발행량(총)</h6>
+                  <span class="text-dark font-weight-bold">-</span>
+                </div>
+              </div>
+              <div class="col-md-4 mb-2">
+                <div class="border-0 p-4 bg-light rounded">
+                  <h6 class="mb-3 text-sm">블로그 발행량(월)</h6>
+                  <span class="text-dark font-weight-bold">-</span>
+                </div>
+              </div>
+              <div class="col-md-4 mb-2">
+                <div class="border-0 p-4 bg-light rounded">
+                  <h6 class="mb-3 text-sm">경쟁률</h6>
+                  <span class="text-dark font-weight-bold">-</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="row mt-3">
-      <div class="col-12">
-        <div class="card mb-4">
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <div class="card">
           <div class="card-header pb-0">
-            <div class="d-flex bd-highlight">
-              <div class="p-2 flex-grow-1 bd-highlight">
-                <h6>블로그 탭 포스팅 목록 </h6>
+            <div class="d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">검색 트렌드</h6>
+              <div class="d-flex align-items-center">
+                <!-- 일간, 월간 선택 버튼 -->
+                <div class="dropdown me-2">
+                  <button class="btn dropdown-toggle text-dark text-sm" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <li><a class="dropdown-item" href="#" data-value="일간">일간</a></li>
+                    <li><a class="dropdown-item" href="#" data-value="월간">월간</a></li>
+                  </ul>
+                </div>
+                <!-- 날짜 조절 -->
+                <!-- 버튼에 달력 아이콘 추가 -->
+                <button class="btn text-dark px-3" data-bs-toggle="modal" data-bs-target="#datePickerModal">
+                  <i class="far fa-calendar-alt"></i> <!-- 달력 아이콘 추가 -->
+                  <span id="dateRangeText" class="text-sm">날짜 선택</span> <!-- 기본 텍스트 설정 -->
+                </button>
               </div>
             </div>
           </div>
-          <div class="card-body px-0 pt-0 pb-2 justify-content-center mt-2">
-            <div class="table-responsive p-0">
-              <table class="table align-items-center mb-0">
-                <thead>
-                <tr class="text-center">
-                  <th>블로그명</th>
-                  <th>제목</th>
-                  <th>작성일</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="item : ${dataList3}">
-                  <td>
-                    <a th:text="${item.blogName}" th:href="@{${item.blogUrl}}" target="_blank">값</a>
-                  </td>
-                  <td>
-                    <a th:text="${item.glName}" th:href="@{${item.glUrl}}" target="_blank">값</a>
-                  </td>
-                  <td th:text="${item.glTime}">값</td>
-                </tr>
-                </tbody>
-              </table>
+          <div class="card-body pt-4 p-3">
+            <div id="chart-container">
+              <canvas id="line-chart"></canvas>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <div class="row mt-4">
+      <!-- PC 섹션 배치 순서 -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header pb-0">
+            <div class="d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">PC 섹션 배치 순서</h6>
+            </div>
+          </div>
+          <div class="card-body pt-4 p-3">
+            <ol class="list-group list-group-numbered">
+              <li class="list-group-item">파워링크</li>
+              <li class="list-group-item">지식스니펫</li>
+              <li class="list-group-item">논산훈련소 준비물 인기주제</li>
+              <li class="list-group-item">논산훈련소 입소준비물(스마트클락)</li>
+              <li class="list-group-item">논산훈련소 준비물 인기 카테고리</li>
+              <li class="list-group-item">이미지</li>
+              <li class="list-group-item">지식iN</li>
+              <li class="list-group-item">웹사이트</li>
+              <li class="list-group-item">뉴스</li>
+              <li class="list-group-item">비즈사이트</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+      <!-- Mobile 섹션 배치 순서 -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header pb-0">
+            <div class="d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">Mobile 섹션 배치 순서</h6>
+            </div>
+          </div>
+          <div class="card-body pt-4 p-3">
+            <ol class="list-group list-group-numbered">
+              <li class="list-group-item">파워링크</li>
+              <li class="list-group-item">논산훈련소 준비물 인기주제</li>
+              <li class="list-group-item">논산훈련소 입소준비물(스마트클락)</li>
+              <li class="list-group-item">논산훈련소 준비물 인기 카테고리</li>
+              <li class="list-group-item">이미지</li>
+              <li class="list-group-item">지식iN</li>
+              <li class="list-group-item">웹사이트</li>
+              <li class="list-group-item">뉴스</li>
+              <li class="list-group-item">동영상</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header pb-0">
+            <div class="d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">연관 키워드</h6>
+            </div>
+          </div>
+          <div class="card-body pt-4 p-3">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header pb-0">
+            <div class="d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">블로그 목록</h6>
+            </div>
+          </div>
+          <div class="card-body pt-4 p-3">
+          </div>
+        </div>
+      </div>
+    </div>
+
+
     <div th:insert="~{common/mainfooter.html :: footer}"></div>
   </div>
 </main>
 
-<!-- Modal -->
-<div class="modal fade" id="exampleModalMessage" tabindex="-1" role="dialog" aria-labelledby="exampleModalMessageTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
+<!-- 날짜 선택 모달 -->
+<div class="modal fade" id="datePickerModal" tabindex="-1" aria-labelledby="datePickerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">엑셀 업로드</h5>
-        <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">×</span>
-        </button>
+        <h5 class="modal-title" id="datePickerModalLabel">기간 설정</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-
-        <div class="form-group">
-          <input type="file" id="excelFileInput" class="form-control">
+        <!-- 기간 선택 -->
+        <div class="row">
+          <div class="col-6">
+            <label for="startDate" class="form-label">시작 날짜</label>
+            <input type="date" id="startDate" class="form-control" />
+          </div>
+          <div class="col-6">
+            <label for="endDate" class="form-label">마지막 날짜</label>
+            <input type="date" id="endDate" class="form-control" />
+          </div>
         </div>
-
       </div>
       <div class="modal-footer">
-        <button type="button" id="closeBtn" class="btn bg-gradient-secondary" data-bs-dismiss="modal">닫기</button>
-        <button type="button" id="confirmBtn" class="btn bg-gradient-success">등록</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+        <button type="button" class="btn btn-primary">적용</button>
       </div>
     </div>
   </div>
 </div>
+
 
 
 <div class="loader-wrapper">
@@ -645,17 +520,143 @@
 
   });
 
+  //드롭다운
+  $(document).ready(function () {
+    // 화면 로드 시 기본 드롭다운 버튼 텍스트 설정
+    $('#dropdownMenuButton').text('일간');
+
+    // 모든 드롭다운 항목 초기화
+    $('.dropdown-item').removeClass('active');
+
+    // "일간" 항목을 활성화
+    $('.dropdown-item[data-value="일간"]').addClass('active');
+
+    // 드롭다운 항목 클릭 시 버튼 텍스트 변경 및 선택 상태 표시
+    $('.dropdown-item').click(function () {
+      var selectedText = $(this).data('value'); // 선택한 항목의 텍스트
+      $('#dropdownMenuButton').text(selectedText); // 버튼 텍스트 변경
+
+      // 모든 항목의 선택 상태 초기화
+      $('.dropdown-item').removeClass('active');
+
+      // 클릭된 항목에 선택 상태 적용
+      $(this).addClass('active');
+    });
+  });
+
+  //날짜 달력
+  $(document).ready(function () {
+    // 초기값 설정
+    setDateRange('일간');
+
+    // 일간, 월간 선택 버튼 클릭 이벤트 핸들러
+    $(".dropdown-item").click(function () {
+      const mode = $(this).data("value");
+      setDateRange(mode);
+    });
+
+    // 날짜 범위 설정 함수
+    function setDateRange(mode) {
+      const today = new Date();
+      const startDate = new Date();
+      const endDate = new Date();
+
+      if (mode === '월간') {
+        startDate.setFullYear(today.getFullYear() - 1, today.getMonth(), 1); // 1년 전 같은 월의 1일
+        endDate.setFullYear(today.getFullYear(), today.getMonth(), 0); // 저번 달의 마지막 날
+      } else {
+        startDate.setMonth(today.getMonth() - 1); //저번달
+        endDate.setDate(today.getDate() - 1); // 어제 날짜
+      }
+
+      const threeYearsAgo = new Date(today.getFullYear() - 3, 0, 1); // 3년 전 1월 1일 기준
+
+      let initialStartDate = formatDate(startDate, mode);
+      let initialEndDate = formatDate(endDate, mode);
+
+      const formattedThreeYearsAgo = formatDate(threeYearsAgo, '일간');
+
+      $('#dateRangeText').text(`${formatMonthRange(initialStartDate, initialEndDate, mode)}`);
+
+      if(mode === '월간'){
+        initialStartDate = formatDate(startDate, '');
+        initialEndDate = formatDate(endDate, '');
+      }
+
+      $('#startDate').val(initialStartDate);
+      $('#endDate').val(initialEndDate);
+
+      $("#startDate, #endDate").attr("min", formattedThreeYearsAgo);
+      $("#startDate, #endDate").attr("max", initialEndDate);
+
+
+      // "닫기" 버튼을 클릭하면 초기값으로 복원
+      $("#datePickerModal .btn-secondary").click(function () {
+        $("#startDate").val(initialStartDate);
+        $("#endDate").val(initialEndDate);
+      });
+
+      // "적용" 버튼을 클릭하면 초기값을 업데이트
+      $("#datePickerModal .btn-primary").click(function () {
+        initialStartDate = $("#startDate").val();
+        initialEndDate = $("#endDate").val();
+        $('#dateRangeText').text(formatMonthRange(initialStartDate, initialEndDate, mode));
+        $('#datePickerModal').modal('hide');
+      });
+
+      // 시작 날짜 변경 시 마지막 날짜의 최소값을 업데이트
+      $("#startDate").on("change", function () {
+        var startDate = $(this).val();
+        var endDateInput = $("#endDate");
+
+        // 마지막 날짜가 시작 날짜보다 앞지 않도록 제한
+        if (endDateInput.val() < startDate) {
+          endDateInput.val(startDate);
+        }
+        endDateInput.attr("min", startDate); // 최소값 업데이트
+      });
+
+      // 마지막 날짜 변경 시 시작 날짜의 최대값을 업데이트
+      $("#endDate").on("change", function () {
+        var endDate = $(this).val();
+        var startDateInput = $("#startDate");
+
+        // 시작 날짜가 마지막 날짜보다 뒤지 않도록 제한
+        if (startDateInput.val() > endDate) {
+          startDateInput.val(endDate);
+        }
+        startDateInput.attr("max", endDate); // 최대값 업데이트
+      });
+    }
+
+    function formatDate(date, mode) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+
+      if (mode === '월간') {
+        return `${year}-${month}`;
+      } else {
+        return `${year}-${month}-${day}`;
+      }
+    }
+
+    function formatMonthRange(startDate, endDate, mode) {
+      if (mode === '월간') {
+        return `${startDate.split('-')[0]}-${startDate.split('-')[1]} - ${endDate.split('-')[0]}-${endDate.split('-')[1]}`;
+      } else {
+        return `${startDate} - ${endDate}`;
+      }
+    }
+  });
+
+
 </script>
 <!-- Github buttons -->
 <script async defer src="https://buttons.github.io/buttons.js"></script>
-<!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
 <!--   Core JS Files   -->
 <script src="/assets/js/core/popper.min.js"></script>
 <script src="/assets/js/core/bootstrap.min.js"></script>
-<!--  <script src="/assets/js/plugins/perfect-scrollbar.min.js"></script>-->
-<!--  <script src="/assets/js/plugins/smooth-scrollbar.min.js"></script>-->
-
-<!--  <script src="/assets/js/soft-ui-dashboard.min.js?v=1.0.7"></script>-->
 <script src="/js/common.js"></script>
 </body>
 

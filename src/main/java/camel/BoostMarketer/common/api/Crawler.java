@@ -362,7 +362,7 @@ public class Crawler {
     public static void sleep(String reason) {
         try {
             if(reason.equals("Exception")){
-                Thread.sleep(10000);
+                Thread.sleep(60000);
             }else if(reason.equals("random")){
                 Random random = new Random();
                 int sleepTime = 400 + random.nextInt(200);
