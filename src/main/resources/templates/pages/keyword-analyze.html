@@ -568,6 +568,21 @@
 
   });
 
+
+  $('#keyword').keypress(function (event) {
+    if (event.which === 13) {
+      event.preventDefault();
+
+      const keywordName = $('#keyword').val().trim();
+
+      if (keywordName === '') {
+        return;
+      }
+      FunLoadingBarStart();
+      window.location.href = '/keyword-analyze?keyword=' + keywordName;
+    }
+  });
+
   //드롭다운
   $(document).ready(function () {
     // 화면 로드 시 기본 드롭다운 버튼 텍스트 설정
