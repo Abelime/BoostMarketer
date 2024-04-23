@@ -52,6 +52,7 @@ public class KeywordController {
         model.addAttribute("totalCount", resultMap.get("keywordCount"));
         model.addAttribute("keywordRankCount", resultMap.get("keywordRankCount"));
         model.addAttribute("keywordList", resultMap.get("keywordDtoList"));
+        model.addAttribute("completeDate", resultMap.get("completeDate"));
         return "pages/keyword";
     }
 

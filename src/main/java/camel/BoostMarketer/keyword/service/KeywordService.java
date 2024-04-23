@@ -50,7 +50,9 @@ public class KeywordService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         HashMap<String, Object> keywordCntInfo = keywordMapper.selectKeywordCntInfo(email, filterCategory);
         List<KeywordDto> keywordDtoList = keywordMapper.selectKeywordInfo(email, filterCategory, sort, rowBounds);
+        String completeDate = keywordMapper.selectCompleteDate();
 
+        resultMap.put("completeDate", completeDate);
         resultMap.put("keywordRankCount", keywordCntInfo.get("keywordRankCount"));
         resultMap.put("keywordCount", keywordCntInfo.get("keywordCount"));
         resultMap.put("keywordCntInfo", keywordCntInfo);

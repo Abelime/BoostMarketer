@@ -316,4 +316,13 @@
         where user_id = (<include refid="selectUserIdByEmail"/>)
     </select>
 
+    <!-- 배치 성공 날짜 조회 -->
+    <select id="selectCompleteDate" resultType="String">
+        SELECT DATE_FORMAT(END_TIME, '%Y-%m-%d') as date
+        FROM BATCH_JOB_EXECUTION bje
+        WHERE STATUS = 'COMPLETED'
+        ORDER BY bje.JOB_EXECUTION_ID DESC
+        LIMIT 1;
+    </select>
+
 </mapper>

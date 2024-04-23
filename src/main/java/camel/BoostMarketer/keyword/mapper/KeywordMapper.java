@@ -49,5 +49,6 @@ public interface KeywordMapper {
 
     List<KeywordDto> findAllKeyword() throws Exception;
 
+    String selectCompleteDate() throws Exception;
 
 }
