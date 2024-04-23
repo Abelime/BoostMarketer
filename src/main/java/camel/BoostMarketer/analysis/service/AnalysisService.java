@@ -1,5 +1,6 @@
 package camel.BoostMarketer.analysis.service;
 
+import camel.BoostMarketer.common.api.Crawler;
 import camel.BoostMarketer.common.api.NaverSearchAdApi;
 import camel.BoostMarketer.common.api.NaverSearchTrendsApi;
 import camel.BoostMarketer.keyword.dto.KeywordDto;
@@ -12,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -56,8 +58,6 @@ public class AnalysisService {
         r1 = Double.parseDouble(df.format(r1));
         a = (int)(a*r1); //당월 첫날 검색량
 
-        startDate_Sel = startDate_Sel==null?"2024-02-15":startDate_Sel;           //선택한날
-        endDate_Sel = endDate_Sel==null?"2024-03-15":endDate_Sel;           //선택한날
         //선택한날 부터 당일까지 ratio
         List<HashMap<String, Object>> dataList_sel = naverSearchTrendsApi.apiAccess(text,"date",startDate_Sel,endDate);
         df = new DecimalFormat("#");
@@ -140,5 +140,23 @@ public class AnalysisService {
         }
 
         return newDataList;
+    }
+
+    public Map<String, Object> getAnalyzeDate(String keyword) throws Exception {
+        Map<String, Object> resultMap = new HashMap<>();
+
+        Map<String, List<HashMap<String, String>>> crawlerResult = Crawler.sectionSearchCrawler(keyword);
+
+        List<KeywordDto> relatedkeywordList = NaverSearchAdApi.relatedkeywordsAcess(keyword);
+
+        if(!relatedkeywordList.isEmpty()){
+            resultMap.put("keywordDto", relatedkeywordList.get(0));
+            relatedkeywordList.remove(0);
+        }
+
+        resultMap.put("sectionList", crawlerResult.get("sectionList"));
+        resultMap.put("blogList", crawlerResult.get("blogList"));
+        resultMap.put("relatedkeywordList", relatedkeywordList);
+        return resultMap;
     }
 }

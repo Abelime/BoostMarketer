@@ -15,6 +15,8 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NaverSearchAdApi {
 
@@ -82,6 +84,72 @@ public class NaverSearchAdApi {
                 apiAccess(keywordDto);
             }
         }
+    }
+
+
+    public static List<KeywordDto> relatedkeywordsAcess(String keyword) throws NoSuchAlgorithmException, InvalidKeyException, InterruptedException {
+        List<KeywordDto> resultList = new ArrayList<>();
+        OkHttpClient client = new OkHttpClient();
+
+        keyword = keyword.replace(" ", "");
+
+        logger.debug("검색량 조회 API : " + "[" + keyword + "]");
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(API_URL + path).newBuilder();
+        urlBuilder.addQueryParameter("hintKeywords", keyword);
+        urlBuilder.addQueryParameter("showDetail", "1");
+
+        String url = urlBuilder.build().toString();
+
+        String signature = generateSignature(timestamp);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("X-API-KEY", API_KEY)
+                .addHeader("X-CUSTOMER", CUSTOMER_ID)
+                .addHeader("X-Timestamp", timestamp)
+                .addHeader("X-Signature", signature)
+                .build();
+        String responseBody = "";
+        try (Response response = client.newCall(request).execute()) {
+            //            if (!response.isSuccessful()){
+            //                throw new RuntimeException("API 요청 실패: " + response);
+            //            }
+            responseBody = response.body().string();
+
+            if (!responseBody.isEmpty()) {
+                JSONObject jsonObject = new JSONObject(responseBody);
+                JSONArray keywordList = jsonObject.getJSONArray("keywordList");
+
+                for (int i = 0; i < keywordList.length(); i++) {
+                    KeywordDto keywordDto = new KeywordDto();
+                    JSONObject keywordJson = keywordList.getJSONObject(i);
+                    Object monthlyPcQcCntStr = keywordJson.get("monthlyPcQcCnt");
+                    Object monthlyMobileQcCntStr = keywordJson.get("monthlyMobileQcCnt");
+
+                    int monthlyPcQcCnt = parseKeywordCount(monthlyPcQcCntStr);
+                    int monthlyMobileQcCnt = parseKeywordCount(monthlyMobileQcCntStr);
+                    keywordDto.setKeywordName(keywordJson.getString("relKeyword"));
+                    keywordDto.setMonthSearchPc(monthlyPcQcCnt);
+                    keywordDto.setMonthSearchMobile(monthlyMobileQcCnt);
+                    keywordDto.setTotalSearch(monthlyPcQcCnt + monthlyMobileQcCnt);
+
+                    resultList.add(keywordDto);
+                    if (i == 10) break; //연관 검색어 10개
+                }
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (RuntimeException e) {
+            if (responseBody.contains("429")) {
+                Thread.sleep(300);
+                relatedkeywordsAcess(keyword);
+            }
+        }
+        return resultList;
     }
 
     private static String generateSignature(String timestamp) throws NoSuchAlgorithmException, InvalidKeyException {
