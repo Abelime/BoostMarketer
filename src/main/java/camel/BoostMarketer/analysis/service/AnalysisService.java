@@ -83,7 +83,7 @@ public class AnalysisService {
         return newDataList;
     }
 
-    public List<HashMap<String, Object>> searchTrends2(String text, String startYear, String startMonth, String endYear, String endMonth) throws Exception {
+    public List<HashMap<String, Object>> searchTrends2(String text, String startDate, String endDate) throws Exception {
 
         // 현재 날짜 가져오기
         LocalDate currentDate = LocalDate.now();
@@ -105,15 +105,15 @@ public class AnalysisService {
             trends_sum += (int) map.get("ratio");
         }
 
-        // 첫 번째 날짜의 마지막 날짜 계산
-        LocalDate startDate1 = LocalDate.of(Integer.parseInt(startYear), Integer.parseInt(startMonth), 1);
-        LocalDate endDate1 = startDate1.withDayOfMonth(startDate1.lengthOfMonth());
-        // 두 번째 날짜의 마지막 날짜 계산
-        LocalDate startDate2 = LocalDate.of(Integer.parseInt(endYear), Integer.parseInt(endMonth), 1);
-        LocalDate endDate2 = startDate2.withDayOfMonth(startDate2.lengthOfMonth());
-
-        String startDate = startDate1.format(formatter);    //선택한 시작월의 1일
-        String endDate = startDate2.format(formatter);      //선택한 끝월의 1일
+//        // 첫 번째 날짜의 마지막 날짜 계산
+//        LocalDate startDate1 = LocalDate.of(Integer.parseInt(startYear), Integer.parseInt(startMonth), 1);
+//        LocalDate endDate1 = startDate1.withDayOfMonth(startDate1.lengthOfMonth());
+//        // 두 번째 날짜의 마지막 날짜 계산
+//        LocalDate startDate2 = LocalDate.of(Integer.parseInt(endYear), Integer.parseInt(endMonth), 1);
+//        LocalDate endDate2 = startDate2.withDayOfMonth(startDate2.lengthOfMonth());
+//
+//        String startDate = startDate1.format(formatter);    //선택한 시작월의 1일
+//        String endDate = startDate2.format(formatter);      //선택한 끝월의 1일
         //선택한 시작월 1일 부터, 현재를 기준으로 전달의 마지막일까지
         List<HashMap<String, Object>> dataList = naverSearchTrendsApi.apiAccess(text,"month",startDate,formattedDate);
 

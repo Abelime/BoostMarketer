@@ -48,52 +48,18 @@
     justify-content: center;
   }
 
-  /*custom-select*/
-  .custom-select-wrapper {
-    width: 110px;
+  .chart-container {
+    height: 350px; /* 컨테이너 높이 설정 */
+    width: 100%;  /* 컨테이너 너비 설정 */
     position: relative;
-    display: inline-block;
   }
 
-  .custom-select {
-    width: 105px;
-    padding: 8px 16px; /* Adjust padding as needed */
-    border: 1px solid #28a745; /* Green border for the element */
-    background-color: #ffffff; /* White background */
-    color: #28a745; /* Green text color */
-    border-radius: 0; /* Square edges */
-    -webkit-appearance: none; /* Removes default Webkit styling */
-    -moz-appearance: none; /* Removes default Mozilla styling */
-    appearance: none; /* Removes default styling */
-    position: relative;
-    font-size: 0.875rem; /* Font size */
-  }
-
-  /* Custom arrow indicator */
-  .custom-select-wrapper::after {
-    content: '\25BC'; /* Unicode down arrow */
+  .chart-canvas {
+    height: 100%; /* 캔버스가 컨테이너에 맞도록 설정 */
+    width: 100%;
     position: absolute;
-    top: 50%;
-    right: 10px;
-    transform: translateY(-50%);
-    color: #28a745; /* Green arrow color */
-    pointer-events: none;
   }
 
-  /* Remove the focus outline and modify border color */
-  .custom-select:focus {
-    outline: none;
-    border-color: #34ce57; /* Light green border for focus */
-  }
-
-  #chart-container {
-    width: 80%;
-    margin: auto;
-  }
-  canvas {
-    max-width: 100%; /* Canvas의 최대 너비 설정 */
-    height: auto; /* 높이를 자동으로 조정하여 가로 비율을 유지함 */
-  }
   .month-inputs {
     display: none;
   }
@@ -215,8 +181,8 @@
             </div>
           </div>
           <div class="card-body pt-4 p-3">
-            <div id="chart-container">
-              <canvas id="line-chart"></canvas>
+            <div id="chart-container" class="chart-container">
+              <canvas id="line-chart" class="chart-canvas"></canvas>
             </div>
           </div>
         </div>
@@ -390,185 +356,7 @@
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
-<script th:inline="javascript">
-  /*<![CDATA[*/
-  var dataList = /*[[${dataList}]]*/ [];
-  var myChart;
-  var ctx = document.getElementById('line-chart').getContext('2d');
-  if(dataList != null){
-    myChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: dataList.map(data => data['period']),
-        datasets: [{
-          label: 'Ratio',
-          data: dataList.map(data => data['ratio']),
-          borderColor: 'rgba(75, 192, 192, 1)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
-  }
-
-  /*]]>*/
-</script>
 <script>
-  $(document).ready(function(){
-
-    var currentYear = new Date().getFullYear();
-    var startYearSelect = $("#startYear_Sel");
-    var endYearSelect = $("#endYear_Sel");
-    for (var year = 2016; year <= currentYear; year++) {
-      startYearSelect.append("<option value='" + year + "' >" + year + "</option>");
-      endYearSelect.append("<option value='" + year + "'>" + year + "</option>");
-    }
-    // 시작 월과 종료 월을 동적으로 생성합니다
-    var startMonthSelect = $("#startMonth_Sel");
-    var endMonthSelect = $("#endMonth_Sel");
-    for (var month = 1; month <= 12; month++) {
-      startMonthSelect.append("<option value='" + month + "'>" + month + "</option>");
-      endMonthSelect.append("<option value='" + month + "'>" + month + "</option>");
-    }
-    var currentYear = new Date().getFullYear();
-    var currentMonth = new Date().getMonth() + 1; // 월은 0부터 시작하므로 1을 더합니다.
-    // 시작 년도와 종료 년도의 기본값 설정
-    startYearSelect.val(currentYear-1);
-    endYearSelect.val(currentYear);
-
-    // 시작 월과 종료 월의 기본값 설정
-    startMonthSelect.val(currentMonth);
-    endMonthSelect.val(currentMonth-1);
-
-    // 오늘 날짜를 가져오는 함수
-    function getToday() {
-      var today = new Date();
-      var year = today.getFullYear();
-      var month = (today.getMonth() + 1).toString().padStart(2, '0'); // 월은 0부터 시작하므로 +1을 해줍니다.
-      var day = today.getDate().toString().padStart(2, '0');
-      return year + '-' + month + '-' + day;
-    }
-    // 한 달 전의 오늘 날짜를 가져오는 함수
-    function getOneMonthAgo() {
-      var today = new Date();
-      var oneMonthAgo = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
-      var year = oneMonthAgo.getFullYear();
-      var month = (oneMonthAgo.getMonth() + 1).toString().padStart(2, '0');
-      var day = oneMonthAgo.getDate().toString().padStart(2, '0');
-      return year + '-' + month + '-' + day;
-    }
-    // endDate_Sel을 오늘 날짜로 설정
-    document.getElementById('endDate_Sel').value = getToday();
-    // startDate_Sel을 한 달 전의 오늘로 설정
-    document.getElementById('startDate_Sel').value = getOneMonthAgo();
-
-    $("#dateType_Sel").change(function(){
-      if ($(this).val() === "daily") {
-        $("#dailyInputs").show();
-        $("#monthlyInputs").hide();
-      } else if ($(this).val() === "monthly") {
-        $("#dailyInputs").hide();
-        $("#monthlyInputs").show();
-      }
-      var ctx = document.getElementById('line-chart').getContext('2d');
-
-      // 이전 차트 객체가 존재한다면 삭제
-      if (myChart !== null) {
-        myChart.destroy();
-      }
-
-      var param;
-      if($("#dateType_Sel").val() == 'daily'){
-        param = {
-          'keyword' : $("#keyword").val(),
-          'dateType_Sel' : $("#dateType_Sel").val(),
-          'startDate' : $("#startDate").val(),
-          'endDate' : $("#endDate").val()
-        };
-      }else{
-        param = {
-          'keyword' : $("#keyword").val(),
-          'dateType_Sel' : $("#dateType_Sel").val(),
-          'startYear' : $("#startYear_Sel").val(),
-          'startMonth' : $("#startMonth_Sel").val(),
-          'endYear' : $("#endYear_Sel").val(),
-          'endMonth' : $("#endMonth_Sel").val()
-        };
-      }
-      console.log('param:', JSON.stringify(param));
-      fetch('/trendsChart', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(param),
-        //processData: false,
-        //contentType: false,
-      })
-      .then(response => response.json())
-      .then(dataList => {
-        //console.log('Success:', dataList);
-        myChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: dataList.map(data => data['period']),
-            datasets: [{
-              label: 'Ratio',
-              data: dataList.map(data => data['ratio']),
-              borderColor: 'rgba(75, 192, 192, 1)',
-              borderWidth: 1
-            }]
-          },
-          options: {
-            scales: {
-              y: {
-                beginAtZero: true
-              }
-            }
-          }
-        });
-      })
-      .catch(error => {
-        console.error('등록 중 오류가 발생했습니다:', error);
-      })
-      .finally(() => {
-        FunLoadingBarEnd();
-      });
-    });
-
-    $("#submitBtn").click(function(){
-      var url = "";
-      if($("#dateType_Sel").val() == 'daily'){
-        // 시작 날짜와 종료 날짜의 값을 가져옵니다.
-        var startDate = $("#startDate_Sel").val();
-        var endDate = $("#endDate_Sel").val();
-        var keyword = $("#keyword").val();
-
-        // URL을 조합합니다.
-        url = "/trends?startDate=" + startDate + "&endDate=" + endDate + "&keyword=" + keyword;
-      }else{
-        var startYear = $("#startYear_Sel").val();
-        var startMonth = $("#startMonth_Sel").val();
-        var endYear = $("#endYear_Sel").val();
-        var endMonth = $("#endMonth_Sel").val();
-        var keyword = $("#keyword").val();
-
-        url = "/trends2?startYear=" + startYear + "&startMonth=" + startMonth + "&endYear=" + endYear + "&endMonth=" + endMonth + "&keyword=" + keyword;;
-      }
-
-      // 조합된 URL로 이동합니다.
-      window.location.href = url;
-    });
-
-  });
-
-
   $('#keyword').keypress(function (event) {
     if (event.which === 13) {
       event.preventDefault();
@@ -607,7 +395,7 @@
     });
   });
 
-  //날짜 달력
+  //날짜, 달력, 그래프
   $(document).ready(function () {
     // 초기값 설정
     setDateRange('일간');
@@ -616,6 +404,25 @@
     $(".dropdown-item").click(function () {
       const mode = $(this).data("value");
       setDateRange(mode);
+
+      let buildParams = () => {
+        return {
+          'keyword': $("#keyword").val(),
+          'dateType_Sel': mode,
+          'startDate': $("#startDate").val(),
+          'endDate': $("#endDate").val()
+        };
+      };
+
+      let params = buildParams();
+      let queryString = createQueryString(params);
+
+      fetchChartData(queryString)
+              .then(dataList => {
+                const yConfig = getYAxisConfig(dataList);
+                drawChart(ctx, dataList, yConfig);
+              });
+
     });
 
     // 날짜 범위 설정 함수
@@ -641,7 +448,7 @@
 
       $('#dateRangeText').text(`${formatMonthRange(initialStartDate, initialEndDate, mode)}`);
 
-      if(mode === '월간'){
+      if (mode === '월간') {
         initialStartDate = formatDate(startDate, '');
         initialEndDate = formatDate(endDate, '');
       }
@@ -665,6 +472,23 @@
         initialEndDate = $("#endDate").val();
         $('#dateRangeText').text(formatMonthRange(initialStartDate, initialEndDate, mode));
         $('#datePickerModal').modal('hide');
+        let buildParams = () => {
+          return {
+            'keyword': $("#keyword").val(),
+            'dateType_Sel': mode,
+            'startDate': $("#startDate").val(),
+            'endDate': $("#endDate").val()
+          };
+        };
+
+        let params = buildParams();
+        let queryString = createQueryString(params);
+
+        fetchChartData(queryString)
+                .then(dataList => {
+                  const yConfig = getYAxisConfig(dataList);
+                  drawChart(ctx, dataList, yConfig);
+                });
       });
 
       // 시작 날짜 변경 시 마지막 날짜의 최소값을 업데이트
@@ -711,7 +535,122 @@
         return `${startDate} - ${endDate}`;
       }
     }
+
+    let myChart; // 차트 참조 변수
+
+    const ctx = document.getElementById('line-chart').getContext('2d');
+
+    const buildParams = () => {
+        return {
+            'keyword': $("#keyword").val(),
+            'dateType_Sel': '일간',
+            'startDate': $("#startDate").val(),
+            'endDate': $("#endDate").val()
+        };
+    };
+
+    const createQueryString = (params) => {
+        return Object.keys(params)
+            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+            .join('&');
+    };
+
+    const fetchChartData = async (queryString) => {
+        try {
+            const response = await fetch(`/trendsChart?${queryString}`);
+            const dataList = await response.json();
+            return dataList;
+        } catch (error) {
+            console.error('데이터 가져오는 중 오류가 발생했습니다:', error);
+            throw error;
+        }
+    };
+
+    const getYAxisConfig = (dataList) => {
+        const minDataValue = Math.min(...dataList.map(data => data['ratio']));
+        const maxDataValue = Math.max(...dataList.map(data => data['ratio']));
+
+        const yRange = maxDataValue - minDataValue;
+        const yMin = Math.floor(minDataValue / 10) * 10;
+        const yMax = Math.ceil(maxDataValue / 10) * 10;
+        const stepSize = Math.ceil((yRange + 10) / 7);
+
+        return { yMin, yMax, stepSize };
+    };
+
+    const drawChart = (ctx, dataList, yConfig) => {
+        if (myChart) { // 기존 차트가 있으면 삭제
+            myChart.destroy();
+        }
+
+      myChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+              labels: dataList.map(data => data['period']),
+              datasets: [{
+                  label: $("#keyword").val(),
+                  data: dataList.map(data => data['ratio']),
+                  borderColor: 'rgba(199, 135, 235, 1)', // 연보라색 라인
+                  borderWidth: 3,
+                  pointRadius: 0,
+                  pointBackgroundColor: 'rgba(199, 135, 235, 1)',
+                  spanGaps: true,
+              }],
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                  legend: {
+                      display: false,
+                  },
+                  tooltip: {
+                      intersect: false,
+                      mode: 'index',
+                      callbacks: {
+                          label: (tooltipItem) => `${$("#keyword").val()}: ${Intl.NumberFormat().format(Math.round(tooltipItem.raw))}`, // 정수로 포맷팅
+                      },
+                  },
+              },
+              scales: {
+                  x: {
+                      grid: {
+                          display: false,
+                      },
+                      ticks: {
+                          maxRotation: 0,
+                          maxTicksLimit: 7,
+                      },
+                  },
+                  y: {
+                      min: yConfig.yMin,
+                      max: yConfig.yMax,
+                      ticks: {
+                          stepSize: yConfig.stepSize,
+                          maxTicksLimit: 7,
+                          callback: (value) => new Intl.NumberFormat().format(Math.round(value)), // 정수 및 쉼표 추가
+                      },
+                      grid: {
+                          drawVerticalLine: false,
+                          color: 'rgba(0, 0, 0, 0.1)',
+                      },
+                  },
+              },
+          },
+      });
+
+  };
+
+    const params = buildParams();
+    const queryString = createQueryString(params);
+
+    fetchChartData(queryString)
+        .then(dataList => {
+            const yConfig = getYAxisConfig(dataList);
+            drawChart(ctx, dataList, yConfig);
+        });
   });
+
 
 
 </script>

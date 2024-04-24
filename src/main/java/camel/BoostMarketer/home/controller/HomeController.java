@@ -5,7 +5,7 @@ import camel.BoostMarketer.blog.service.BlogService;
 import camel.BoostMarketer.keyword.dto.KeywordDto;
 import camel.BoostMarketer.keyword.service.KeywordService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,7 +15,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.*;
 
@@ -60,7 +59,6 @@ public class HomeController {
         return "pages/dashboard";
     }
 
-    @ResponseBody
     @GetMapping(value = "/homeModal/{postNo}")
     public ResponseEntity<Map<String, Object>> homeModal(@PathVariable("postNo") String postNo) throws Exception {
         BlogPostDto blogPostDto = blogService.selectPostInfo(postNo);
@@ -70,7 +68,10 @@ public class HomeController {
         responseData.put("blogPostDto", blogPostDto);
         responseData.put("keywordDtos", keywordDtos);
 
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        // 응답의 Content-Type을 명확히 JSON으로 설정
+        return ResponseEntity.ok()
+                             .contentType(MediaType.APPLICATION_JSON) // JSON을 명확히 지정
+                             .body(responseData);
     }
 
 
