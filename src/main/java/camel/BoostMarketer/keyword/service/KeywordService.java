@@ -157,7 +157,8 @@ public class KeywordService {
     }
 
     public List<KeywordDto> selectKeywordInfo(String postNo) throws Exception {
-        return keywordMapper.selectRankKeywordByPostNo(postNo);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return keywordMapper.selectRankKeywordByPostNo(postNo, email);
     }
 
     public void changeCategory(int category, List<String> keywordIdList) throws Exception {

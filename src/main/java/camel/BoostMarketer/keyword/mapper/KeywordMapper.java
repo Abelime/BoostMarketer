@@ -39,7 +39,7 @@ public interface KeywordMapper {
 
     void deleteRankData() throws Exception;
 
-    List<KeywordDto> selectRankKeywordByPostNo(String postNo) throws Exception;
+    List<KeywordDto> selectRankKeywordByPostNo(@Param("postNo") String postNo, @Param("email") String email) throws Exception;
 
     void updateKeywordCategory(@Param("categoryId") int category, @Param("keywordIdList") List<String> keywordIdList) throws Exception;
 

@@ -244,6 +244,8 @@
         from keyword_rank kr
                  JOIN
              keyword_dict kd on kr.keyword_id = kd.keyword_id
+                 JOIN
+             user_keywords uk on kr.keyword_id = uk.keyword_id and uk.user_id = (<include refid="selectUserIdByEmail"/>)
         WHERE kr.post_no = #{postNo}
         order by rank_pc
     </select>
