@@ -293,7 +293,7 @@
     <!--  키워드 카테고리 이동  -->
     <update id="updateKeywordCategory" parameterType="map">
         UPDATE user_keywords
-        SET category_id = #{category}
+        SET category_id = #{categoryId}
         WHERE keyword_id IN
         <foreach item="item" collection="keywordIdList" open="(" separator="," close=")">
             #{item}

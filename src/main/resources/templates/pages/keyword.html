@@ -77,78 +77,6 @@
     margin-right: 8px;
   }
 
-  .button-group {
-    display: flex;
-    gap: 8px; /* Adjust the space between buttons */
-  }
-
-  .rank-btn {
-    padding: 5px 15px; /* Reduced padding for smaller button size */
-    border: none;
-    border-radius: 20px; /* Rounded corners */
-    font-size: 0.8rem; /* Smaller font size */
-    color: #fff; /* White text color */
-    cursor: pointer;
-    transition: background-color 0.3s; /* Smooth transition for background color */
-  }
-
-  /* Light background and darker text for each button */
-  #total {
-      background-color: #e8e8e8; /* Light gray */
-      color: #6c757d; /* Dark gray */
-  }
-
-  .first{
-    color: #28a745; /* Dark green */
-  }
-
-  .second {
-    color: #dc3545; /* Dark red */
-  }
-
-  .third {
-    color: #087f8c; /* Dark teal */
-  }
-
-  .fourth {
-    color: #007bff; /* Dark blue */
-  }
-
-  .fifth {
-    color: #6f42c1; /* Dark purple */
-  }
-
-  #first {
-    background-color: #e9f5db; /* Light green */
-    color: #28a745; /* Dark green */
-  }
-
-  #second {
-    background-color: #fde9e9; /* Light red */
-    color: #dc3545; /* Dark red */
-  }
-
-  #third {
-    background-color: #b2f2eb; /* Light teal */
-    color: #087f8c; /* Dark teal */
-  }
-
-  #fourth {
-    background-color: #e1f0ff; /* Light blue */
-    color: #007bff; /* Dark blue */
-  }
-
-  #fifth {
-    background-color: #dcdcf5; /* Light purple */
-    color: #6f42c1; /* Dark purple */
-  }
-
-  .rank-btn.selected {
-    font-weight: bold;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Shadow to lift the button */
-  }
-
-
   /*custom-select*/
   .custom-select-wrapper {
     width: 110px;
@@ -186,6 +114,24 @@
     outline: none;
     border-color: #34ce57; /* Light green border for focus */
   }
+
+  /* Style adjustments for the dropdown button */
+  .dropdown-filter {
+    font-size: 14px; /* Slightly smaller font size */
+    background-color: #32CD32; /* Brighter Green background */
+    border: none; /* Remove border */
+    color: #ffffff; /* White text color */
+    border-radius: 20px; /* Rounded corners */
+  }
+
+  .dropdown-menu {
+    min-width: 100px; /* Ensures the menu isn't too wide */
+  }
+
+  .dropdown-menu a {
+    font-size: 14px; /* Smaller font size for menu items */
+  }
+
 </style>
 
 <body class="g-sidenav-show  bg-gray-100">
@@ -283,43 +229,50 @@
                 <div th:insert="~{common/pageSelect}"></div>
               </div>
               <div class="d-flex">
-<!--                <div class="button-group flex-grow-1" style="display: inline">-->
-<!--                  <button class="rank-btn" th:classappend="${category} == 0 ? 'selected'" id="total" value="0">전체</button>-->
-<!--                  <button class="rank-btn" th:classappend="${category} == 1 ? 'selected'" id="first" value="1">1순위</button>-->
-<!--                  <button class="rank-btn" th:classappend="${category} == 2 ? 'selected'" id="second" value="2">2순위</button>-->
-<!--                  <button class="rank-btn" th:classappend="${category} == 3 ? 'selected'" id="third" value="3">3순위</button>-->
-<!--                  <button class="rank-btn" th:classappend="${category} == 4 ? 'selected'" id="fourth" value="4">4순위</button>-->
-<!--                  <button class="rank-btn" th:classappend="${category} == 5 ? 'selected'" id="fifth" value="5">5순위</button>-->
-<!--                </div>-->
-                <div class="dropdown me-2" style="display: inline">
-                  <button class="btn dropdown-toggle text-dark" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">전체</button>
-                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <li><a class="dropdown-item category-filter" href="javascript:void(0);" data-priority="0">전체</a></li>
-                    <li th:each="category : ${categoryList}">
-                        <a class="dropdown-item category-filter" href="javascript:void(0);" th:data-priority="${category['categoryId']}">
-                            <span th:text="${category['categoryName']}"></span>
-                        </a>
-                    </li>
-                  </ul>
-                </div>
-                <div class="me-2" style="display: inline">
-                  <button id="openModal1" class="btn text-dark px-3" data-bs-toggle="modal" data-bs-target="#categoryModal">카테고리 관리</button>
-                </div>
-                <div class="dropdown me-2" style="display: inline">
-                    <button class="btn dropdown-toggle text-dark" type="button" id="categoryChange" data-bs-toggle="dropdown" aria-expanded="false">카테고리 변경</button>
+                  <!-- Dropdown Button with Green Background -->
+                  <div class="dropdown me-2" style="display: inline;">
+                    <button class="btn dropdown-toggle text-light rounded-pill dropdown-filter" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: #28a745;">
+                      전체
+                    </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                      <li><a class="dropdown-item category-filter" href="javascript:void(0);" data-priority="0">전체</a></li>
                       <li th:each="category : ${categoryList}">
-                          <a class="dropdown-item category-update" href="javascript:void(0);" th:data-priority="${category['categoryId']}">
-                              <span th:text="${category['categoryName']}"></span>
-                          </a>
+                        <a class="dropdown-item category-filter" href="javascript:void(0);" th:data-priority="${category['categoryId']}">
+                          <span th:text="${category['categoryName']}"></span>
+                        </a>
                       </li>
                     </ul>
-                </div>
-                <div class="me-2" style="display: inline">
-                  <button class="btn text-dark px-3" id="keywordDelete">
-                    키워드 삭제
-                  </button>
-                </div>
+                  </div>
+                  <!-- 카테고리 설정 버튼 -->
+                  <div class="me-2" style="display: inline;">
+                    <button id="openModal1" class="btn text-dark px-3" data-bs-toggle="modal" data-bs-target="#categoryModal">
+                      <i class="fas fa-pencil-alt text-success"></i>
+                      카테고리 설정
+                    </button>
+                  </div>
+                  <div class="me-2 keyword-management" style="display: inline;">
+                    <button class="btn text-dark px-3">
+                      <i class="fas fa-cog text-success"></i>
+                      <span class="fw-bold">키워드 관리</span>
+                    </button>
+                  </div>
+                  <div class="dropdown me-2 category-change" style="display: none;">
+                    <button class="btn dropdown-toggle text-dark" type="button" id="categoryChange" data-bs-toggle="dropdown" aria-expanded="false" style="border: 1px solid blue; color: blue;">
+                      <i class="fas fa-sync-alt" style="color: blue;"></i> 카테고리 변경
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                      <li th:each="category : ${categoryList}">
+                        <a class="dropdown-item category-update" href="javascript:void(0);" th:data-priority="${category['categoryId']}">
+                          <i class="fas fa-caret-right"></i> <span th:text="${category['categoryName']}"></span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="me-2 keyword-delete" style="display: none;">
+                    <button class="btn text-dark px-3" id="keywordDelete" style="border: 1px solid blue; color: blue;">
+                      <i class="fas fa-trash" style="color: blue;"></i> 키워드 삭제
+                    </button>
+                  </div>
               </div>
             </div>
             <div class="card-body px-0 pt-0 pb-2 justify-content-center mt-2">
@@ -329,7 +282,7 @@
                   <tr>
                     <th rowspan="2" class="text-center" style="width: 17%; padding-left: 13px">
                       <div class="form-check" style="display: inline; padding-left: 0px !important;">
-                        <input class="form-check-input" type="checkbox" id="selectAll" style="margin-left: 0.4px !important;">
+                        <input class="form-check-input" type="checkbox" id="selectAll" style="margin-left: 0.4px !important; display: none">
                         <label class="form-check-label" for="selectAll"></label>
                       </div>
                       <p class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="display: inline">
@@ -355,7 +308,7 @@
                   <tr th:each="keyword : ${keywordList}">
                     <td class="align-middle text-center" style="position: relative; display: flex; align-items: center;">
                       <div class="form-check me-3">
-                        <input class="form-check-input" type="checkbox" th:value="${keyword.keywordId}" name="checkbox" id="flexCheckDefault">
+                        <input class="form-check-input" type="checkbox" th:value="${keyword.keywordId}" name="checkbox" id="flexCheckDefault" style="display: none">
                         <label class="form-check-label" for="flexCheckDefault">
                         </label>
                       </div>
@@ -371,11 +324,6 @@
                       </div>
                       <span class="text-xs font-weight-bold mb-0 ms-3" style="display: inline-block; vertical-align: middle;"
                              th:text="${keyword.keywordName}">
-<!--                             th:classappend="${keyword.category == '1' ? 'first' :-->
-<!--                                            keyword.category == '2' ? 'second' :-->
-<!--                                            keyword.category == '3' ? 'third' :-->
-<!--                                            keyword.category == '4' ? 'fourth' :-->
-<!--                                            keyword.category == '5' ? 'fifth' : ''}">-->
                       </span>
                     </td>
                     <td class="align-middle text-center">
@@ -456,7 +404,7 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="categoryModalLabel">카테고리 관리</h5>
+        <h5 class="modal-title" id="categoryModalLabel">카테고리 설정</h5>
         <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">×</span>
         </button>
@@ -737,7 +685,6 @@
       const checkedValues = $('input[name="checkbox"]:checked').map(function () {
         return $(this).val(); // Collect the value of each checked checkbox with name "checkbox"
       }).get(); // Convert the jQuery map to an array
-
         fetch('keywords', {
             method: 'PUT',
             headers: {
@@ -865,6 +812,45 @@
       });
     }
   });
+
+  $(document).ready(function () {
+   var isManaging = false; // 관리 상태를 추적
+
+   $('.keyword-management').click(function () {
+     isManaging = !isManaging; // 상태 토글
+
+     if (isManaging) {
+       // 키워드 관리 모드 전환
+       $(this).html(`
+         <div class="keyword-management" style="display: inline;">
+           <button class="btn px-3" style="background-color: #0080FF; border: none;">
+             <i class="fas fa-stop-circle" style="color: white;"></i>
+             <span style="color: white; font-weight: bold;">관리 종료</span>
+           </button>
+         </div>
+       `); // 아이콘 및 텍스트 변경
+
+       $('.category-change, .keyword-delete').css('display', 'inline'); // 버튼 표시
+       $('.form-check-input').css('display', 'inline'); // 버튼 표시
+       $('#openModal1, #dropdownMenuButton').prop('disabled', true); // 두 ID 비활성화
+     } else {
+       // 일반 모드로 전환
+       $(this).html(`
+         <div class="me-2 keyword-management" style="display: inline;">
+           <button class="btn text-dark px-3">
+             <i class="fas fa-cog text-success"></i>
+             <span class="fw-bold">키워드 관리</span>
+           </button>
+         </div>
+       `); // 원래 아이콘 및 텍스트
+
+       $('.category-change, .keyword-delete').css('display', 'none'); // 버튼 숨기기
+       $('.form-check-input').css('display', 'none'); // 버튼 숨기기
+       $('#openModal1, #dropdownMenuButton').prop('disabled', false); // 두 ID 활성화
+     }
+   });
+  });
+
 
 </script>
   <!-- Github buttons -->
