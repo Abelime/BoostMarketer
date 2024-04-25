@@ -95,6 +95,9 @@
                                                   FROM blog
                                                   WHERE user_id = (<include refid="selectUserIdByEmail"/>)))
               GROUP BY keyword_id) kr ON kd.keyword_id = kr.keyword_id
+        <if test="searchKeyword != ''">
+            WHERE kd.keyword_name LIKE CONCAT('%', #{searchKeyword}, '%')
+        </if>
         order by uk.keyword_fix
         <choose>
             <when test="sort == 'category'">
@@ -195,6 +198,12 @@
              WHERE uk.user_id = (<include refid="selectUserIdByEmail"/>)
                <if test="categoryId != 0">
                    AND uk.category_id = #{categoryId}
+               </if>
+               <if test="searchKeyword != ''">
+                   AND uk.keyword_id in
+                                     (select keyword_id
+                                        from keyword_dict
+                                       WHERE keyword_name LIKE CONCAT('%', #{searchKeyword}, '%'))
                </if>
             ) AS keywordCount,
             (SELECT COUNT(DISTINCT (kr.keyword_id))
@@ -320,7 +329,7 @@
 
     <!-- 배치 성공 날짜 조회 -->
     <select id="selectCompleteDate" resultType="String">
-        SELECT DATE_FORMAT(END_TIME, '%Y-%m-%d') as date
+        SELECT DATE_FORMAT(END_TIME, '%Y-%m-%d %H:%i') as date
         FROM BATCH_JOB_EXECUTION bje
         WHERE STATUS = 'COMPLETED'
         ORDER BY bje.JOB_EXECUTION_ID DESC

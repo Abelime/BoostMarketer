@@ -37,14 +37,16 @@ public class KeywordController {
                            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
                            @RequestParam(value = "filterCategory", defaultValue = "0") int filterCategory,
                            @RequestParam(value = "inputCategory", defaultValue = "0") int inputCategory,
-                           @RequestParam(value = "sort", defaultValue = "category") String sort) throws Exception {
+                           @RequestParam(value = "sort", defaultValue = "category") String sort,
+                           @RequestParam(value = "searchKeyword", defaultValue = "") String searchKeyword) throws Exception {
 
 
-        Map<String, Object> resultMap = keywordService.selectKeywordsInfo(page, pageSize, filterCategory, sort);
+        Map<String, Object> resultMap = keywordService.selectKeywordsInfo(page, pageSize, filterCategory, sort, searchKeyword);
         List<KeywordDto> categoryList = keywordService.selectCategoryInfo();
 
         model.addAttribute("categoryList", categoryList);
         model.addAttribute("sort", sort);
+        model.addAttribute("searchKeyword", searchKeyword);
         model.addAttribute("inputCategory", inputCategory);
         model.addAttribute("filterCategory", filterCategory);
         model.addAttribute("page", page);

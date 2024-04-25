@@ -132,6 +132,23 @@
     font-size: 14px; /* Smaller font size for menu items */
   }
 
+  /*검색 input 박스*/
+  .search-input {
+    position: relative;
+  }
+
+  .search-input .form-control {
+    padding-right: 40px;
+  }
+
+  .search-input .search-icon {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    color: #aaa;
+  }
+
 </style>
 
 <body class="g-sidenav-show  bg-gray-100">
@@ -216,7 +233,7 @@
                 <div class="p-2 bd-highlight">
                   <div style="width: 145px;" class="page-select-wrapper">
                     <select id="page-sort" style="width: 100%;" class="page-select">
-                      <option value="category" th:selected="${sort == 'category'}">카테고리 순</option>
+                      <option value="category" th:selected="${sort == 'category'}">기본순</option>
                       <option value="highSearch" th:selected="${sort == 'highSearch'}">검색량 높은순</option>
                       <option value="lowSearch" th:selected="${sort == 'lowSearch'}">검색량 낮은순</option>
                       <option value="highRank" th:selected="${sort == 'highRank'}">블로그탭 높은순</option>
@@ -272,6 +289,14 @@
                     <button class="btn text-dark px-3" id="keywordDelete" style="border: 1px solid blue; color: blue;">
                       <i class="fas fa-trash" style="color: blue;"></i> 키워드 삭제
                     </button>
+                  </div>
+                  <div class="search-keyword me-2 ms-auto">
+                    <form>
+                      <div class="search-input">
+                        <input type="text" id="search-keyword" class="form-control" placeholder="키워드 검색" th:value="${searchKeyword}">
+                        <i class="fas fa-search search-icon"></i>
+                      </div>
+                    </form>
                   </div>
               </div>
             </div>
@@ -435,19 +460,8 @@
   const inputCategory = [[${inputCategory}]];
   const sort = '[[${sort}]]';
   const pageSize = [[${pageSize}]];
+  const searchKeyword = '[[${searchKeyword}]]';
   /*]]>*/
-
-  // Adding click event listeners to each rank button
-  // const rankButtons = document.querySelectorAll('.rank-btn');
-  // rankButtons.forEach(button => {
-  //   button.addEventListener('click', function () {
-  //     document.querySelectorAll('.rank-btn').forEach(btn => btn.classList.remove('selected'));
-  //     this.classList.add('selected');
-  //     var filterCategory = this.value;
-  //
-  //     window.location.href = '/keyword?pageSize=' + pageSize + '&filterCategory=' + filterCategory + '&sort=' + sort + '&inputCategory=' + inputCategory;
-  //   });
-  // });
 
   function insertFetch(){
     const keywordName = $('#keyword').val().trim();
@@ -486,6 +500,19 @@
               FunLoadingBarEnd();
             });
   }
+
+  $('.search-keyword').keypress(function (event) {
+    if (event.which === 13) {
+      event.preventDefault();
+
+      const searchKeyword = $('#search-keyword').val().trim();
+
+      if (searchKeyword === '') {
+        return;
+      }
+      location.replace('/keyword?searchKeyword=' + searchKeyword);
+    }
+  });
 
   $("#confirmBtn").click(function () {
     const file = $("#excelFileInput")[0].files[0];
@@ -651,7 +678,7 @@
     }
 
     window.changePage = function (page) {
-      window.location.href = '/keyword?page=' + page + '&pageSize=' + pageSize + '&filterCategory=' + filterCategory  + '&sort=' + sort + '&inputCategory=' + inputCategory;
+      window.location.href = '/keyword?page=' + page + '&pageSize=' + pageSize + '&filterCategory=' + filterCategory  + '&sort=' + sort + '&inputCategory=' + inputCategory + '&searchKeyword=' + searchKeyword;
     }
 
     createPagination(page, totalPages, startPage, endPage);

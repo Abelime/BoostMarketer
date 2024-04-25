@@ -41,15 +41,15 @@ public class KeywordService {
     @Qualifier("customTaskExecutor")
     private final TaskExecutor taskExecutor;
 
-    public Map<String, Object> selectKeywordsInfo(int page, int pageSize, int filterCategory, String sort) throws Exception {
+    public Map<String, Object> selectKeywordsInfo(int page, int pageSize, int filterCategory, String sort, String searchKeyword) throws Exception {
         Map<String, Object> resultMap = new HashMap<>();
 
         int offset = (page - 1) * pageSize;
         RowBounds rowBounds = new RowBounds(offset, pageSize);
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        HashMap<String, Object> keywordCntInfo = keywordMapper.selectKeywordCntInfo(email, filterCategory);
-        List<KeywordDto> keywordDtoList = keywordMapper.selectKeywordInfo(email, filterCategory, sort, rowBounds);
+        HashMap<String, Object> keywordCntInfo = keywordMapper.selectKeywordCntInfo(email, filterCategory, searchKeyword);
+        List<KeywordDto> keywordDtoList = keywordMapper.selectKeywordInfo(email, filterCategory, sort, rowBounds, searchKeyword);
         String completeDate = keywordMapper.selectCompleteDate();
 
         resultMap.put("completeDate", completeDate);
@@ -148,7 +148,7 @@ public class KeywordService {
     }
 
     public HashMap<String, Object> selectKeywordCntInfo(String email) throws Exception {
-        return keywordMapper.selectKeywordCntInfo(email, 0);
+        return keywordMapper.selectKeywordCntInfo(email, 0, "");
     }
 
     public void keywordFix(Long keywordId) throws Exception {
