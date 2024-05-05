@@ -2,11 +2,8 @@ package camel.BoostMarketer.analysis.controller;
 
 import camel.BoostMarketer.analysis.service.AnalysisService;
 import camel.BoostMarketer.keyword.dto.KeywordDto;
-import camel.BoostMarketer.keyword.mapper.KeywordMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,11 +22,7 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:8080/") // 특정 도메인만 허용
 public class AnalysisController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private final AnalysisService analysisService;
-
-    private final KeywordMapper keywordMapper;
 
     @GetMapping(value = "/analyze-index")
     public String analyzePage() throws Exception {
@@ -39,14 +32,18 @@ public class AnalysisController {
     @GetMapping(value = "/keyword-analyze")
     public String registerTrends(@RequestParam(value = "keyword") String keyword, Model model) throws Exception {
         Map<String, Object> resultMap = analysisService.getAnalyzeDate(keyword);
-        List<HashMap<String, String>> sectionList = (List<HashMap<String, String>>) resultMap.get("sectionList");
+        List<HashMap<String, String>> pcSectionList = (List<HashMap<String, String>>) resultMap.get("pcSectionList");
         List<HashMap<String, String>> blogList = (List<HashMap<String, String>>) resultMap.get("blogList");
         List<KeywordDto> relatedkeywordList = (List<KeywordDto>) resultMap.get("relatedkeywordList");
+        List<HashMap<String, String>> mobileSectionList = (List<HashMap<String, String>>) resultMap.get("mobileSectionList");
+
         KeywordDto keywordDto = (KeywordDto) resultMap.get("keywordDto");
 
 //        analysisService.searchTrends(request.getParameter("keyword"),request.getParameter("startDate"),request.getParameter("endDate"))
 
-        model.addAttribute("sectionList", sectionList);
+        model.addAttribute("totalBlogCnt", resultMap.get("totalBlogCnt"));
+        model.addAttribute("pcSectionList", pcSectionList);
+        model.addAttribute("mobileSectionList", mobileSectionList);
         model.addAttribute("blogList", blogList);
         model.addAttribute("relatedkeywordList", relatedkeywordList);
         model.addAttribute("keywordDto", keywordDto);

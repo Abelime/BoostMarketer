@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Component
-public class NaverSearchTrendsApi {
+public class NaverTrendsApi {
 
     private final String clientId = "bJ0En5s3dtcOMl5glNR7"; //애플리케이션 클라이언트 아이디
     private final String clientSecret = "51WKT5ZwvL"; //애플리케이션 클라이언트 시크릿

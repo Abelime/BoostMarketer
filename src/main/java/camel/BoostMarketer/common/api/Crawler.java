@@ -257,9 +257,10 @@ public class Crawler {
         return hrefValues;
     }
 
-    public static Map<String, List<HashMap<String, String>>> sectionSearchCrawler(String keyword) throws Exception{
+    public static Map<String, List<HashMap<String, String>>> pcSearchCrawler(String keyword) throws Exception {
         List<HashMap<String, String>> sectionList = new ArrayList<>();
         List<HashMap<String, String>> blogList = new ArrayList<>();
+        List<HashMap<String, List<String>>> smartBlockContentList = new ArrayList<>();
 
         Map<String, List<HashMap<String, String>>> result = new HashMap<>();
 
@@ -277,12 +278,40 @@ public class Crawler {
         elementsToRemove.remove();
 
 
-        Elements apiSubjectElements = document.select("div.api_subject_bx");
+        Elements apiSubjectElements = document.select(".sc_new," +
+                                                               "div.brand_wrap"); //브랜드 광고
+
         aa:
         for (Element element : apiSubjectElements) {
-            Elements elements2 = element.select("h2:not([style*='display: none']), span.fds-comps-header-headline:not([style*='display: none']),section.sc_new.sp_ntotal,section.sc_new.sp_intent_fashion,ul.lst_total,ico_kin_snippet");
+            Elements elements2 = element.select(
+                    "h2:not([style*='display: none']), " +
+                            "span.fds-comps-header-headline:not([style*='display: none'])," +
+                            "h3.title," +
+                            "ul.lst_total,ico_kin_snippet," +
+                            "div.brand_wrap");
             for (Element element2 : elements2) {
                 HashMap<String, String> map = new HashMap<>();
+
+                if (!elements2.select("div.brand_wrap").isEmpty()) {
+                    map.put("section", "브랜드광고");
+                    map.put("cnt", "1");
+                    sectionList.add(map);
+                    break;
+                }
+
+                if (!element2.select("strong._text").isEmpty()) {
+                    Elements strongElements = element2.select("strong._text");
+                    String text = strongElements.first().text();
+                    map.put("section", text);
+                    map.put("cnt", "0");
+                    sectionList.add(map);
+                    break;
+                }
+
+                if(element2.text().contains("증권정보") || element2.text().contains("함께 많이 찾는 종목")){
+                    break;
+                }
+
                 if (element2.text().equals("연관 검색어")) {
                     break aa;
                 } else if (!elements2.select("div.bx_snippet").isEmpty()) {
@@ -325,45 +354,112 @@ public class Crawler {
             }
         }
 
+        Elements scripts = document.select("script");
+
+        for (Element script : scripts) {
+            String scriptContent = script.html();
+
+            if (scriptContent.contains("\"text\":")) {
+                String[] lines = scriptContent.split(",");
+                for (String line : lines) {
+                    if (line.trim().contains("\"text\":{\"content\"")) {
+                        String text = line.replace("\"text\":{\"content\":\"", "").replace("\"}}}","").replace("]","");
+
+//                        System.out.println(text);
+                    }
+                }
+            }
+        }
+
         result.put("sectionList", sectionList);
         result.put("blogList", blogList);
 
         return result;
     }
 
-//    public static List<HashMap<String, String>> blogtabPostingCrawler(String keyword) {
-//        List<HashMap<String, String>> result = new ArrayList<>();
-//        Elements elements = document.select("div.fds-ugc-block-mod-list");
-//
-//        for(Element element : elements){
-//            Elements elements2 = element.select("div.fds-ugc-block-mod");
-//            for(Element element2 : elements2){
-//                HashMap<String, String> map = new HashMap<>();
-//                Elements blog = element2.select("a.fds-info-inner-text");
-//                map.put("blogUrl",blog.attr("href"));
-//                map.put("blogName",blog.select("span").text());
-//                String regex = "(\\d+일 전)|(\\d+주 전)";
-//                Pattern pattern = Pattern.compile(regex);
-//                Matcher matcher = pattern.matcher(element2.select("span.fds-info-sub-inner-text").text());
-//                if (matcher.find()) {
-//                    map.put("glTime",matcher.group());
-//                }else {
-//                    map.put("glTime",element2.select("span.fds-info-sub-inner-text").text());
-//                }
-//
-//                Elements gl = element2.select("a.fds-comps-right-image-text-title,a.fds-comps-right-image-text-title-wrap");
-//                map.put("glUrl",gl.attr("href"));
-//                map.put("glName",gl.select("span").text());
-//                result.add(map);
-//            }
-//        }
-//        return result;
-//    }
+    public static List<HashMap<String, String>> mobileSectionSearchCrawler(String keyword) throws Exception{
+        List<HashMap<String, String>> sectionList = new ArrayList<>();
 
-//    public static Map<String, String> getHeaders() {
-//        headerData.put("User-Agent", RandomUserAgentGenerator.getNextNonMobile());
-//        return headerData;
-//    }
+        String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+        String url = "https://m.search.naver.com/search.naver?sm=mtp_hty.top&where=m&query=" + encodedKeyword;
+        String referrer = "https://m.search.naver.com/";
+
+        Document document = Jsoup.connect(url)
+                .referrer(referrer)
+                .headers(headerData)
+                .get();
+
+        // style="display: none;"이 포함된 태그와 그 하위 태그 제거
+        Elements elementsToRemove = document.select("[style*='display: none']");
+        elementsToRemove.remove();
+
+
+        Elements apiSubjectElements = document.select("div.api_subject_bx");
+
+        aa:
+        for (Element element : apiSubjectElements) {
+
+            Elements elements2 = element.select(
+                    "h2:not([style*='display: none']):not(.u_hc):not(.box_title), " +
+                            "h3.title," +
+                            "span.fds-comps-header-headline:not([style*='display: none']), " +
+                            "section.sc_new.sp_ntotal, " +
+                            "section.sc_new.sp_intent_fashion, " +
+                            "ul.lst_total," +
+                            ".brand_area"
+            );
+
+            for (Element element2 : elements2) {
+                HashMap<String, String> map = new HashMap<>();
+                if (element2.text().contains("통합웹")) {
+                    Elements elements3 = element.select("li.lst,li.box,li.bx,a.fds-comps-keyword-chip,div.fds-ugc-block-mod,a.fashion_card,a.product");
+                    map.put("section", "웹사이트");
+                    map.put("cnt", String.valueOf(elements3.size()));
+                    sectionList.add(map);
+                    break;
+                }
+                if (!elements2.select("div.brand_area").isEmpty()) {
+                    map.put("section", "브랜드광고");
+                    map.put("cnt", "1");
+                    sectionList.add(map);
+                    break;
+                }
+                if (element2.text().contains("파워링크")) {
+                    Elements elements3 = element.select("li.lst,li.box,li.bx,a.fds-comps-keyword-chip,div.fds-ugc-block-mod,a.fashion_card,a.product");
+                    map.put("section", "파워링크");
+                    map.put("cnt", String.valueOf(elements3.size()));
+                    sectionList.add(map);
+                    break;
+                }
+                if (!element2.select("strong._text").isEmpty()) {
+                    Elements strongElements = element2.select("strong._text");
+                    String text = strongElements.first().text();
+                    map.put("section", text);
+                    map.put("cnt", "0");
+                    sectionList.add(map);
+                    break;
+                }
+
+                if (element2.text().equals("연관 검색어")) {
+                    break aa;
+                } else if (!elements2.select("div.bx_snippet").isEmpty()) {
+                    map.put("section", "지식스니펫");
+                } else if (!elements2.select("ul.lst_total").isEmpty()) {
+                    map.put("section", "웹사이트");
+                } else {
+                    map.put("section", element2.text());
+                }
+
+                element.select("div.snippet_rel_wrap").remove();
+                Elements elements3 = element.select("li.lst,li.box,li.bx,a.fds-comps-keyword-chip,div.fds-ugc-block-mod,a.fashion_card,a.product");
+                map.put("cnt", String.valueOf(elements3.size()));
+                sectionList.add(map);
+            }
+        }
+
+        return sectionList;
+    }
+
 
     public static void sleep(String reason) {
         try {

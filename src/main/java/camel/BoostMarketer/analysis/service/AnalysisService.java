@@ -1,9 +1,12 @@
 package camel.BoostMarketer.analysis.service;
 
 import camel.BoostMarketer.common.api.Crawler;
-import camel.BoostMarketer.common.api.NaverSearchAdApi;
-import camel.BoostMarketer.common.api.NaverSearchTrendsApi;
+import camel.BoostMarketer.common.api.NaverAdApi;
+import camel.BoostMarketer.common.api.NaverBlogApi;
+import camel.BoostMarketer.common.api.NaverTrendsApi;
 import camel.BoostMarketer.keyword.dto.KeywordDto;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +22,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AnalysisService {
 
-    private final NaverSearchTrendsApi naverSearchTrendsApi;
+    private final NaverTrendsApi naverTrendsApi;
+
+    private final NaverBlogApi naverBlogApi;
+
+    private final NaverAdApi naverAdApi;
 
     public List<HashMap<String, Object>> searchTrends(String text, String startDate_Sel, String endDate_Sel) throws Exception {
 
@@ -32,7 +39,7 @@ public class AnalysisService {
 
         String startDate = sameDayLastMonth.format(formatter);    //당월
         String endDate = currentDate.format(formatter);     //당월
-        List<HashMap<String, Object>> dataList = naverSearchTrendsApi.apiAccess(text,"date",startDate,endDate);
+        List<HashMap<String, Object>> dataList = naverTrendsApi.apiAccess(text,"date",startDate,endDate);
         double totalRatio = 0;
         int a = -1; //당월 첫날
         int b = -1;
@@ -50,7 +57,7 @@ public class AnalysisService {
         KeywordDto keywordDto = new KeywordDto();
         keywordDto.setKeywordName(text);
         //당월 검색량 조회
-        NaverSearchAdApi.apiAccess(keywordDto);
+        naverAdApi.apiAccess(keywordDto);
         int monthSearchSum = keywordDto.getMonthSearchPc() + keywordDto.getMonthSearchMobile();
 
         //ratio 1당 검색량
@@ -59,7 +66,7 @@ public class AnalysisService {
         a = (int)(a*r1); //당월 첫날 검색량
 
         //선택한날 부터 당일까지 ratio
-        List<HashMap<String, Object>> dataList_sel = naverSearchTrendsApi.apiAccess(text,"date",startDate_Sel,endDate);
+        List<HashMap<String, Object>> dataList_sel = naverTrendsApi.apiAccess(text,"date",startDate_Sel,endDate);
         df = new DecimalFormat("#");
 
         for(HashMap<String, Object> map: dataList_sel){
@@ -115,7 +122,7 @@ public class AnalysisService {
 //        String startDate = startDate1.format(formatter);    //선택한 시작월의 1일
 //        String endDate = startDate2.format(formatter);      //선택한 끝월의 1일
         //선택한 시작월 1일 부터, 현재를 기준으로 전달의 마지막일까지
-        List<HashMap<String, Object>> dataList = naverSearchTrendsApi.apiAccess(text,"month",startDate,formattedDate);
+        List<HashMap<String, Object>> dataList = naverTrendsApi.apiAccess(text,"month",startDate,formattedDate);
 
         //ratio 1당 검색량
         double r1 = 0.000;
@@ -145,16 +152,29 @@ public class AnalysisService {
     public Map<String, Object> getAnalyzeDate(String keyword) throws Exception {
         Map<String, Object> resultMap = new HashMap<>();
 
-        Map<String, List<HashMap<String, String>>> crawlerResult = Crawler.sectionSearchCrawler(keyword);
+        Map<String, List<HashMap<String, String>>> crawlerResult = Crawler.pcSearchCrawler(keyword);
+        List<HashMap<String, String>> mobileSectionList = Crawler.mobileSectionSearchCrawler(keyword);
 
-        List<KeywordDto> relatedkeywordList = NaverSearchAdApi.relatedkeywordsAcess(keyword);
+        List<KeywordDto> relatedkeywordList = naverAdApi.relatedkeywordsAcess(keyword);
+
+        String blogApiResult = naverBlogApi.apiAccess(keyword);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        // JSON 문자열을 JsonNode로 변환
+        JsonNode rootNode = objectMapper.readTree(blogApiResult);
+
+        // "items" 필드 가져오기
+        int totalBlogCnt = rootNode.get("total").asInt();
 
         if(!relatedkeywordList.isEmpty()){
             resultMap.put("keywordDto", relatedkeywordList.get(0));
             relatedkeywordList.remove(0);
         }
 
-        resultMap.put("sectionList", crawlerResult.get("sectionList"));
+        resultMap.put("totalBlogCnt", totalBlogCnt);
+        resultMap.put("mobileSectionList", mobileSectionList);
+        resultMap.put("pcSectionList", crawlerResult.get("sectionList"));
         resultMap.put("blogList", crawlerResult.get("blogList"));
         resultMap.put("relatedkeywordList", relatedkeywordList);
         return resultMap;

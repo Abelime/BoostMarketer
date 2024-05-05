@@ -2,17 +2,14 @@ package camel.BoostMarketer.keyword.service;
 
 import camel.BoostMarketer.blog.mapper.BlogMapper;
 import camel.BoostMarketer.common.api.Crawler;
-import camel.BoostMarketer.common.api.NaverSearchAdApi;
+import camel.BoostMarketer.common.api.NaverAdApi;
 import camel.BoostMarketer.keyword.dto.KeywordDto;
 import camel.BoostMarketer.keyword.mapper.KeywordMapper;
 import camel.BoostMarketer.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -25,13 +22,15 @@ public class KeywordBatchService {
     private final KeywordService keywordService;
 
     private final UserMapper userMapper;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private final NaverAdApi naverAdApi;
+
 
     public void updateKeywordDict() throws Exception {
         List<KeywordDto> allKeyword = keywordMapper.findAllKeyword();
 
         for (KeywordDto keywordDto : allKeyword) {
-            NaverSearchAdApi.apiAccess(keywordDto);
+            naverAdApi.apiAccess(keywordDto);
             keywordMapper.updateKeywordDict(keywordDto);
         }
 

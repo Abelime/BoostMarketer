@@ -1,12 +1,12 @@
 package camel.BoostMarketer.common.api;// 네이버 검색 API 예제 - 블로그 검색
 
-import camel.BoostMarketer.blog.dto.RequestBlogDto;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -15,24 +15,19 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import static camel.BoostMarketer.common.ConvertBlogUrl.convertUrl;
-
 @Component
-public class NaverSearchBlogApi {
+public class NaverBlogApi {
 
-    private final String clientId = "WL1M5lNM2971fY_nLeOY"; //애플리케이션 클라이언트 아이디
-    private final String clientSecret = "aYYZtJiEbb"; //애플리케이션 클라이언트 시크릿
+    @Value("${naver.client.id}")
+    private String clientId;
 
-    public int apiAccess(RequestBlogDto requestBlogDto) {
-        Map<String, String> blogMap = convertUrl(requestBlogDto.getBlogUrl());
+    @Value("${naver.client.secret}")
+    private String clientSecret;
 
-//        String text = blogDto.getKeyWord();
-        String text = "";
-        text = URLEncoder.encode(text, StandardCharsets.UTF_8);
+    public String apiAccess(String keyword) {
+        keyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
 
-
-        String apiURL = "https://openapi.naver.com/v1/search/blog?query=" + text;    // JSON 결과
-        //String apiURL = "https://openapi.naver.com/v1/search/blog.xml?query="+ text; // XML 결과
+        String apiURL = "https://openapi.naver.com/v1/search/blog?query=\"" + keyword +"\"" + "&sort=sim&display=100";    // JSON 결과
 
         Map<String, String> requestHeaders = new HashMap<>();
         requestHeaders.put("X-Naver-Client-Id", clientId);
@@ -40,29 +35,29 @@ public class NaverSearchBlogApi {
         String responseBody = get(apiURL, requestHeaders);
 
         // ObjectMapper 생성
-        ObjectMapper objectMapper = new ObjectMapper();
-        int rank = 0;
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        int rank = 0;
 
-        try {
-            // JSON 문자열을 JsonNode로 변환
-            JsonNode rootNode = objectMapper.readTree(responseBody);
-            // "items" 필드 가져오기
-            JsonNode itemsNode = rootNode.get("items");
+//        try {
+//            // JSON 문자열을 JsonNode로 변환
+//            JsonNode rootNode = objectMapper.readTree(responseBody);
+//            // "items" 필드 가져오기
+//            JsonNode itemsNode = rootNode.get("items");
+//
+//            for (JsonNode jsonNode : itemsNode) {
+//                rank++;
+//                String link = jsonNode.get("link").toString();
+//                if (link.contains(blogMap.get("blogId")) && link.contains(blogMap.get("postNo"))) {
+//                    break;
+//                }
+//
+//            }
+//
+//        } catch (JsonProcessingException e) {
+//            throw new RuntimeException(e);
+//        }
 
-            for (JsonNode jsonNode : itemsNode) {
-                rank++;
-                String link = jsonNode.get("link").toString();
-                if (link.contains(blogMap.get("blogId")) && link.contains(blogMap.get("postNo"))) {
-                    break;
-                }
-
-            }
-
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
-        return rank;
+        return responseBody;
     }
 
 

@@ -21,7 +21,7 @@ public class ScheduleConfig {
 
 
     //초 분 시 일 월 요일 연도(옵션)
-    @Scheduled(cron = "0 10 0 * * ?")
+    @Scheduled(cron = "1 20 0 * * ?")
     public void runBlogDataJob() {
         try {
             JobParameters params = new JobParametersBuilder()

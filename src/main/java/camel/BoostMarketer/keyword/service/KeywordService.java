@@ -3,7 +3,7 @@ package camel.BoostMarketer.keyword.service;
 import camel.BoostMarketer.blog.mapper.BlogMapper;
 import camel.BoostMarketer.common.ConvertBlogUrl;
 import camel.BoostMarketer.common.api.Crawler;
-import camel.BoostMarketer.common.api.NaverSearchAdApi;
+import camel.BoostMarketer.common.api.NaverAdApi;
 import camel.BoostMarketer.common.util.ExcelUtil;
 import camel.BoostMarketer.keyword.dto.KeywordDto;
 import camel.BoostMarketer.keyword.mapper.KeywordMapper;
@@ -36,6 +36,8 @@ public class KeywordService {
     private final BlogMapper blogMapper;
 
     private final UserMapper userMapper;
+
+    private final NaverAdApi naverAdApi;
 
 
     @Qualifier("customTaskExecutor")
@@ -116,7 +118,7 @@ public class KeywordService {
 
     private void keywordRegister(KeywordDto keywordDto, String email) throws Exception {
         //검색량 조회
-        NaverSearchAdApi.apiAccess(keywordDto);
+        naverAdApi.apiAccess(keywordDto);
         //키워드 등록(사전)
         keywordMapper.registerKeywordDict(keywordDto);
         //키워드 등록(유저)
