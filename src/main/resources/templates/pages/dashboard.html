@@ -281,132 +281,17 @@
 <!--  <script src="/assets/js/soft-ui-dashboard.min.js?v=1.0.7"></script>-->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="/js/common.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/paging.js"></script>
   <script>
-      /*<![CDATA[*/
-      const totalCount = [[${totalCount}]]; // 서버 사이드에서 전달된 'keywordCount' 값을 사용
-      const page = [[${page}]]; // 서버 사이드에서 전달된 'page' 값을 사용
-      const pageSize = [[${pageSize}]];
-      const sort = '[[${sort}]]';
-      /*]]>*/
-
-      document.addEventListener('DOMContentLoaded', function () {
-        var totalPages = Math.ceil(totalCount / pageSize);
-        var groupSize = 5; // 한 번에 표시할 페이지 번호의 개수
-
-        // 페이지 그룹의 시작과 끝 페이지 번호 계산
-        var startPage = Math.floor((page - 1) / groupSize) * groupSize + 1;
-        var endPage = Math.min(startPage + groupSize - 1, totalPages);
-
-        function createPagination(currentPage, totalPages, startPage, endPage) {
-          var paginationHTML = '<ul class="pagination pagination-secondary justify-content-center">';
-
-          // 처음으로 이동
-          paginationHTML += '<li class="page-item ' + (currentPage === 1 ? 'disabled' : '') + '">' +
-                  '<a class="page-link" href="javascript:changePage(1);" aria-label="First">' +
-                  '<i class="fa fa-angle-double-left" aria-hidden="true"></i></a></li>';
-
-          // 이전 페이지로 이동
-          var prevPage = currentPage - 1;
-          paginationHTML += '<li class="page-item ' + (currentPage === 1 ? 'disabled' : '') + '">' +
-                  '<a class="page-link" href="javascript:changePage(' + prevPage + ');" aria-label="Previous">' +
-                  '<i class="fa fa-angle-left" aria-hidden="true"></i></a></li>';
-
-          // 페이지 번호 버튼
-          for (var i = startPage; i <= endPage; i++) {
-            if (i === currentPage) {
-              // 현재 페이지에 대해 클릭 불가능한 상태로 표시
-              paginationHTML += '<li class="page-item active"><span class="page-link">' + i + '</span></li>';
-            } else {
-              paginationHTML += '<li class="page-item">' +
-                      '<a class="page-link" href="javascript:changePage(' + i + ');">' + i + '</a></li>';
-            }
-          }
-
-          // 다음 페이지로 이동
-          var nextPage = currentPage + 1;
-          paginationHTML += '<li class="page-item ' + (currentPage === totalPages ? 'disabled' : '') + '">' +
-                  '<a class="page-link" href="javascript:changePage(' + nextPage + ');" aria-label="Next">' +
-                  '<i class="fa fa-angle-right" aria-hidden="true"></i></a></li>';
-
-          // 마지막으로 이동
-          paginationHTML += '<li class="page-item ' + (currentPage === totalPages ? 'disabled' : '') + '">' +
-                  '<a class="page-link" href="javascript:changePage(' + totalPages + ');" aria-label="Last">' +
-                  '<i class="fa fa-angle-double-right" aria-hidden="true"></i></a></li>';
-
-          paginationHTML += '</ul>';
-
-          document.getElementById('pagination').innerHTML = paginationHTML;
-        }
-
-        window.changePage = function (page) {
-          window.location.href = '/?page=' + page + '&pageSize=' + pageSize + '&sort=' + sort;
-        }
-
-        createPagination(page, totalPages, startPage, endPage);
-      });
-
-
-      function openModal(postNo) {
-          fetch('/homeModal/' + postNo)
-              .then(response => response.json())
-              .then(data => {
-                  const modal = document.getElementById('exampleModal');
-                  const modalBody = modal.querySelector('#modal-body-content');
-
-                  // Clear previous content
-                  modalBody.innerHTML = '';
-
-                  // Single post data
-                  const post = data.blogPostDto;
-                  let hashtags = [];
-                  if (post.hashtag !== null) {
-                      hashtags = post.hashtag.split(',');
-                  }
-
-                  // Construct new row for the post
-                  let postRow = `
-                <tr>
-                    <td class="align-middle">
-                        <a target="_blank" href="https://blog.naver.com/${post.blogId}/${post.postNo}">
-                            <p class="btn btn-link text-dark text-sm font-weight-bold mb-0">${post.postTitle}</p>
-                        </a>
-                        <div class="post-hashtag">
-                            ${hashtags.map(tag => `<div class="hashtag select">#${tag.trim()}</div>`).join('')}
-                        </div>
-                    </td>
-                    <td class="align-middle text-center">
-                        <p class="text-xs font-weight-bold mb-0">${post.postDate}</p>
-                    </td>
-                    <td class="align-middle text-center">
-                        ${data.keywordDtos.map(keyword => `
-                            <a target="_blank" href="https://search.naver.com/search.naver?query=${keyword.keywordName}" style="display: block;" class="btn btn-link text-dark px-3 mb-0">
-                                <p class="text-sm font-weight-bold" style="display: inline; padding-right: 5px">${keyword.keywordName}</p>
-                                <p class="text-sm font-weight-bold" style="display: inline; color: #00c73c">${keyword.rankPc === 0 ? '-' : '[' + keyword.rankPc + '위]'}</p>
-                                <p class="text-sm font-weight-bold" style="display: inline;">
-                                    [
-                                    <span class="${keyword.totalSearchExposure === 1 ? 'text-success' : 'text-danger'}">
-                                        <i class="${keyword.totalSearchExposure === 1 ? 'fa fa-check' : 'fa fa-times'}"></i>
-                                    </span>
-                                    ]
-                                </p>
-                            </a>
-                        `).join('')}
-                    </td>
-                </tr>
-            `;
-
-                  modalBody.innerHTML = postRow;
-
-                  // Show the modal
-                  const bsModal = new bootstrap.Modal(modal);
-                  bsModal.show();
-              })
-              .catch(error => {
-                  console.error('Error fetching data:', error);
-              });
-      }
-
+    /*<![CDATA[*/
+    const totalCount = [[${totalCount}]]; // 서버 사이드에서 전달된 'keywordCount' 값을 사용
+    const page = [[${page}]]; // 서버 사이드에서 전달된 'page' 값을 사용
+    const pageSize = [[${pageSize}]];
+    const sort = '[[${sort}]]';
+    /*]]>*/
   </script>
+
 </body>
 
 </html>

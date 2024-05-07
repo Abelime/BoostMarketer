@@ -1,0 +1,76 @@
+.flex-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-container {
+  height: 350px; /* 컨테이너 높이 설정 */
+  width: 100%;  /* 컨테이너 너비 설정 */
+  position: relative;
+}
+
+.chart-canvas {
+  height: 100%; /* 캔버스가 컨테이너에 맞도록 설정 */
+  width: 100%;
+  position: absolute;
+}
+
+.month-inputs {
+  display: none;
+}
+
+/*검색 input 박스*/
+.search-input {
+  position: relative;
+}
+
+.search-input .form-control {
+  padding-right: 40px;
+}
+
+.search-input .search-icon {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  color: #aaa;
+}
+
+.table {
+  table-layout: fixed;
+}
+
+.table th,
+.table td {
+  white-space: normal;  /* allows text to wrap */
+  word-wrap: break-word; /* ensures text breaks within words if needed */
+}
+
+.navigation-wrapper {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  background-color: rgb(249, 249, 250);
+  border-bottom-color: rgb(218, 218, 220);
+  border-bottom-style: solid;
+  border-bottom-width: 1.11111px;
+}
+
+.scroll-container {
+    overflow-x: auto;
+    flex-grow: 1;
+    display: flex;
+    scroll-behavior: smooth;
+}
+
+.scroll-btn {
+    width: 40px; /* 조절 가능 */
+    flex-shrink: 0;
+}
+
+/* 스크롤바 숨기기 */
+.scroll-container::-webkit-scrollbar {
+    display: none;
+}

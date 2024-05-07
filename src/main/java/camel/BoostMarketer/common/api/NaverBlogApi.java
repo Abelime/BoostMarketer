@@ -12,6 +12,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,38 +26,47 @@ public class NaverBlogApi {
     @Value("${naver.client.secret}")
     private String clientSecret;
 
-    public String apiAccess(String keyword) {
+    public String blogTotalCountApi(String keyword) {
         keyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
 
-        String apiURL = "https://openapi.naver.com/v1/search/blog?query=\"" + keyword +"\"" + "&sort=sim&display=100";    // JSON 결과
-
+//        String apiURL = "https://openapi.naver.com/v1/search/blog?query=\"" + keyword +"\"" + "&sort=sim&display=100";    // JSON 결과
+        String apiURL = "https://section.blog.naver.com/ajax/SearchList.naver?endDate=&startDate=&type=post&keyword=" + keyword;
         Map<String, String> requestHeaders = new HashMap<>();
-        requestHeaders.put("X-Naver-Client-Id", clientId);
-        requestHeaders.put("X-Naver-Client-Secret", clientSecret);
+        requestHeaders.put("Referer", "https://section.blog.naver.com/BlogHome.naver?");
+//        requestHeaders.put("X-Naver-Client-Id", clientId);
+//        requestHeaders.put("X-Naver-Client-Secret", clientSecret);
         String responseBody = get(apiURL, requestHeaders);
+        responseBody = responseBody.replace(")]}',", "");
+        return responseBody;
+    }
 
-        // ObjectMapper 생성
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        int rank = 0;
+    public String blogMonthCountApi(String keyword) {
+        keyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
 
-//        try {
-//            // JSON 문자열을 JsonNode로 변환
-//            JsonNode rootNode = objectMapper.readTree(responseBody);
-//            // "items" 필드 가져오기
-//            JsonNode itemsNode = rootNode.get("items");
-//
-//            for (JsonNode jsonNode : itemsNode) {
-//                rank++;
-//                String link = jsonNode.get("link").toString();
-//                if (link.contains(blogMap.get("blogId")) && link.contains(blogMap.get("postNo"))) {
-//                    break;
-//                }
-//
-//            }
-//
-//        } catch (JsonProcessingException e) {
-//            throw new RuntimeException(e);
-//        }
+        LocalDate currentDate = LocalDate.now();
+        LocalDate sameDayLastMonth = currentDate.minusMonths(1);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        String startDate = sameDayLastMonth.format(formatter);    //당월
+        String endDate = currentDate.format(formatter);     //전월
+
+        String apiURL = "https://section.blog.naver.com/ajax/SearchList.naver?endDate=" + endDate + "&startDate=" + startDate + "&type=post&keyword=" + keyword;
+        Map<String, String> requestHeaders = new HashMap<>();
+        requestHeaders.put("Referer", "https://section.blog.naver.com/BlogHome.naver?");
+        String responseBody = get(apiURL, requestHeaders);
+        responseBody = responseBody.replace(")]}',", "");
+
+        return responseBody;
+    }
+
+    public String relatedKeywordListApi(String keyword) {
+        keyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+
+        String apiURL = "https://section.blog.naver.com/ajax/RelatedKeywordList.naver?keyword=" + keyword;
+        Map<String, String> requestHeaders = new HashMap<>();
+        requestHeaders.put("Referer", "https://section.blog.naver.com/BlogHome.naver?");
+        String responseBody = get(apiURL, requestHeaders);
+        responseBody = responseBody.replace(")]}',", "");
 
         return responseBody;
     }

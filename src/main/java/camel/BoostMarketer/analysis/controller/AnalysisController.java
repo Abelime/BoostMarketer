@@ -42,6 +42,8 @@ public class AnalysisController {
 //        analysisService.searchTrends(request.getParameter("keyword"),request.getParameter("startDate"),request.getParameter("endDate"))
 
         model.addAttribute("totalBlogCnt", resultMap.get("totalBlogCnt"));
+        model.addAttribute("monthBlogCnt", resultMap.get("monthBlogCnt"));
+        model.addAttribute("blogSaturation", resultMap.get("blogSaturation"));
         model.addAttribute("pcSectionList", pcSectionList);
         model.addAttribute("mobileSectionList", mobileSectionList);
         model.addAttribute("blogList", blogList);

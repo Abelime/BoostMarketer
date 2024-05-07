@@ -35,63 +35,9 @@
   <link id="pagestyle" href="/assets/css/soft-ui-dashboard.css?v=1.0.7" rel="stylesheet" />
   <link href="/css/table.css" rel="stylesheet" />
   <link href="/css/common.css" rel="stylesheet" />
-  <!-- Nepcha Analytics (nepcha.com) -->
-  <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
-  <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.10/dist/sweetalert2.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.10/dist/sweetalert2.min.js"></script>
+  <link href="/css/keyword-analyze.css" rel="stylesheet" />
+
 </head>
-<style>
-  .flex-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .chart-container {
-    height: 350px; /* 컨테이너 높이 설정 */
-    width: 100%;  /* 컨테이너 너비 설정 */
-    position: relative;
-  }
-
-  .chart-canvas {
-    height: 100%; /* 캔버스가 컨테이너에 맞도록 설정 */
-    width: 100%;
-    position: absolute;
-  }
-
-  .month-inputs {
-    display: none;
-  }
-
-  /*검색 input 박스*/
-  .search-input {
-    position: relative;
-  }
-
-  .search-input .form-control {
-    padding-right: 40px;
-  }
-
-  .search-input .search-icon {
-    position: absolute;
-    top: 50%;
-    right: 10px;
-    transform: translateY(-50%);
-    color: #aaa;
-  }
-
-  .table {
-    table-layout: fixed;
-  }
-
-  .table th,
-  .table td {
-    white-space: normal;  /* allows text to wrap */
-    word-wrap: break-word; /* ensures text breaks within words if needed */
-  }
-
-</style>
 
 <body class="g-sidenav-show  bg-gray-100">
 <div th:replace="~{common/aside}"></div>
@@ -156,13 +102,13 @@
               <div class="col-md-4 mb-2">
                 <div class="border-0 p-4 bg-light rounded">
                   <h6 class="mb-3 text-sm">블로그 발행량(월)</h6>
-                  <span class="text-dark font-weight-bold"></span>
+                  <span class="text-dark font-weight-bold" th:text="${monthBlogCnt == 0 ? '0' : #numbers.formatInteger(monthBlogCnt, 1, 'COMMA')}"></span>
                 </div>
               </div>
               <div class="col-md-4 mb-2">
                 <div class="border-0 p-4 bg-light rounded">
-                  <h6 class="mb-3 text-sm">경쟁률</h6>
-                  <span class="text-dark font-weight-bold"></span>
+                  <h6 class="mb-3 text-sm">포화도</h6>
+                  <span class="text-dark font-weight-bold" th:text="${blogSaturation}+'%'"></span>
                 </div>
               </div>
             </div>
@@ -252,11 +198,18 @@
       </div>
     </div>
     <div class="row mt-4">
-      <div class="col-md-6">
+      <div class="col-md-12">
         <div class="card">
           <div class="card-header pb-0">
             <div class="d-flex justify-content-between align-items-center">
               <h6 class="mb-0">통합검색 노출 컨텐츠</h6>
+            </div>
+            <div class="navigation-wrapper mt-2">
+              <button class="btn btn-link text scroll-btn left-btn" onclick="leftScroll()" disabled><i class="fas fa-chevron-left"></i></button>
+              <div class="scroll-container">
+                <a class="btn text-dark">키워드 관리</a>
+              </div>
+              <button class="btn btn-link text scroll-btn right-btn" onclick="rightScroll()"><i class="fas fa-chevron-right"></i></button>
             </div>
           </div>
           <div class="card-body pt-4 p-3">
@@ -264,9 +217,13 @@
               <table class="table align-items-center mb-0">
                 <thead>
                 <tr>
-                  <th class=" text-uppercase text-secondary text-xs font-weight-bolder" style="width: 30%">[블로그명] OR [카페명]</th>
-                  <th class=" text-uppercase text-secondary text-xs font-weight-bolder" style="width: 35%">게시글 제목</th>
-                  <th class=" text-uppercase text-secondary text-xs font-weight-bolder" style="width: 10%">작성일자</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">순위</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">작성자</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">게시글</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">발행일</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">글자수</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">사진수</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">방문자 수</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -287,7 +244,9 @@
           </div>
         </div>
       </div>
-      <div class="col-md-6">
+    </div>
+    <div class="row mt-4">
+      <div class="col-md-12">
         <div class="card">
           <div class="card-header pb-0">
             <div class="d-flex justify-content-between align-items-center">
@@ -301,11 +260,15 @@
                 <tr>
                   <th rowspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">키워드</th>
                   <th colspan="3" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">월 검색량</th>
+                  <th colspan="3" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">블로그통계</th>
                 </tr>
                 <tr>
                   <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">PC</th>
                   <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">MOBILE</th>
                   <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">총 검색량</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">발행량(총)</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">발행량(월)</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">포화도</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -330,9 +293,6 @@
         </div>
       </div>
     </div>
-<!--    <div class="row mt-4">-->
-<!--      -->
-<!--    </div>-->
   </div>
   <div th:insert="~{common/mainfooter.html :: footer}"></div>
 </main>
@@ -367,316 +327,12 @@
 </div>
 
 
-
-<div class="loader-wrapper">
-  <div class="loader"></div>
-</div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
-<script>
-  $('#keyword').keypress(function (event) {
-    if (event.which === 13) {
-      event.preventDefault();
-
-      const keywordName = $('#keyword').val().trim();
-
-      if (keywordName === '') {
-        return;
-      }
-      FunLoadingBarStart();
-      window.location.href = '/keyword-analyze?keyword=' + keywordName;
-    }
-  });
-
-  //드롭다운
-  $(document).ready(function () {
-    // 화면 로드 시 기본 드롭다운 버튼 텍스트 설정
-    $('#dropdownMenuButton').text('일간');
-
-    // 모든 드롭다운 항목 초기화
-    $('.dropdown-item').removeClass('active');
-
-    // "일간" 항목을 활성화
-    $('.dropdown-item[data-value="일간"]').addClass('active');
-
-    // 드롭다운 항목 클릭 시 버튼 텍스트 변경 및 선택 상태 표시
-    $('.dropdown-item').click(function () {
-      var selectedText = $(this).data('value'); // 선택한 항목의 텍스트
-      $('#dropdownMenuButton').text(selectedText); // 버튼 텍스트 변경
-
-      // 모든 항목의 선택 상태 초기화
-      $('.dropdown-item').removeClass('active');
-
-      // 클릭된 항목에 선택 상태 적용
-      $(this).addClass('active');
-    });
-  });
-
-  //날짜, 달력, 그래프
-  $(document).ready(function () {
-    // 초기값 설정
-    setDateRange('일간');
-
-    // 일간, 월간 선택 버튼 클릭 이벤트 핸들러
-    $(".dropdown-item").click(function () {
-      const mode = $(this).data("value");
-      setDateRange(mode);
-
-      let buildParams = () => {
-        return {
-          'keyword': $("#keyword").val(),
-          'dateType_Sel': mode,
-          'startDate': $("#startDate").val(),
-          'endDate': $("#endDate").val()
-        };
-      };
-
-      let params = buildParams();
-      let queryString = createQueryString(params);
-
-      fetchChartData(queryString)
-              .then(dataList => {
-                const yConfig = getYAxisConfig(dataList);
-                drawChart(ctx, dataList, yConfig);
-              });
-
-    });
-
-    // 날짜 범위 설정 함수
-    function setDateRange(mode) {
-      const today = new Date();
-      const startDate = new Date();
-      const endDate = new Date();
-
-      if (mode === '월간') {
-        startDate.setFullYear(today.getFullYear() - 1, today.getMonth(), 1); // 1년 전 같은 월의 1일
-        endDate.setFullYear(today.getFullYear(), today.getMonth(), 0); // 저번 달의 마지막 날
-      } else {
-        startDate.setMonth(today.getMonth() - 1); //저번달
-        endDate.setDate(today.getDate() - 1); // 어제 날짜
-      }
-
-      const threeYearsAgo = new Date(today.getFullYear() - 3, 0, 1); // 3년 전 1월 1일 기준
-
-      let initialStartDate = formatDate(startDate, mode);
-      let initialEndDate = formatDate(endDate, mode);
-
-      const formattedThreeYearsAgo = formatDate(threeYearsAgo, '일간');
-
-      $('#dateRangeText').text(`${formatMonthRange(initialStartDate, initialEndDate, mode)}`);
-
-      if (mode === '월간') {
-        initialStartDate = formatDate(startDate, '');
-        initialEndDate = formatDate(endDate, '');
-      }
-
-      $('#startDate').val(initialStartDate);
-      $('#endDate').val(initialEndDate);
-
-      $("#startDate, #endDate").attr("min", formattedThreeYearsAgo);
-      $("#startDate, #endDate").attr("max", initialEndDate);
-
-
-      // "닫기" 버튼을 클릭하면 초기값으로 복원
-      $("#datePickerModal .btn-secondary").click(function () {
-        $("#startDate").val(initialStartDate);
-        $("#endDate").val(initialEndDate);
-      });
-
-      // "적용" 버튼을 클릭하면 초기값을 업데이트
-      $("#datePickerModal .btn-primary").click(function () {
-        initialStartDate = $("#startDate").val();
-        initialEndDate = $("#endDate").val();
-        $('#dateRangeText').text(formatMonthRange(initialStartDate, initialEndDate, mode));
-        $('#datePickerModal').modal('hide');
-        let buildParams = () => {
-          return {
-            'keyword': $("#keyword").val(),
-            'dateType_Sel': mode,
-            'startDate': $("#startDate").val(),
-            'endDate': $("#endDate").val()
-          };
-        };
-
-        let params = buildParams();
-        let queryString = createQueryString(params);
-
-        fetchChartData(queryString)
-                .then(dataList => {
-                  const yConfig = getYAxisConfig(dataList);
-                  drawChart(ctx, dataList, yConfig);
-                });
-      });
-
-      // 시작 날짜 변경 시 마지막 날짜의 최소값을 업데이트
-      $("#startDate").on("change", function () {
-        var startDate = $(this).val();
-        var endDateInput = $("#endDate");
-
-        // 마지막 날짜가 시작 날짜보다 앞지 않도록 제한
-        if (endDateInput.val() < startDate) {
-          endDateInput.val(startDate);
-        }
-        endDateInput.attr("min", startDate); // 최소값 업데이트
-      });
-
-      // 마지막 날짜 변경 시 시작 날짜의 최대값을 업데이트
-      $("#endDate").on("change", function () {
-        var endDate = $(this).val();
-        var startDateInput = $("#startDate");
-
-        // 시작 날짜가 마지막 날짜보다 뒤지 않도록 제한
-        if (startDateInput.val() > endDate) {
-          startDateInput.val(endDate);
-        }
-        startDateInput.attr("max", endDate); // 최대값 업데이트
-      });
-    }
-
-    function formatDate(date, mode) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-
-      if (mode === '월간') {
-        return `${year}-${month}`;
-      } else {
-        return `${year}-${month}-${day}`;
-      }
-    }
-
-    function formatMonthRange(startDate, endDate, mode) {
-      if (mode === '월간') {
-        return `${startDate.split('-')[0]}-${startDate.split('-')[1]} - ${endDate.split('-')[0]}-${endDate.split('-')[1]}`;
-      } else {
-        return `${startDate} - ${endDate}`;
-      }
-    }
-
-    let myChart; // 차트 참조 변수
-
-    const ctx = document.getElementById('line-chart').getContext('2d');
-
-    const buildParams = () => {
-        return {
-            'keyword': $("#keyword").val(),
-            'dateType_Sel': '일간',
-            'startDate': $("#startDate").val(),
-            'endDate': $("#endDate").val()
-        };
-    };
-
-    const createQueryString = (params) => {
-        return Object.keys(params)
-            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
-            .join('&');
-    };
-
-    const fetchChartData = async (queryString) => {
-        try {
-            const response = await fetch(`/trendsChart?${queryString}`);
-            const dataList = await response.json();
-            return dataList;
-        } catch (error) {
-            console.error('데이터 가져오는 중 오류가 발생했습니다:', error);
-            throw error;
-        }
-    };
-
-    const getYAxisConfig = (dataList) => {
-        const minDataValue = Math.min(...dataList.map(data => data['ratio']));
-        const maxDataValue = Math.max(...dataList.map(data => data['ratio']));
-
-        const yRange = maxDataValue - minDataValue;
-        const yMin = Math.floor(minDataValue / 10) * 10;
-        const yMax = Math.ceil(maxDataValue / 10) * 10;
-        const stepSize = Math.ceil((yRange + 10) / 7);
-
-        return { yMin, yMax, stepSize };
-    };
-
-    const drawChart = (ctx, dataList, yConfig) => {
-        if (myChart) { // 기존 차트가 있으면 삭제
-            myChart.destroy();
-        }
-
-      myChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-              labels: dataList.map(data => data['period']),
-              datasets: [{
-                  label: $("#keyword").val(),
-                  data: dataList.map(data => data['ratio']),
-                  borderColor: 'rgba(199, 135, 235, 1)', // 연보라색 라인
-                  borderWidth: 3,
-                  pointRadius: 0,
-                  pointBackgroundColor: 'rgba(199, 135, 235, 1)',
-                  spanGaps: true,
-              }],
-          },
-          options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                  legend: {
-                      display: false,
-                  },
-                  tooltip: {
-                      intersect: false,
-                      mode: 'index',
-                      callbacks: {
-                          label: (tooltipItem) => `${$("#keyword").val()}: ${Intl.NumberFormat().format(Math.round(tooltipItem.raw))}`, // 정수로 포맷팅
-                      },
-                  },
-              },
-              scales: {
-                  x: {
-                      grid: {
-                          display: false,
-                      },
-                      ticks: {
-                          maxRotation: 0,
-                          maxTicksLimit: 7,
-                      },
-                  },
-                  y: {
-                      min: yConfig.yMin,
-                      max: yConfig.yMax,
-                      ticks: {
-                          stepSize: yConfig.stepSize,
-                          maxTicksLimit: 7,
-                          callback: (value) => new Intl.NumberFormat().format(Math.round(value)), // 정수 및 쉼표 추가
-                      },
-                      grid: {
-                          drawVerticalLine: false,
-                          color: 'rgba(0, 0, 0, 0.1)',
-                      },
-                  },
-              },
-          },
-      });
-
-  };
-
-    const params = buildParams();
-    const queryString = createQueryString(params);
-
-    fetchChartData(queryString)
-        .then(dataList => {
-            const yConfig = getYAxisConfig(dataList);
-            drawChart(ctx, dataList, yConfig);
-        });
-  });
-
-
-
-</script>
-<!-- Github buttons -->
-<script async defer src="https://buttons.github.io/buttons.js"></script>
-<!--   Core JS Files   -->
 <script src="/assets/js/core/popper.min.js"></script>
 <script src="/assets/js/core/bootstrap.min.js"></script>
 <script src="/js/common.js"></script>
+<script src="/js/keyword-analyze.js"></script>
 </body>
 
 </html>

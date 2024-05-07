@@ -1,0 +1,115 @@
+.flex-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/*custom-btn*/
+.btn-custom {
+  border: 1px solid #ccc; /* Light grey border */
+  background-color: white;
+  color: #333;
+  padding: 10px 20px;
+  border-radius: 20px; /* Rounded edges */
+  margin: 5px;
+  font-size: 0.8rem; /* Smaller font size */
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover effect */
+  cursor: pointer;
+  display: inline-flex; /* Aligns icon and text */
+  align-items: center; /* Aligns items vertically */
+}
+
+.btn-custom:hover {
+  background-color: #f0f0f0; /* Light grey background on hover */
+  color: #333;
+}
+
+.btn-custom i {
+  margin-right: 5px; /* Space between icon and text */
+}
+
+.btn-custom-blue {
+  border-color: #007bff; /* Bootstrap primary blue */
+  color: #007bff;
+}
+
+.btn-custom-blue:hover {
+  background-color: #e7f3ff; /* Lighter blue background on hover */
+}
+
+/* FontAwesome icons */
+.icon-left {
+  margin-right: 8px;
+}
+
+/*custom-select*/
+.custom-select-wrapper {
+  width: 110px;
+  position: relative;
+  display: inline-block;
+}
+
+.custom-select {
+  width: 105px;
+  padding: 8px 16px; /* Adjust padding as needed */
+  border: 1px solid #28a745; /* Green border for the element */
+  background-color: #ffffff; /* White background */
+  color: #28a745; /* Green text color */
+  border-radius: 0; /* Square edges */
+  -webkit-appearance: none; /* Removes default Webkit styling */
+  -moz-appearance: none; /* Removes default Mozilla styling */
+  appearance: none; /* Removes default styling */
+  position: relative;
+  font-size: 0.875rem; /* Font size */
+}
+
+/* Custom arrow indicator */
+.custom-select-wrapper::after {
+  content: '\25BC'; /* Unicode down arrow */
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  color: #28a745; /* Green arrow color */
+  pointer-events: none;
+}
+
+/* Remove the focus outline and modify border color */
+.custom-select:focus {
+  outline: none;
+  border-color: #34ce57; /* Light green border for focus */
+}
+
+/* Style adjustments for the dropdown button */
+.dropdown-filter {
+  font-size: 14px; /* Slightly smaller font size */
+  background-color: #32CD32; /* Brighter Green background */
+  border: none; /* Remove border */
+  color: #ffffff; /* White text color */
+  border-radius: 20px; /* Rounded corners */
+}
+
+.dropdown-menu {
+  min-width: 100px; /* Ensures the menu isn't too wide */
+}
+
+.dropdown-menu a {
+  font-size: 14px; /* Smaller font size for menu items */
+}
+
+/*검색 input 박스*/
+.search-input {
+  position: relative;
+}
+
+.search-input .form-control {
+  padding-right: 40px;
+}
+
+.search-input .search-icon {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  color: #aaa;
+}

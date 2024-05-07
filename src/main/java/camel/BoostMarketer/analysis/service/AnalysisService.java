@@ -157,22 +157,28 @@ public class AnalysisService {
 
         List<KeywordDto> relatedkeywordList = naverAdApi.relatedkeywordsAcess(keyword);
 
-        String blogApiResult = naverBlogApi.apiAccess(keyword);
+        resultMap.put("keywordDto", relatedkeywordList.get(0));
+        int totalSearchCnt = relatedkeywordList.get(0).getTotalSearch();
+
+        relatedkeywordList.remove(0); // 첫번째 데이터는 유저가 검색한 키워드에 대한 정보(연관 키워드 XX)
+
+        String totalCountApiResult = naverBlogApi.blogTotalCountApi(keyword);
+        String monthCountApiResult = naverBlogApi.blogMonthCountApi(keyword);
+        String relatedKeywordListApi = naverBlogApi.relatedKeywordListApi(keyword);
 
         ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(totalCountApiResult);
+        JsonNode rootNode2 = objectMapper.readTree(monthCountApiResult);
 
-        // JSON 문자열을 JsonNode로 변환
-        JsonNode rootNode = objectMapper.readTree(blogApiResult);
+        int totalBlogCnt = rootNode.get("result").get("totalCount").asInt();
+        int monthBlogCnt = rootNode2.get("result").get("totalCount").asInt();
 
-        // "items" 필드 가져오기
-        int totalBlogCnt = rootNode.get("total").asInt();
+        int blogSaturation = (int) (((double) monthBlogCnt / totalSearchCnt) * 100);
 
-        if(!relatedkeywordList.isEmpty()){
-            resultMap.put("keywordDto", relatedkeywordList.get(0));
-            relatedkeywordList.remove(0);
-        }
 
+        resultMap.put("blogSaturation", blogSaturation);
         resultMap.put("totalBlogCnt", totalBlogCnt);
+        resultMap.put("monthBlogCnt", monthBlogCnt);
         resultMap.put("mobileSectionList", mobileSectionList);
         resultMap.put("pcSectionList", crawlerResult.get("sectionList"));
         resultMap.put("blogList", crawlerResult.get("blogList"));
