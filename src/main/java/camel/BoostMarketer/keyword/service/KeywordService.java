@@ -229,7 +229,7 @@ public class KeywordService {
         Crawler.sleep("random");
 
         //데이터 가공 및 저장
-        if (!totalSearchResult.isEmpty() && !blogTabResult.isEmpty()) {
+        if (!totalSearchResult.isEmpty() || !blogTabResult.isEmpty()) {
             insertUniqueCrawlerData(keywordDto, blogTabResult, totalSearchResult);
         }
     }
