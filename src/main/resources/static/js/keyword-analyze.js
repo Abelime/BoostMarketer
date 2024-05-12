@@ -282,6 +282,7 @@ $(document).ready(function () {
 
 };
 
+  //차트 벡엔드 통신
   const params = buildParams();
   const queryString = createQueryString(params);
 
@@ -290,6 +291,24 @@ $(document).ready(function () {
           const yConfig = getYAxisConfig(dataList);
           drawChart(ctx, dataList, yConfig);
       });
+
+    const fetchRelatedKeywordData = async () => {
+      try {
+          FunTbodyLoadingBarStart();
+          const param = $("#keyword").val();
+          const response = await fetch(`/related-keyword?keyword=`+param);
+          const dataList = await response.json();
+          return dataList;
+      } catch (error) {
+          console.error('데이터 가져오는 중 오류가 발생했습니다:', error);
+          throw error;
+      }
+  };
+
+    fetchRelatedKeywordData().then(dataList => {
+        populateTable(dataList);
+    });
+
 });
 
 function leftScroll() {
@@ -316,5 +335,32 @@ function updateScrollButtons() {
 }
 
 document.addEventListener('DOMContentLoaded', updateScrollButtons);
+
+function populateTable(dataList) {
+    const tbody = document.getElementById('tbody-content');
+    tbody.innerHTML = '';  // Clear existing table rows
+
+    dataList.forEach(data => {
+        const row = `<tr>
+            <td class="align-middle text-center"><a class="btn btn-link text-dark" href="/keyword-analyze?keyword=${data.keywordName}"><p class="text-xs font-weight-bold mb-0">${data.keywordName}</p></a></td>
+            <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.monthSearchPc)}</p></td>
+            <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.monthSearchMobile)}</p></td>
+            <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.totalSearch)}</p></td>
+            <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.monthBlogCnt)}</p></td>
+            <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.totalBlogCnt)}</p></td>
+            <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatDecimal(data.blogSaturation)}%</p></td>
+        </tr>`;
+        tbody.insertAdjacentHTML('beforeend', row);
+        FunTbodyLoadingBarEnd();
+    });
+}
+
+function formatNumber(value) {
+    return value.toLocaleString();  // Default locale formatting with commas
+}
+
+function formatDecimal(value) {
+    return value.toFixed(1);  // Rounds to one decimal place
+}
 
 

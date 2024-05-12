@@ -1,6 +1,8 @@
 package camel.BoostMarketer.analysis.controller;
 
+import camel.BoostMarketer.analysis.dto.RelatedKeywordDto;
 import camel.BoostMarketer.analysis.service.AnalysisService;
+import camel.BoostMarketer.keyword.controller.KeywordController;
 import camel.BoostMarketer.keyword.dto.KeywordDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import java.util.Map;
 public class AnalysisController {
 
     private final AnalysisService analysisService;
+    private final KeywordController keywordController;
 
     @GetMapping(value = "/analyze-index")
     public String analyzePage() throws Exception {
@@ -34,7 +37,6 @@ public class AnalysisController {
         Map<String, Object> resultMap = analysisService.getAnalyzeDate(keyword);
         List<HashMap<String, String>> pcSectionList = (List<HashMap<String, String>>) resultMap.get("pcSectionList");
         List<HashMap<String, String>> blogList = (List<HashMap<String, String>>) resultMap.get("blogList");
-        List<KeywordDto> relatedkeywordList = (List<KeywordDto>) resultMap.get("relatedkeywordList");
         List<HashMap<String, String>> mobileSectionList = (List<HashMap<String, String>>) resultMap.get("mobileSectionList");
 
         KeywordDto keywordDto = (KeywordDto) resultMap.get("keywordDto");
@@ -47,7 +49,6 @@ public class AnalysisController {
         model.addAttribute("pcSectionList", pcSectionList);
         model.addAttribute("mobileSectionList", mobileSectionList);
         model.addAttribute("blogList", blogList);
-        model.addAttribute("relatedkeywordList", relatedkeywordList);
         model.addAttribute("keywordDto", keywordDto);
         model.addAttribute("keyword", keyword);
         return "pages/keyword-analyze";
@@ -97,5 +98,14 @@ public class AnalysisController {
         return ResponseEntity.ok()
                              .contentType(MediaType.APPLICATION_JSON) // JSON을 명확히 지정
                              .body(responseData);
+    }
+
+    @GetMapping(value = "/related-keyword")
+    public ResponseEntity<?> getRelatedKeywords(@RequestParam(value = "keyword") String keyword) throws Exception {
+        List<RelatedKeywordDto> responseData = analysisService.findRelatedKeywords(keyword);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON) // JSON을 명확히 지정
+                .body(responseData);
     }
 }

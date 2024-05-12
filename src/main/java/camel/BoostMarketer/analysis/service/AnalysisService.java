@@ -1,5 +1,6 @@
 package camel.BoostMarketer.analysis.service;
 
+import camel.BoostMarketer.analysis.dto.RelatedKeywordDto;
 import camel.BoostMarketer.common.api.Crawler;
 import camel.BoostMarketer.common.api.NaverAdApi;
 import camel.BoostMarketer.common.api.NaverBlogApi;
@@ -164,7 +165,6 @@ public class AnalysisService {
 
         String totalCountApiResult = naverBlogApi.blogTotalCountApi(keyword);
         String monthCountApiResult = naverBlogApi.blogMonthCountApi(keyword);
-        String relatedKeywordListApi = naverBlogApi.relatedKeywordListApi(keyword);
 
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(totalCountApiResult);
@@ -172,8 +172,7 @@ public class AnalysisService {
 
         int totalBlogCnt = rootNode.get("result").get("totalCount").asInt();
         int monthBlogCnt = rootNode2.get("result").get("totalCount").asInt();
-
-        int blogSaturation = (int) (((double) monthBlogCnt / totalSearchCnt) * 100);
+        double blogSaturation = (((double) monthBlogCnt / totalSearchCnt) * 100);
 
 
         resultMap.put("blogSaturation", blogSaturation);
@@ -182,7 +181,52 @@ public class AnalysisService {
         resultMap.put("mobileSectionList", mobileSectionList);
         resultMap.put("pcSectionList", crawlerResult.get("sectionList"));
         resultMap.put("blogList", crawlerResult.get("blogList"));
-        resultMap.put("relatedkeywordList", relatedkeywordList);
         return resultMap;
+    }
+
+    public List<RelatedKeywordDto> findRelatedKeywords(String keyword) throws Exception {
+        List<RelatedKeywordDto> relatedKeywordList = new ArrayList<>();
+
+        String relatedKeywordListApi = naverBlogApi.relatedKeywordListApi(keyword);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(relatedKeywordListApi).get("result");
+
+        if (jsonNode != null) {
+            for (JsonNode relatedKeywordNode : jsonNode) {
+                RelatedKeywordDto relatedKeywordDto = new RelatedKeywordDto();
+
+                String relatedKeyword = relatedKeywordNode.asText();
+                relatedKeywordDto.setKeywordName(relatedKeyword);
+
+                int totalSearchCnt = 0;
+
+                HashMap<String, Integer> searchCount = naverAdApi.getSearchCount(relatedKeyword);
+
+                if(!searchCount.isEmpty()){
+                    relatedKeywordDto.setMonthSearchPc(searchCount.get("monthSearchPc"));
+                    relatedKeywordDto.setMonthSearchMobile(searchCount.get("monthSearchMobile"));
+                    totalSearchCnt = searchCount.get("totalSearch");
+                    relatedKeywordDto.setTotalSearch(totalSearchCnt);
+                }
+
+                String totalCountApiResult = naverBlogApi.blogTotalCountApi(relatedKeyword);
+                String monthCountApiResult = naverBlogApi.blogMonthCountApi(relatedKeyword);
+
+                JsonNode rootNode = objectMapper.readTree(totalCountApiResult);
+                JsonNode rootNode2 = objectMapper.readTree(monthCountApiResult);
+
+                int totalBlogCnt = rootNode.get("result").get("totalCount").asInt();
+                int monthBlogCnt = rootNode2.get("result").get("totalCount").asInt();
+                double blogSaturation = (((double) monthBlogCnt / totalSearchCnt) * 100);
+
+                relatedKeywordDto.setMonthBlogCnt(monthBlogCnt);
+                relatedKeywordDto.setTotalBlogCnt(totalBlogCnt);
+                relatedKeywordDto.setBlogSaturation(blogSaturation);
+
+                relatedKeywordList.add(relatedKeywordDto);
+            }
+        }
+        return relatedKeywordList;
     }
 }

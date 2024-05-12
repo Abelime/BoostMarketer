@@ -20,6 +20,7 @@ import java.io.InputStreamReader;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Component
@@ -171,6 +172,68 @@ public class NaverAdApi {
             }
         }
         return resultList;
+    }
+
+    public HashMap<String, Integer> getSearchCount(String keyword) throws InterruptedException, NoSuchAlgorithmException, InvalidKeyException {
+        HashMap<String, Integer> resultMap = new HashMap<>();
+        keyword = keyword.replace(" ", "");
+
+        logger.debug("검색량 조회 API : " + "[" + keyword + "]");
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(API_URL + path).newBuilder();
+        urlBuilder.addQueryParameter("hintKeywords", keyword);
+        urlBuilder.addQueryParameter("showDetail", "1");
+
+        String url = urlBuilder.build().toString();
+
+        String signature = generateSignature(timestamp);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("X-API-KEY", API_KEY)
+                .addHeader("X-CUSTOMER", CUSTOMER_ID)
+                .addHeader("X-Timestamp", timestamp)
+                .addHeader("X-Signature", signature)
+                .build();
+        String responseBody = "";
+        try (Response response = client.newCall(request).execute()) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(response.body().byteStream()))) {
+                StringBuilder responseBuilder = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    responseBuilder.append(line);
+                }
+                responseBody = responseBuilder.toString();
+
+                if (!responseBody.isEmpty()) {
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray keywordList = jsonObject.getJSONArray("keywordList");
+
+                    JSONObject firstKeyword = keywordList.getJSONObject(0);
+
+                    Object monthlyPcQcCntStr = firstKeyword.get("monthlyPcQcCnt");
+                    Object monthlyMobileQcCntStr = firstKeyword.get("monthlyMobileQcCnt");
+
+                    int monthlyPcQcCnt = parseKeywordCount(monthlyPcQcCntStr);
+                    int monthlyMobileQcCnt = parseKeywordCount(monthlyMobileQcCntStr);
+                    int totalSearch = monthlyPcQcCnt + monthlyMobileQcCnt;
+
+                    resultMap.put("monthSearchPc", monthlyPcQcCnt);
+                    resultMap.put("monthSearchMobile", monthlyMobileQcCnt);
+                    resultMap.put("totalSearch", totalSearch);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (RuntimeException e) {
+            if (responseBody.contains("429")) {
+                Thread.sleep(500);
+                return getSearchCount(keyword);
+            }
+        }
+        return resultMap;
     }
 
     private String generateSignature(String timestamp) throws NoSuchAlgorithmException, InvalidKeyException {

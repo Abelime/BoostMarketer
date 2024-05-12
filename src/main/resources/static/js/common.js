@@ -88,4 +88,40 @@ function extracted() {
     window.location.href = currentUrl.pathname + '?' + searchParams.toString();
 }
 
+function FunTbodyLoadingBarStart() {
+    var tbody = $('#tbody-content'); // Target element
+    var position = tbody.offset(); // Get the position of the tbody element
+    var height = tbody.outerHeight(); // Get the outer height of the tbody element
+    var width = tbody.outerWidth(); // Get the outer width of the tbody element
+
+    var backGroundCover = "<div id='back'></div>"; // Overlay cover
+    var loadingBarImage = "<div id='loadingBar'><img src='/img/loading.gif' height='100' width='100' /></div>";
+
+    $('body').append(backGroundCover).append(loadingBarImage); // Append to body
+
+    $('#back').css({
+        'position': 'absolute',
+        'top': position.top,
+        'left': position.left,
+        'width': width,
+        'height': height,
+        'background-color': 'rgba(0,0,0,0.5)',
+        'z-index': '10000',
+        'pointer-events': 'none'
+    });
+
+    $('#loadingBar').css({
+        'position': 'absolute',
+        'top': position.top + height / 2 - 50, // Centering the loading gif vertically
+        'left': position.left + width / 2 - 50, // Centering the loading gif horizontally
+        'z-index': '10001'
+    });
+
+    $('#back').show();
+    $('#loadingBar').show();
+}
+
+function FunTbodyLoadingBarEnd() {
+    $('#back, #loadingBar').hide().remove();
+}
 
