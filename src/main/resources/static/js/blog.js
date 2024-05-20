@@ -121,6 +121,13 @@ function openPopUp(blogId) {
     window.open(url, name, option);
 }
 
+function missingPostPopUp(blogId) {
+    var url = "/blog/popup/missing/" + blogId;
+    var name = "blog_popup";
+    var option = "width = 1100, height = 500, top = 100, left = 200, location = no"
+    window.open(url, name, option);
+}
+
 window.changePage = function (page) {
     window.location.href = '/blog?page=' + page + '&pageSize=' + pageSize + '&sort=' + sort;
 }

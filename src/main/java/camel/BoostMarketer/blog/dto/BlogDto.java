@@ -20,5 +20,6 @@ public class BlogDto extends CommonBlogDto {
     private String UpdateDt;
     private int topPostsCount; //상위노출 게시글수(블로그탭)
     private int totalSearchPostsCount; //상위노출 게시글수(블로그탭)
+    private int missingPostCnt; //누락된 게시글 수
 }
 

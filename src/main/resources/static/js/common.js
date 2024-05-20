@@ -95,7 +95,7 @@ function FunTbodyLoadingBarStart() {
     var width = tbody.outerWidth(); // Get the outer width of the tbody element
 
     var backGroundCover = "<div id='back'></div>"; // Overlay cover
-    var loadingBarImage = "<div id='loadingBar'><img src='/img/loading.gif' height='100' width='100' /></div>";
+    var loadingBarImage = "<div id='loadingBar'><img src='/img/loading.gif' height='30' width='30' /></div>";
 
     $('body').append(backGroundCover).append(loadingBarImage); // Append to body
 

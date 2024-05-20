@@ -29,7 +29,6 @@ public class NaverBlogApi {
     public String blogTotalCountApi(String keyword) {
         keyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
 
-//        String apiURL = "https://openapi.naver.com/v1/search/blog?query=\"" + keyword +"\"" + "&sort=sim&display=100";    // JSON 결과
         String apiURL = "https://section.blog.naver.com/ajax/SearchList.naver?endDate=&startDate=&type=post&keyword=" + keyword;
         Map<String, String> requestHeaders = new HashMap<>();
         requestHeaders.put("Referer", "https://section.blog.naver.com/BlogHome.naver?");
@@ -68,6 +67,18 @@ public class NaverBlogApi {
         String responseBody = get(apiURL, requestHeaders);
         responseBody = responseBody.replace(")]}',", "");
 
+        return responseBody;
+    }
+
+    public String blogMissingCheckApi(String keyword) throws InterruptedException {
+        keyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+
+        String apiURL = "https://section.blog.naver.com/ajax/SearchList.naver?endDate=&startDate=&type=post&keyword=\"" + keyword +"\"";
+        Map<String, String> requestHeaders = new HashMap<>();
+        requestHeaders.put("Referer", "https://section.blog.naver.com/BlogHome.naver?");
+
+        String responseBody = get(apiURL, requestHeaders);
+        responseBody = responseBody.replace(")]}',", "");
         return responseBody;
     }
 

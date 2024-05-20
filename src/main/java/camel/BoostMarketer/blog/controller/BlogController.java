@@ -31,6 +31,7 @@ public class BlogController {
         model.addAttribute("page", page);
         model.addAttribute("pageSize", pageSize);
         model.addAttribute("sort", sort);
+        model.addAttribute("lastUpdateDt", resultMap.get("lastUpdateDt"));
         model.addAttribute("totalCount", resultMap.get("totalBlogCount"));
         model.addAttribute("totalPostCnt", resultMap.get("totalPostCnt"));
         model.addAttribute("blogList", resultMap.get("blogDtoList"));
@@ -56,13 +57,21 @@ public class BlogController {
     }
 
     @GetMapping(value = "/blog/popup/{blogId}")
-    public String keywordPopUp(Model model,@PathVariable("blogId") String blogId) throws Exception {
+    public String blogPopUp(Model model,@PathVariable("blogId") String blogId) throws Exception {
         Map<String, Object> resultMap = blogService.getRankedKeywordsByBlog(blogId);
 
         model.addAttribute("blogInfoDto", resultMap.get("blogInfoDto"));
         model.addAttribute("postInfoList", resultMap.get("postInfoList"));
         model.addAttribute("keywordRankInfo", resultMap.get("keywordRankInfo"));
         return "common/blog-popup";
+    }
+    @GetMapping(value = "/blog/popup/missing/{blogId}")
+    public String blogMissingPopUp(Model model,@PathVariable("blogId") String blogId) throws Exception {
+        Map<String, Object> resultMap = blogService.getMissingPostByBlog(blogId);
+
+        model.addAttribute("blogInfoDto", resultMap.get("blogInfoDto"));
+        model.addAttribute("blogPostDtos", resultMap.get("blogPostDtos"));
+        return "common/blog-missing-popup";
     }
 
 }

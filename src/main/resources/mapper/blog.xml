@@ -24,9 +24,9 @@
 
     <!--  블로그 게시물 정보 등록  -->
     <insert id="registerPosts" parameterType="java.util.List">
-        INSERT INTO blog_post (blog_id, post_no, post_title, post_date, hashtag) VALUES
+        INSERT INTO blog_post (blog_id, post_no, post_title, post_date, hashtag, missing_flag) VALUES
         <foreach item="item" collection="list" separator=",">
-            (#{item.blogId}, #{item.postNo, jdbcType=INTEGER}, #{item.postTitle}, #{item.postDate}, #{item.hashtag})
+            (#{item.blogId}, #{item.postNo, jdbcType=INTEGER}, #{item.postTitle}, #{item.postDate}, #{item.hashtag} ,#{item.missingFlag})
         </foreach>
         ON DUPLICATE KEY UPDATE updated_at = now()
     </insert>
@@ -48,7 +48,8 @@
                COUNT(DISTINCT bp.post_no)                        AS post_cnt,
                DATE_FORMAT(MAX(bg.updated_at), '%Y-%m-%d %H:%i') AS UpdateDt,
                COUNT(DISTINCT CASE WHEN kr.rank_pc != 0 THEN kr.post_no END) AS top_posts_count,
-               COUNT(DISTINCT CASE WHEN kr.total_search_exposure != 0 THEN kr.post_no END) AS total_search_posts_count
+               COUNT(DISTINCT CASE WHEN kr.total_search_exposure != 0 THEN kr.post_no END) AS total_search_posts_count,
+               COUNT(DISTINCT CASE WHEN bp.missing_flag = 1 THEN bp.post_no END) AS missing_post_cnt
         FROM user u
                  JOIN
              blog bg ON u.id = bg.user_id
@@ -271,6 +272,15 @@
         WHERE bp.blog_id = #{blogId}
         GROUP BY bp.post_no, bp.post_title, bp.post_date
         order by bp.post_no desc
+    </select>
+
+    <!--  누락 게시글 정보(팝업창) -->
+    <select id="selectMissingPostByBlogId" parameterType="String" resultType="BlogPostDto">
+        select post_no, post_title, post_date, hashtag
+        from blog_post
+        where blog_id = #{blogId}
+          and missing_flag = 1
+        order by post_date desc
     </select>
 
     <!--  내가 등록한 블로그 ID 조회 -->

@@ -112,7 +112,7 @@
             <div class="card-header pb-0">
               <div class="d-flex bd-highlight">
                 <div class="p-2 flex-grow-1 bd-highlight">
-                  <h6>블로그</h6>
+                  <h6>(최신화 일자 : <span style="color: #00c73c;" th:text="${lastUpdateDt}"></span>)</h6>
                 </div>
                 <div class="p-2 bd-highlight">
                   <div style="width: 145px;" class="page-select-wrapper">
@@ -137,7 +137,7 @@
                       <th class="text-uppercase text-secondary text-xs font-weight-bolder ps-0">게시글 수</th>
                       <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">상위 노출 게시글 수(블로그탭)</th>
                       <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">통합 검색 노출 게시글 수</th>
-                      <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">최신화 일자</th>
+                      <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">게시글 누락 여부</th>
                       <th class="text-center text-uppercase text-xs font-weight-bolder">
                         <a class="btn btn-link text-dark px-3 mb-0" href="#" th:onclick="updateBlog('ALL')"><i class="fas fa-sync-alt text-dark me-2" aria-hidden="true"></i>전체 최신화 요청</a>
                       </th>
@@ -178,10 +178,14 @@
                         </a>
                       </td>
                       <td class="align-middle text-center">
-                        <p class="text-xs font-weight-bold mb-0" th:text="${blog.updateDt}"></p>
+                        <p th:if="${blog.missingPostCnt == 0}" class="text-xs font-weight-bold mb-0" style="color: #008000">정상</p>
+                        <a th:unless="${blog.missingPostCnt == 0}" class="btn btn-link text-dark" target="_blank" th:onclick="missingPostPopUp([[${blog.blogId}]]);">
+                          <p class="text-xs font-weight-bold mb-0" style="color: #FFA500; display: inline-block;">이상</p>
+                          <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                        </a>
                       </td>
                       <td class="align-middle text-center">
-                        <a class="btn btn-link text-dark px-3 mb-0" th:onclick="updateBlog([[${blog.blogId}]]);"><i class="fas fa-sync-alt text-dark me-2" aria-hidden="true"></i>최신화 요청</a>
+<!--                        <a class="btn btn-link text-dark px-3 mb-0" th:onclick="updateBlog([[${blog.blogId}]]);"><i class="fas fa-sync-alt text-dark me-2" aria-hidden="true"></i>최신화 요청</a>-->
                         <a class="btn btn-link text-danger text-gradient px-3 mb-0" th:onclick="deleteBlog([[${blog.blogId}]]);"><i class="far fa-trash-alt me-2"></i>삭제</a>
                       </td>
                       <input type="hidden" name="blogId" th:value="${blog.blogId}"/>

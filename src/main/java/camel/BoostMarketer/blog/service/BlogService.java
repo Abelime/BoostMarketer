@@ -3,13 +3,18 @@ package camel.BoostMarketer.blog.service;
 import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.dto.BlogPostDto;
 import camel.BoostMarketer.blog.mapper.BlogMapper;
+import camel.BoostMarketer.common.api.NaverBlogApi;
 import camel.BoostMarketer.common.dto.CommonBlogDto;
 import camel.BoostMarketer.keyword.mapper.KeywordMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.session.RowBounds;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static camel.BoostMarketer.common.api.Crawler.allPostCrawler;
@@ -20,8 +25,8 @@ import static camel.BoostMarketer.common.api.Crawler.blogInfoCrawler;
 public class BlogService {
 
     private final BlogMapper blogMapper;
-
     private final KeywordMapper keywordMapper;
+    private final NaverBlogApi naverBlogApi;
 
     public Map<String, Object> selectBlogInfo(int page, int pageSize, String sort) throws Exception {
         Map<String, Object> resultMap = new HashMap<>();
@@ -33,11 +38,29 @@ public class BlogService {
         int blogTotalCount = blogMapper.selectBlogCnt(email);
         List<BlogDto> blogDtoList = blogMapper.selectBlogInfo(email, sort, rowBounds);
 
+        // 날짜 형식을 지정
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        // 가장 최신 날짜와 시간을 저장할 변수 초기화
+        LocalDateTime latestDateTime = null;
+
         int totalPostCnt = 0;
         for (BlogDto blogDto : blogDtoList) {
             totalPostCnt += blogDto.getPostCnt();
+
+            LocalDateTime dateTime = LocalDateTime.parse(blogDto.getUpdateDt(), formatter);
+            if (latestDateTime == null || dateTime.isAfter(latestDateTime)) {
+                latestDateTime = dateTime;
+            }
         }
 
+        String lastUpdateDt = "";
+        if (latestDateTime != null) {
+            lastUpdateDt = latestDateTime.format(formatter);
+        }
+
+
+        resultMap.put("lastUpdateDt", lastUpdateDt);
         resultMap.put("blogDtoList", blogDtoList);
         resultMap.put("totalPostCnt", totalPostCnt);
         resultMap.put("totalBlogCount", blogTotalCount);
@@ -50,15 +73,54 @@ public class BlogService {
 
         BlogDto checkBlogDto = blogMapper.checkIfBlogExists(blogId);
 
-        if (checkBlogDto == null) {
-            //블로그 정보
-            BlogDto blogDto = blogInfoCrawler(blogId);
-            //블로그 글
-            List<BlogPostDto> blogPostDtoList = allPostCrawler(Collections.singletonList(blogId), null);
+        if (checkBlogDto == null) { //등록 되어 있지 않은 블로그일때
+            BlogDto blogDto = blogInfoCrawler(blogId); //블로그 정보
+
+            List<BlogPostDto> blogPostDtoList = allPostCrawler(Collections.singletonList(blogId), null); //블로그 글
+
+            // 누락 여부 체크(30개)
+            int missingCheckCount = 0;
+
+            if(blogPostDtoList.size() > 30){
+                missingCheckCount = 30;
+            }else{
+                missingCheckCount = blogPostDtoList.size();
+            }
+
+            for (int i = 0; i < missingCheckCount; i++) {
+                BlogPostDto blogPostDto = blogPostDtoList.get(i);
+                String postNo = blogPostDto.getPostNo();
+                String postTitle = blogPostDto.getPostTitle();
+
+                String responseData = naverBlogApi.blogMissingCheckApi(postTitle);
+
+                JSONObject jsonObject = new JSONObject(responseData);
+                JSONObject result = jsonObject.getJSONObject("result");
+                JSONArray searchList = result.getJSONArray("searchList");
+
+                int missingFlag = 0;
+
+                if (searchList.isEmpty()) {
+                    missingFlag = 1;
+                } else {
+                    for (int y = 0; y < searchList.length(); y++) {
+                        JSONObject item = searchList.getJSONObject(y);
+                        String postUrl = item.getString("postUrl");
+                        if (postUrl.contains(postNo)) {
+                            break;
+                        }else{
+                            missingFlag = 1;
+                        }
+                    }
+                }
+
+                blogPostDto.setMissingFlag(missingFlag);
+            }
+
 
             blogMapper.registerBlog(blogDto, email);
             blogMapper.registerPosts(blogPostDtoList);
-        } else {
+        } else { //등록 되어 있는 블로그 일때
             blogMapper.registerBlog(checkBlogDto, email);
         }
 
@@ -141,6 +203,19 @@ public class BlogService {
         resultMap.put("blogInfoDto", blogInfoDto);
         resultMap.put("postInfoList", postInfoList);
         resultMap.put("keywordRankInfo", keywordRankInfo);
+
+        return resultMap;
+    }
+
+    public HashMap<String, Object> getMissingPostByBlog(String blogId) throws Exception {
+        HashMap<String, Object> resultMap = new HashMap<>();
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        BlogDto blogInfoDto = blogMapper.selectBlogInfoOne(blogId);
+        List<BlogPostDto> blogPostDtos = blogMapper.selectMissingPostByBlogId(blogId);
+
+        resultMap.put("blogInfoDto", blogInfoDto);
+        resultMap.put("blogPostDtos", blogPostDtos);
 
         return resultMap;
     }

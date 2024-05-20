@@ -52,4 +52,6 @@ public interface BlogMapper {
     BlogPostDto selectPostByPostNo(String postNo) throws Exception;
 
     int selectRecentPostCnt(String email) throws Exception;
+
+    List<BlogPostDto> selectMissingPostByBlogId(String blogId);
 }

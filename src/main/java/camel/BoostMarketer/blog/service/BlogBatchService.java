@@ -3,7 +3,10 @@ package camel.BoostMarketer.blog.service;
 import camel.BoostMarketer.blog.dto.BlogPostDto;
 import camel.BoostMarketer.blog.mapper.BlogMapper;
 import camel.BoostMarketer.common.api.Crawler;
+import camel.BoostMarketer.common.api.NaverBlogApi;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,6 +19,7 @@ import java.util.Map;
 public class BlogBatchService {
 
     private final BlogMapper blogMapper;
+    private final NaverBlogApi naverBlogApi;
 
     public void updateBlogPost() throws Exception {
         List<BlogPostDto> blogDtoList = blogMapper.selectAllLastPostNo();
@@ -31,6 +35,36 @@ public class BlogBatchService {
         List<BlogPostDto> blogPostDtoList = Crawler.allPostCrawler(blogIdList, map);
 
         if (!blogPostDtoList.isEmpty()) {
+            for (int i = 0; i < blogPostDtoList.size(); i++) {
+                BlogPostDto blogPostDto = blogPostDtoList.get(i);
+                String postNo = blogPostDto.getPostNo();
+                String postTitle = blogPostDto.getPostTitle();
+
+                String responseData = naverBlogApi.blogMissingCheckApi(postTitle);
+
+                JSONObject jsonObject = new JSONObject(responseData);
+                JSONObject result = jsonObject.getJSONObject("result");
+                JSONArray searchList = result.getJSONArray("searchList");
+
+                int missingFlag = 0;
+
+                if (searchList.isEmpty()) {
+                    missingFlag = 1;
+                } else {
+                    for (int y = 0; y < searchList.length(); y++) {
+                        JSONObject item = searchList.getJSONObject(y);
+                        String postUrl = item.getString("postUrl");
+                        if (postUrl.contains(postNo)) {
+                            break;
+                        }else{
+                            missingFlag = 1;
+                        }
+                    }
+                }
+
+                blogPostDto.setMissingFlag(missingFlag);
+            }
+
             blogMapper.registerPosts(blogPostDtoList);
         }
 
