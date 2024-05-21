@@ -91,8 +91,9 @@ public class BlogService {
                 BlogPostDto blogPostDto = blogPostDtoList.get(i);
                 String postNo = blogPostDto.getPostNo();
                 String postTitle = blogPostDto.getPostTitle();
+                String date = blogPostDto.getPostDate();
 
-                String responseData = naverBlogApi.blogMissingCheckApi(postTitle);
+                String responseData = naverBlogApi.blogMissingCheckApi1(postTitle, date);
 
                 JSONObject jsonObject = new JSONObject(responseData);
                 JSONObject result = jsonObject.getJSONObject("result");
@@ -107,9 +108,27 @@ public class BlogService {
                         JSONObject item = searchList.getJSONObject(y);
                         String postUrl = item.getString("postUrl");
                         if (postUrl.contains(postNo)) {
+                            missingFlag = 0;
                             break;
                         }else{
                             missingFlag = 1;
+                        }
+                    }
+                }
+
+                if(missingFlag == 1){
+                    String responseData2 = naverBlogApi.blogMissingCheckApi2(postTitle, date);
+
+                    JSONObject jsonObject2 = new JSONObject(responseData2);
+                    JSONObject result2 = jsonObject2.getJSONObject("result");
+                    JSONArray searchList2 = result2.getJSONArray("searchList");
+
+                    for (int y = 0; y < searchList2.length(); y++) {
+                        JSONObject item = searchList2.getJSONObject(y);
+                        String postUrl = item.getString("postUrl");
+                        if (postUrl.contains(postNo)) {
+                            missingFlag = 0;
+                            break;
                         }
                     }
                 }
@@ -150,6 +169,56 @@ public class BlogService {
         }
 
         List<BlogPostDto> blogPostDtoList = allPostCrawler(blogIdList, map);
+
+        for (int i = 0; i < blogPostDtoList.size(); i++) {
+            BlogPostDto blogPostDto = blogPostDtoList.get(i);
+            String postNo = blogPostDto.getPostNo();
+            String postTitle = blogPostDto.getPostTitle();
+            String date = blogPostDto.getPostDate();
+
+            String responseData = naverBlogApi.blogMissingCheckApi1(postTitle, date);
+
+            JSONObject jsonObject = new JSONObject(responseData);
+            JSONObject result = jsonObject.getJSONObject("result");
+            JSONArray searchList = result.getJSONArray("searchList");
+
+            int missingFlag = 0;
+
+            if (searchList.isEmpty()) {
+                missingFlag = 1;
+            } else {
+                for (int y = 0; y < searchList.length(); y++) {
+                    JSONObject item = searchList.getJSONObject(y);
+                    String postUrl = item.getString("postUrl");
+                    if (postUrl.contains(postNo)) {
+                        missingFlag = 0;
+                        break;
+                    }else{
+                        missingFlag = 1;
+                    }
+                }
+            }
+
+            if(missingFlag == 1){
+                String responseData2 = naverBlogApi.blogMissingCheckApi2(postTitle, date);
+
+                JSONObject jsonObject2 = new JSONObject(responseData2);
+                JSONObject result2 = jsonObject2.getJSONObject("result");
+                JSONArray searchList2 = result2.getJSONArray("searchList");
+
+                for (int y = 0; y < searchList2.length(); y++) {
+                    JSONObject item = searchList2.getJSONObject(y);
+                    String postUrl = item.getString("postUrl");
+                    if (postUrl.contains(postNo)) {
+                        missingFlag = 0;
+                        break;
+                    }
+                }
+            }
+
+
+            blogPostDto.setMissingFlag(missingFlag);
+        }
 
         if (!blogPostDtoList.isEmpty()) {
             blogMapper.registerPosts(blogPostDtoList);
@@ -223,4 +292,44 @@ public class BlogService {
     public BlogPostDto selectPostInfo(String postNo) throws Exception {
         return blogMapper.selectPostByPostNo(postNo);
     }
+
+//    public void updateBlogMissingPost() {
+//        List<String> blogIds = blogMapper.adminTest1();
+//        for (String blogId : blogIds) {
+//            List<BlogPostDto> blogPostDtos = blogMapper.adminTest(blogId);
+//
+//            for (int i = 0; i < blogPostDtos.size(); i++) {
+//                BlogPostDto blogPostDto = blogPostDtos.get(i);
+//                String postNo = blogPostDto.getPostNo();
+//                String postTitle = blogPostDto.getPostTitle();
+//
+//                String responseData = naverBlogApi.blogMissingCheckApi(postTitle);
+//
+//                JSONObject jsonObject = new JSONObject(responseData);
+//                JSONObject result = jsonObject.getJSONObject("result");
+//                JSONArray searchList = result.getJSONArray("searchList");
+//
+//                int missingFlag = 0;
+//
+//                if (searchList.isEmpty()) {
+//                    missingFlag = 1;
+//                } else {
+//                    for (int y = 0; y < searchList.length(); y++) {
+//                        JSONObject item = searchList.getJSONObject(y);
+//                        String postUrl = item.getString("postUrl");
+//                        if (postUrl.contains(postNo)) {
+//                            break;
+//                        }else{
+//                            missingFlag = 1;
+//                        }
+//                    }
+//                }
+//
+//                blogPostDto.setMissingFlag(missingFlag);
+//            }
+//
+//            blogMapper.adminTest3(blogPostDtos);
+//        }
+//
+//    }
 }

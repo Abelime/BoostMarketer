@@ -39,8 +39,9 @@ public class BlogBatchService {
                 BlogPostDto blogPostDto = blogPostDtoList.get(i);
                 String postNo = blogPostDto.getPostNo();
                 String postTitle = blogPostDto.getPostTitle();
+                String date = blogPostDto.getPostDate();
 
-                String responseData = naverBlogApi.blogMissingCheckApi(postTitle);
+                String responseData = naverBlogApi.blogMissingCheckApi1(postTitle, date);
 
                 JSONObject jsonObject = new JSONObject(responseData);
                 JSONObject result = jsonObject.getJSONObject("result");
@@ -55,12 +56,31 @@ public class BlogBatchService {
                         JSONObject item = searchList.getJSONObject(y);
                         String postUrl = item.getString("postUrl");
                         if (postUrl.contains(postNo)) {
+                            missingFlag = 0;
                             break;
                         }else{
                             missingFlag = 1;
                         }
                     }
                 }
+
+                if(missingFlag == 1){
+                    String responseData2 = naverBlogApi.blogMissingCheckApi2(postTitle, date);
+
+                    JSONObject jsonObject2 = new JSONObject(responseData2);
+                    JSONObject result2 = jsonObject2.getJSONObject("result");
+                    JSONArray searchList2 = result2.getJSONArray("searchList");
+
+                    for (int y = 0; y < searchList2.length(); y++) {
+                        JSONObject item = searchList2.getJSONObject(y);
+                        String postUrl = item.getString("postUrl");
+                        if (postUrl.contains(postNo)) {
+                            missingFlag = 0;
+                            break;
+                        }
+                    }
+                }
+
 
                 blogPostDto.setMissingFlag(missingFlag);
             }

@@ -65,6 +65,7 @@ public class BlogController {
         model.addAttribute("keywordRankInfo", resultMap.get("keywordRankInfo"));
         return "common/blog-popup";
     }
+
     @GetMapping(value = "/blog/popup/missing/{blogId}")
     public String blogMissingPopUp(Model model,@PathVariable("blogId") String blogId) throws Exception {
         Map<String, Object> resultMap = blogService.getMissingPostByBlog(blogId);
