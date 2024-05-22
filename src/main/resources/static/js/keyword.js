@@ -363,3 +363,23 @@ $(document).ready(function () {
         }
     });
 });
+
+function updateKeyword() {
+    FunLoadingBarStart();
+    // Fetch API를 사용하여 요청 보내기
+    fetch('/keyword-update', {
+        method: 'PUT',
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('서버 응답이 실패했습니다.');
+            }
+            location.replace('/keyword?pageSize=' + pageSize + '&filterCategory=' + filterCategory + '&sort=' + sort + '&inputCategory=' + inputCategory);
+        })
+        .catch(error => {
+            console.error('오류가 발생했습니다:', error);
+        })
+        .finally(() => {
+            FunLoadingBarEnd();
+        });
+}

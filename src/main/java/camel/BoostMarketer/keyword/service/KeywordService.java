@@ -140,7 +140,7 @@ public class KeywordService {
         UserDto userDto = userMapper.findByEmail(email);
 
         HashMap<String, Object> map = new HashMap<>();
-        map.put("id",userDto.getId().toString());
+        map.put("id", userDto.getId().toString());
         map.put("keywordIds", keywordIds);
 
         keywordMapper.deleteKeyDict(map);
@@ -155,7 +155,7 @@ public class KeywordService {
 
     public void keywordFix(Long keywordId) throws Exception {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        keywordMapper.keywordFix(email,keywordId);
+        keywordMapper.keywordFix(email, keywordId);
     }
 
     public List<KeywordDto> selectKeywordInfo(String postNo) throws Exception {
@@ -172,7 +172,7 @@ public class KeywordService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         param.put("email", email);
 
-        for(int i=0; i<categoryIdList.size(); i++){
+        for (int i = 0; i < categoryIdList.size(); i++) {
             param.put("categoryId", categoryIdList.get(i));
             param.put("categoryName", categoryNameList.get(i));
             keywordMapper.updateCategory(param);
@@ -262,5 +262,20 @@ public class KeywordService {
         if (!keywordDtoList.isEmpty()) {
             keywordMapper.upsertKeywordRank(keywordDtoList);
         }
+    }
+
+    public void updateKeyword() throws Exception {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        UserDto userDto = userMapper.findByEmail(email);
+        Long userId = userDto.getId();
+
+        List<String> blogIdList = blogMapper.findBlogIdByUserId(userId);
+        List<KeywordDto> keywordList = keywordMapper.findKeywordNameByUserId(userId);
+
+        int attempts = 0;
+        cralwerProcess(keywordList, blogIdList, attempts);
+
+        Crawler.headerData.clear();
     }
 }

@@ -213,7 +213,9 @@
                     <th colspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">블로그탭 순위</th>
                     <th colspan="1" class="text-center text-uppercase text-secondary text-xs font-weight-bolder">통합검색</th>
                     <th rowspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 10%">조회하기</th>
-                    <th rowspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 10%"></th>
+                    <th rowspan="2" class="text-center text-uppercase text-secondary text-xs font-weight-bolder" style="width: 10%">
+                      <a th:if="${role eq 'admin'}" class="btn btn-link text-dark px-3 mb-0" href="#" th:onclick="updateKeyword()"><i class="fas fa-sync-alt text-dark me-2" aria-hidden="true"></i>전체 최신화 요청</a>
+                    </th>
                   </tr>
                   <tr>
                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">PC</th>

@@ -10,15 +10,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -44,6 +45,14 @@ public class KeywordController {
         Map<String, Object> resultMap = keywordService.selectKeywordsInfo(page, pageSize, filterCategory, sort, searchKeyword);
         List<KeywordDto> categoryList = keywordService.selectCategoryInfo();
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        Iterator<? extends GrantedAuthority> iter = authorities.iterator();
+        GrantedAuthority auth = iter.next();
+        String role = auth.getAuthority();
+
+        model.addAttribute("role", role);
         model.addAttribute("categoryList", categoryList);
         model.addAttribute("sort", sort);
         model.addAttribute("searchKeyword", searchKeyword);
@@ -128,6 +137,12 @@ public class KeywordController {
         return ResponseEntity.ok()
                              .headers(headers)
                              .body(in.readAllBytes());
+    }
+
+    @PutMapping("/keyword-update")
+    public ResponseEntity<?> updateKeyword() throws Exception {
+        keywordService.updateKeyword();
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 

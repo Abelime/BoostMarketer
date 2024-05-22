@@ -18,7 +18,11 @@ public class CustomUserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserDto userDto = userMapper.findByEmail(username);
-        userDto.setRole("ROLE_USER");
+        if(userDto.getId() == 26 || userDto.getId() == 10 || userDto.getId() == 12){
+            userDto.setRole("admin");
+        }else{
+            userDto.setRole("ROLE_USER");
+        }
         return new CustomUserDto(userDto);
 
     }
