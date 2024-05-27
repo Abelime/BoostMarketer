@@ -257,12 +257,12 @@ public class Crawler {
         return hrefValues;
     }
 
-    public static Map<String, List<HashMap<String, String>>> pcSearchCrawler(String keyword) throws Exception {
+    public static Map<String, Object> pcSearchCrawler(String keyword) throws Exception {
         List<HashMap<String, String>> sectionList = new ArrayList<>();
         List<HashMap<String, String>> blogList = new ArrayList<>();
-        List<HashMap<String, List<String>>> smartBlockContentList = new ArrayList<>();
+        List<String> smartBlockList = new ArrayList<>();
 
-        Map<String, List<HashMap<String, String>>> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
 
         String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
         String url = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword;
@@ -363,14 +363,14 @@ public class Crawler {
                 String[] lines = scriptContent.split(",");
                 for (String line : lines) {
                     if (line.trim().contains("\"text\":{\"content\"")) {
-                        String text = line.replace("\"text\":{\"content\":\"", "").replace("\"}}}","").replace("]","");
-
-//                        System.out.println(text);
+                        String smartBlockTitle = line.replace("\"text\":{\"content\":\"", "").replace("\"}}}","").replace("]","");
+                        smartBlockList.add(smartBlockTitle);
                     }
                 }
             }
         }
 
+        result.put("smartBlockList", smartBlockList);
         result.put("sectionList", sectionList);
         result.put("blogList", blogList);
 

@@ -341,8 +341,18 @@ function populateTable(dataList) {
     tbody.innerHTML = '';  // Clear existing table rows
 
     dataList.forEach(data => {
+        const keywordNameUpper = data.keywordName.toUpperCase();
+        const label = smartBlockList.includes(keywordNameUpper)
+                      ? '<span class="label-green ms-3">스블</span>'
+                      : '<span class="label-orange ms-3">연관</span>';
+
         const row = `<tr>
-            <td class="align-middle text-center"><a class="btn btn-link text-dark" href="/keyword-analyze?keyword=${data.keywordName}"><p class="text-xs font-weight-bold mb-0">${data.keywordName}</p></a></td>
+            <td class="align-middle text-center d-flex align-items-center">
+                ${label}
+                <a class="btn btn-link text-dark" href="/keyword-analyze?keyword=${data.keywordName}">
+                    <p class="text-xs font-weight-bold mb-0" style="display: inline-block;">${data.keywordName}</p>
+                </a>
+            </td>
             <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.monthSearchPc)}</p></td>
             <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.monthSearchMobile)}</p></td>
             <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.totalSearch)}</p></td>
@@ -350,6 +360,7 @@ function populateTable(dataList) {
             <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.totalBlogCnt)}</p></td>
             <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatDecimal(data.blogSaturation)}%</p></td>
         </tr>`;
+
         tbody.insertAdjacentHTML('beforeend', row);
         FunTbodyLoadingBarEnd();
     });
@@ -364,3 +375,59 @@ function formatDecimal(value) {
 }
 
 
+function sortTable(columnIndex) {
+    const table = document.querySelector(".keyword-table");
+    const tbody = table.querySelector("tbody");
+    const rowsArray = Array.from(tbody.rows);
+    const headers = table.querySelectorAll("thead tr:nth-child(2) th button");
+    const header = headers[columnIndex - 1].parentElement;
+    const currentIcon = header.querySelector('.sort-icon');
+    let direction = currentIcon.classList.contains('fa-sort-down') ? 'desc' : 'asc';
+
+    rowsArray.sort((a, b) => {
+        const aText = a.cells[columnIndex].innerText.replace(/,/g, '').replace('%', '');
+        const bText = b.cells[columnIndex].innerText.replace(/,/g, '').replace('%', '');
+
+        const aValue = isNaN(aText) ? aText : Number(aText);
+        const bValue = isNaN(bText) ? bText : Number(bText);
+
+        if (direction === 'asc') {
+            return aValue > bValue ? 1 : -1;
+        } else {
+            return aValue < bValue ? 1 : -1;
+        }
+    });
+
+    tbody.innerHTML = '';
+
+    rowsArray.forEach(row => {
+        tbody.appendChild(row);
+    });
+
+    headers.forEach(button => {
+        const icon = button.querySelector('.sort-icon');
+        const text = button.querySelector('span');
+        if (icon) {
+            icon.classList.remove('fa-sort-down', 'fa-sort-up','text-dark');
+            icon.classList.add('fa-sort', 'text-secondary');
+        }
+        if (text) {
+            text.classList.remove('text-dark');
+            text.classList.add('text-secondary');
+        }
+    });
+
+    if (direction === 'asc') {
+        currentIcon.classList.remove('fa-sort', 'text-secondary');
+        currentIcon.classList.add('fa-sort-down','text-dark');
+    } else {
+        currentIcon.classList.remove('fa-sort', 'text-secondary');
+        currentIcon.classList.add('fa-sort-up','text-dark');
+    }
+
+    const currentText = header.querySelector('span');
+    if (currentText) {
+        currentText.classList.remove('text-secondary');
+        currentText.classList.add('text-dark');
+    }
+}

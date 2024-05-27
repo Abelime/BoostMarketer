@@ -152,16 +152,16 @@ public class AnalysisService {
 
     public Map<String, Object> getAnalyzeDate(String keyword) throws Exception {
         Map<String, Object> resultMap = new HashMap<>();
+        KeywordDto keywordDto = new KeywordDto();
+        keywordDto.setKeywordName(keyword);
 
-        Map<String, List<HashMap<String, String>>> crawlerResult = Crawler.pcSearchCrawler(keyword);
+        Map<String, Object> crawlerResult = Crawler.pcSearchCrawler(keyword);
         List<HashMap<String, String>> mobileSectionList = Crawler.mobileSectionSearchCrawler(keyword);
 
-        List<KeywordDto> relatedkeywordList = naverAdApi.relatedkeywordsAcess(keyword);
+        naverAdApi.apiAccess(keywordDto);
 
-        resultMap.put("keywordDto", relatedkeywordList.get(0));
-        int totalSearchCnt = relatedkeywordList.get(0).getTotalSearch();
+        int totalSearchCnt = keywordDto.getTotalSearch();
 
-        relatedkeywordList.remove(0); // 첫번째 데이터는 유저가 검색한 키워드에 대한 정보(연관 키워드 XX)
 
         String totalCountApiResult = naverBlogApi.blogTotalCountApi(keyword);
         String monthCountApiResult = naverBlogApi.blogMonthCountApi(keyword);
@@ -174,11 +174,12 @@ public class AnalysisService {
         int monthBlogCnt = rootNode2.get("result").get("totalCount").asInt();
         double blogSaturation = (((double) monthBlogCnt / totalSearchCnt) * 100);
 
-
+        resultMap.put("keywordDto", keywordDto);
         resultMap.put("blogSaturation", blogSaturation);
         resultMap.put("totalBlogCnt", totalBlogCnt);
         resultMap.put("monthBlogCnt", monthBlogCnt);
         resultMap.put("mobileSectionList", mobileSectionList);
+        resultMap.put("smartBlockList", crawlerResult.get("smartBlockList"));
         resultMap.put("pcSectionList", crawlerResult.get("sectionList"));
         resultMap.put("blogList", crawlerResult.get("blogList"));
         return resultMap;

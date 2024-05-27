@@ -93,6 +93,7 @@ public class NaverAdApi {
 
                     keywordDto.setMonthSearchPc(monthlyPcQcCnt);
                     keywordDto.setMonthSearchMobile(monthlyMobileQcCnt);
+                    keywordDto.setTotalSearch(monthlyPcQcCnt + monthlyMobileQcCnt);
                 }
             }
         } catch (IOException e) {

@@ -3,7 +3,6 @@ package camel.BoostMarketer.analysis.controller;
 import camel.BoostMarketer.analysis.dto.RelatedKeywordDto;
 import camel.BoostMarketer.analysis.service.AnalysisService;
 import camel.BoostMarketer.keyword.controller.KeywordController;
-import camel.BoostMarketer.keyword.dto.KeywordDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -39,48 +38,18 @@ public class AnalysisController {
         List<HashMap<String, String>> blogList = (List<HashMap<String, String>>) resultMap.get("blogList");
         List<HashMap<String, String>> mobileSectionList = (List<HashMap<String, String>>) resultMap.get("mobileSectionList");
 
-        KeywordDto keywordDto = (KeywordDto) resultMap.get("keywordDto");
 
-//        analysisService.searchTrends(request.getParameter("keyword"),request.getParameter("startDate"),request.getParameter("endDate"))
-
+        model.addAttribute("smartBlockList", resultMap.get("smartBlockList"));
         model.addAttribute("totalBlogCnt", resultMap.get("totalBlogCnt"));
         model.addAttribute("monthBlogCnt", resultMap.get("monthBlogCnt"));
         model.addAttribute("blogSaturation", resultMap.get("blogSaturation"));
+        model.addAttribute("keywordDto", resultMap.get("keywordDto"));
         model.addAttribute("pcSectionList", pcSectionList);
         model.addAttribute("mobileSectionList", mobileSectionList);
         model.addAttribute("blogList", blogList);
-        model.addAttribute("keywordDto", keywordDto);
         model.addAttribute("keyword", keyword);
         return "pages/keyword-analyze";
-
-
-//        if(request.getParameter("keyword")!=null&& !request.getParameter("keyword").equals("")&&
-//                request.getParameter("startDate")!=null && !request.getParameter("startDate").equals("")){
-//            model.addAttribute("dataList",analysisService.searchTrends(request.getParameter("keyword"),request.getParameter("startDate"),request.getParameter("endDate")));
-//        }
-//        if(request.getParameter("keyword")!=null && !request.getParameter("keyword").equals("")){
-//            model.addAttribute("dataList2", Crawler.sectionSearchCrawler(request.getParameter("keyword")));
-//            model.addAttribute("dataList3", Crawler.blogtabPostingCrawler(request.getParameter("keyword")));
-//        }
-//        model.addAttribute("keyword",request.getParameter("keyword"));
-//        //return new ResponseEntity<>(HttpStatus.CREATED);
-//        return "pages/keyword-analyze";
     }
-
-//    @GetMapping(value = "/trends2")
-//    public String registerTrends2(Model model, HttpServletRequest request) throws Exception {
-//        if (request.getParameter("keyword") != null && !request.getParameter("keyword").equals("")) {
-//            model.addAttribute("dataList",
-////                    analysisService.searchTrends2(request.getParameter("keyword"), request.getParameter("startYear"), request.getParameter("startMonth"), request.getParameter("endYear"), request.getParameter("endMonth")));
-//        }
-//        if (request.getParameter("keyword") != null && !request.getParameter("keyword").equals("")) {
-////            model.addAttribute("dataList2", Crawler.sectionSearchCrawler(request.getParameter("keyword")));
-////            model.addAttribute("dataList3", Crawler.blogtabPostingCrawler(request.getParameter("keyword")));
-//        }
-//        model.addAttribute("keyword", request.getParameter("keyword"));
-//        //return new ResponseEntity<>(HttpStatus.CREATED);
-//        return "keyword-analyze";
-//    }
 
     @GetMapping(value = "/trendsChart")
     public ResponseEntity<?> registerTrendsChart(HttpServletRequest request) throws Exception {

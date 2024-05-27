@@ -228,7 +228,7 @@
                   </thead>
                   <tbody>
                   <tr th:each="keyword : ${keywordList}">
-                    <td class="align-middle text-center" style="position: relative; display: flex; align-items: center;">
+                    <td class="align-middle text-center d-flex align-items-center">
                       <div class="form-check me-3">
                         <input class="form-check-input" type="checkbox" th:value="${keyword.keywordId}" name="checkbox" id="flexCheckDefault" style="display: none">
                         <label class="form-check-label" for="flexCheckDefault">

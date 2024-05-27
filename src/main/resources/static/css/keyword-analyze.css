@@ -74,3 +74,25 @@
 .scroll-container::-webkit-scrollbar {
     display: none;
 }
+
+/*연관 라벨*/
+.label-orange {
+    display: inline-block;
+    background-color: orange;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+/*스블 라벨*/
+.label-green {
+    display: inline-block;
+    background-color: green;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+}
