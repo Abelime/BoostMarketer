@@ -1,5 +1,6 @@
 package camel.BoostMarketer.analysis.controller;
 
+import camel.BoostMarketer.analysis.dto.NaverContentDto;
 import camel.BoostMarketer.analysis.dto.RelatedKeywordDto;
 import camel.BoostMarketer.analysis.service.AnalysisService;
 import camel.BoostMarketer.keyword.controller.KeywordController;
@@ -33,13 +34,15 @@ public class AnalysisController {
 
     @GetMapping(value = "/keyword-analyze")
     public String registerTrends(@RequestParam(value = "keyword") String keyword, Model model) throws Exception {
-        Map<String, Object> resultMap = analysisService.getAnalyzeDate(keyword);
+        Map<String, Object> resultMap = analysisService.getAnalyzeData(keyword);
         List<HashMap<String, String>> pcSectionList = (List<HashMap<String, String>>) resultMap.get("pcSectionList");
         List<HashMap<String, String>> blogList = (List<HashMap<String, String>>) resultMap.get("blogList");
         List<HashMap<String, String>> mobileSectionList = (List<HashMap<String, String>>) resultMap.get("mobileSectionList");
 
 
         model.addAttribute("smartBlockList", resultMap.get("smartBlockList"));
+        model.addAttribute("naverContentDtoList", resultMap.get("naverContentDtoList"));
+        model.addAttribute("smartBlockHrefList", resultMap.get("smartBlockHrefList"));
         model.addAttribute("totalBlogCnt", resultMap.get("totalBlogCnt"));
         model.addAttribute("monthBlogCnt", resultMap.get("monthBlogCnt"));
         model.addAttribute("blogSaturation", resultMap.get("blogSaturation"));
@@ -72,6 +75,15 @@ public class AnalysisController {
     @GetMapping(value = "/related-keyword")
     public ResponseEntity<?> getRelatedKeywords(@RequestParam(value = "keyword") String keyword) throws Exception {
         List<RelatedKeywordDto> responseData = analysisService.findRelatedKeywords(keyword);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON) // JSON을 명확히 지정
+                .body(responseData);
+    }
+
+    @GetMapping(value = "/smart-block-contents")
+    public ResponseEntity<?> smartBlockContent(@RequestParam(value = "link") String link) throws Exception {
+        List<NaverContentDto> responseData = analysisService.findNaverContents(link);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON) // JSON을 명확히 지정

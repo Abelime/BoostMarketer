@@ -36,7 +36,37 @@
   <link href="/css/table.css" rel="stylesheet" />
   <link href="/css/common.css" rel="stylesheet" />
   <link href="/css/keyword-analyze.css" rel="stylesheet" />
+  <style>
+    /* 테이블 스타일 */
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9em;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
+    .content-table thead th {
+      background-color: #f8f9fa;
+      color: #495057;
+      font-weight: bold;
+      text-align: center;
+      padding: 12px 15px;
+      border-bottom: 2px solid #dee2e6;
+    }
+
+    .content-table tbody td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .content-table tbody tr:nth-of-type(even) {
+      background-color: #f3f3f3;
+    }
+
+    .content-table tbody tr:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
 </head>
 
 <body class="g-sidenav-show  bg-gray-100">
@@ -204,38 +234,60 @@
             <div class="d-flex justify-content-between align-items-center">
               <h6 class="mb-0">통합검색 노출 컨텐츠</h6>
             </div>
-            <div class="navigation-wrapper mt-2">
-              <button class="btn btn-link text scroll-btn left-btn" onclick="leftScroll()" disabled><i class="fas fa-chevron-left"></i></button>
-              <div class="scroll-container">
-                <a class="btn text-dark" th:each="smartBlock : ${smartBlockList}" th:text="${smartBlock}"></a>
-              </div>
-              <button class="btn btn-link text scroll-btn right-btn" onclick="rightScroll()"><i class="fas fa-chevron-right"></i></button>
-            </div>
           </div>
           <div class="card-body pt-4 p-3">
+            <div th:if="${#lists.size(smartBlockList) > 0}">
+              <div class="navigation-wrapper mt-2" style="border-bottom: 2px solid #ddd;">
+                <button class="btn btn-link text scroll-btn left-btn" onclick="leftScroll()" disabled><i class="fas fa-chevron-left"></i></button>
+                <div class="scroll-container">
+                  <ul class="nav nav-tabs text-sm font-weight-bolder">
+                    <li class="nav-item" th:each="smartBlock, stat : ${smartBlockList}">
+                        <a class="nav-link text-secondary smart-block" href="#" th:onclick="'getSmartBlockData(' + ${stat.index} + ')'" th:text="${smartBlock}"></a>
+                    </li>
+                  </ul>
+                </div>
+                <button class="btn btn-link text scroll-btn right-btn" onclick="rightScroll()"><i class="fas fa-chevron-right"></i></button>
+              </div>
+            </div>
             <div class="table-responsive p-0">
-              <table class="table align-items-center mb-0">
+              <table class="content-table align-items-center mb-0">
                 <thead>
                 <tr>
-                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">순위</th>
-                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">작성자</th>
-                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">게시글</th>
-                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">발행일</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">제목</th>
                   <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">글자수</th>
                   <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">사진수</th>
-                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">방문자 수</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">영상수</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">외부링크수</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">발행일</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">방문자수</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">댓글수</th>
                 </tr>
                 </thead>
-                <tbody>
-                <tr th:each="blog : ${blogList}">
-                  <td class="align-middle ">
-                    <p class="text-xs font-weight-bold mb-0" th:text="${blog.blogName}"></p>
+                <tbody id="content-info-tbody">
+                <tr th:each="naverContent, stat : ${naverContentDtoList}">
+                  <td>
+                    <a class="btn btn-link text-dark text-xs font-weight-bold mb-0" th:href="${naverContent.url}" target="_blank" th:text="${naverContent.title}"></a>
                   </td>
-                  <td class="align-middle ">
-                    <a target="_blank" th:href="${blog.glUrl}"><p class="text-xs font-weight-bold mb-0" th:text="${blog.glName}"></p></a>
+                  <td class="align-middle text-center">
+                    <p class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.textCount == 0 ? '0' : #numbers.formatInteger(naverContent.textCount, 1, 'COMMA')}"></p>
                   </td>
-                  <td class="align-middle ">
-                    <p class="text-xs font-weight-bold mb-0" th:text="${blog.glTime}"></p>
+                  <td class="align-middle text-center">
+                    <p class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.imageCount == 0 ? '0' : #numbers.formatInteger(naverContent.imageCount, 1, 'COMMA')}"></p>
+                  </td>
+                  <td class="align-middle text-center">
+                    <p class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.videoCount == 0 ? '0' : #numbers.formatInteger(naverContent.videoCount, 1, 'COMMA')}"></p>
+                  </td>
+                  <td class="align-middle text-center">
+                    <p class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.linkCount == 0 ? '0' : #numbers.formatInteger(naverContent.linkCount, 1, 'COMMA')}"></p>
+                  </td>
+                  <td class="align-middle text-center">
+                    <p class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.date}"></p>
+                  </td>
+                  <td class="align-middle text-center">
+                    <p class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.visitorCount == 0 ? '0' : #numbers.formatInteger(naverContent.visitorCount, 1, 'COMMA')}"></p>
+                  </td>
+                  <td class="align-middle text-center">
+                    <p class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.commentCount == 0 ? '0' : #numbers.formatInteger(naverContent.commentCount, 1, 'COMMA')}"></p>
                   </td>
                 </tr>
                 </tbody>
@@ -349,10 +401,11 @@
 <script src="/assets/js/core/bootstrap.min.js"></script>
 <script src="/js/common.js"></script>
 <script src="/js/keyword-analyze.js"></script>
-<script>
-  /*<![CDATA[*/
-  const smartBlockList = '[[${smartBlockList}]]';
-  /*]]>*/
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const smartBlockList = /*[[${smartBlockList}]]*/ [];
+    const smartBlockHrefList  = /*[[${smartBlockHrefList }]]*/ [];
+    /*]]>*/
 </script>
 </body>
 

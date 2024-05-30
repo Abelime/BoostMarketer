@@ -59,10 +59,11 @@
 }
 
 .scroll-container {
-    overflow-x: auto;
-    flex-grow: 1;
-    display: flex;
-    scroll-behavior: smooth;
+  overflow-x: auto;
+  flex-grow: 1;
+  display: flex;
+  scroll-behavior: smooth;
+  white-space: nowrap; /* Ensure content stays on one line */
 }
 
 .scroll-btn {
@@ -73,6 +74,15 @@
 /* 스크롤바 숨기기 */
 .scroll-container::-webkit-scrollbar {
     display: none;
+}
+
+.nav-link.active {
+  background-color: #28a745 !important;
+  color: white !important;
+}
+
+.nav-tabs {
+  flex-wrap: nowrap; /* Prevent wrapping to the next line */
 }
 
 /*연관 라벨*/

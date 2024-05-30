@@ -88,8 +88,8 @@ function extracted() {
     window.location.href = currentUrl.pathname + '?' + searchParams.toString();
 }
 
-function FunTbodyLoadingBarStart() {
-    var tbody = $('#tbody-content'); // Target element
+function FunTbodyLoadingBarStart(tbodyId) {
+    var tbody = $(tbodyId); // Target element
     var position = tbody.offset(); // Get the position of the tbody element
     var height = tbody.outerHeight(); // Get the outer height of the tbody element
     var width = tbody.outerWidth(); // Get the outer width of the tbody element

@@ -294,7 +294,7 @@ $(document).ready(function () {
 
     const fetchRelatedKeywordData = async () => {
       try {
-          FunTbodyLoadingBarStart();
+          FunTbodyLoadingBarStart('#tbody-content');
           const param = $("#keyword").val();
           const response = await fetch(`/related-keyword?keyword=`+param);
           const dataList = await response.json();
@@ -308,6 +308,13 @@ $(document).ready(function () {
     fetchRelatedKeywordData().then(dataList => {
         populateTable(dataList);
     });
+
+    // 모든 nav-item 요소를 선택
+    const smartBlock = $('.smart-block');
+    // 첫 번째 nav-item 요소에 active 클래스 추가
+    if (smartBlock.length > 0) {
+        smartBlock.eq(0).addClass('active');
+    }
 
 });
 
@@ -431,3 +438,76 @@ function sortTable(columnIndex) {
         currentText.classList.add('text-dark');
     }
 }
+
+$('.smart-block').on('click', function(){
+  $('.smart-block').removeClass('active');
+  $(this).addClass('active');
+});
+
+function getSmartBlockData(index) {
+    FunTbodyLoadingBarStart('#content-info-tbody');
+    // Prevent the default action of the event
+    if (event) event.preventDefault();
+
+    const url = smartBlockHrefList[index];
+
+    // Fetch data from the server
+    fetchSmartBlockData(url).then(contentInfoList => {
+        contentInfoTable(contentInfoList);
+    }).catch(error => {
+        console.error('데이터 가져오는 중 오류가 발생했습니다:', error);
+    });
+}
+
+async function fetchSmartBlockData(url) {
+    try {
+        const response = await fetch(`/smart-block-contents?link=` + encodeURIComponent(url));
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const contentInfoList = await response.json();
+        return contentInfoList;
+    } catch (error) {
+        console.error('데이터 가져오는 중 오류가 발생했습니다:', error);
+        throw error;
+    }
+}
+
+function contentInfoTable(contentInfoList) {
+    const tbody = document.getElementById('content-info-tbody');
+    tbody.innerHTML = '';  // Clear existing table rows
+
+    contentInfoList.forEach(data => {
+        const row = `<tr>
+                          <td>
+                            <a class="btn btn-link text-dark text-xs font-weight-bold mb-0" href="${data.url}" target="_blank">${data.title}</a>
+                          </td>
+                          <td class="align-middle text-center">
+                            <p class="text-dark text-xs font-weight-bold mb-0">${formatNumber(data.textCount)}</p>
+                          </td>
+                          <td class="align-middle text-center">
+                            <p class=" text-dark text-xs font-weight-bold mb-0">${formatNumber(data.imageCount)}</p>
+                          </td>
+                          <td class="align-middle text-center">
+                            <p class=" text-dark text-xs font-weight-bold mb-0">${formatNumber(data.videoCount)}</p>
+                          </td>
+                          <td class="align-middle text-center">
+                            <p class=" text-dark text-xs font-weight-bold mb-0">${formatNumber(data.linkCount)}</p>
+                          </td>
+                          <td class="align-middle text-center">
+                            <p class=" text-dark text-xs font-weight-bold mb-0">${data.date}</p>
+                          </td>
+                          <td class="align-middle text-center">
+                            <p class=" text-dark text-xs font-weight-bold mb-0">${formatNumber(data.visitorCount)}</p>
+                          </td>
+                          <td class="align-middle text-center">
+                            <p class=" text-dark text-xs font-weight-bold mb-0">${formatNumber(data.commentCount)}</p>
+                          </td>
+                        </tr>`;
+
+        tbody.insertAdjacentHTML('beforeend', row);
+        FunTbodyLoadingBarEnd();
+    });
+}
+
+

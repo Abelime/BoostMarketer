@@ -1,5 +1,6 @@
 package camel.BoostMarketer.analysis.service;
 
+import camel.BoostMarketer.analysis.dto.NaverContentDto;
 import camel.BoostMarketer.analysis.dto.RelatedKeywordDto;
 import camel.BoostMarketer.common.api.Crawler;
 import camel.BoostMarketer.common.api.NaverAdApi;
@@ -150,7 +151,7 @@ public class AnalysisService {
         return newDataList;
     }
 
-    public Map<String, Object> getAnalyzeDate(String keyword) throws Exception {
+    public Map<String, Object> getAnalyzeData(String keyword) throws Exception {
         Map<String, Object> resultMap = new HashMap<>();
         KeywordDto keywordDto = new KeywordDto();
         keywordDto.setKeywordName(keyword);
@@ -180,6 +181,8 @@ public class AnalysisService {
         resultMap.put("monthBlogCnt", monthBlogCnt);
         resultMap.put("mobileSectionList", mobileSectionList);
         resultMap.put("smartBlockList", crawlerResult.get("smartBlockList"));
+        resultMap.put("naverContentDtoList", crawlerResult.get("naverContentDtoList"));
+        resultMap.put("smartBlockHrefList", crawlerResult.get("smartBlockHrefList"));
         resultMap.put("pcSectionList", crawlerResult.get("sectionList"));
         resultMap.put("blogList", crawlerResult.get("blogList"));
         return resultMap;
@@ -229,5 +232,9 @@ public class AnalysisService {
             }
         }
         return relatedKeywordList;
+    }
+
+    public List<NaverContentDto> findNaverContents(String link) throws Exception {
+        return Crawler.smartBlockCralwer(link);
     }
 }

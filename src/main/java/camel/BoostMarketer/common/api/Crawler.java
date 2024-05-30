@@ -1,8 +1,11 @@
 package camel.BoostMarketer.common.api;
 
+import camel.BoostMarketer.analysis.dto.NaverContentDto;
 import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.dto.BlogPostDto;
+import camel.BoostMarketer.common.ConvertBlogUrl;
 import camel.BoostMarketer.common.util.DateUtil;
+import camel.BoostMarketer.common.util.UrlUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import generator.RandomUserAgentGenerator;
@@ -49,10 +52,14 @@ public class Crawler {
         JsonNode jsonNode = xmlJSONObj.get("visitorcnt");
 
         int totalCnt = 0;
-        for (JsonNode visitor : jsonNode) {
-            int cnt = visitor.get("cnt").asInt();
+        for (int i = 0; i < jsonNode.size()-1; i++) {
+            int cnt = jsonNode.get(i).get("cnt").asInt();
             totalCnt += cnt;
         }
+//        for (JsonNode visitor : jsonNode) {
+//            int cnt = visitor.get("cnt").asInt();
+//            totalCnt += cnt;
+//        }
 
 
         return totalCnt;
@@ -261,6 +268,8 @@ public class Crawler {
         List<HashMap<String, String>> sectionList = new ArrayList<>();
         List<HashMap<String, String>> blogList = new ArrayList<>();
         List<String> smartBlockList = new ArrayList<>();
+        List<String> smartBlockHrefList = new ArrayList<>();
+        List<NaverContentDto> naverContentDtoList = new ArrayList<>();
 
         Map<String, Object> result = new HashMap<>();
 
@@ -368,13 +377,39 @@ public class Crawler {
                     }
                 }
             }
+
+            if (scriptContent.contains("\",\"href\":\"")) {
+                smartBlockHrefList = smartBlockHref(scriptContent);
+            }
         }
 
+        if(!smartBlockHrefList.isEmpty()){
+            naverContentDtoList = smartBlockCralwer(smartBlockHrefList.get(0));
+        }
+
+        result.put("naverContentDtoList", naverContentDtoList);
+        result.put("smartBlockHrefList", smartBlockHrefList);
         result.put("smartBlockList", smartBlockList);
         result.put("sectionList", sectionList);
         result.put("blogList", blogList);
 
         return result;
+    }
+
+    public static List<String> smartBlockHref(String html) {
+        List<String> hrefList = new ArrayList<>();
+
+        // 정규 표현식 패턴을 정의합니다.
+        String hrefPattern = ",\"href\":\"(.*?)\"";
+        Pattern pattern = Pattern.compile(hrefPattern);
+        Matcher matcher = pattern.matcher(html);
+
+        // 매칭된 href 값을 추출하여 리스트에 추가합니다.
+        while (matcher.find()) {
+            hrefList.add(matcher.group(1));
+        }
+
+        return hrefList;
     }
 
     public static List<HashMap<String, String>> mobileSectionSearchCrawler(String keyword) throws Exception{
@@ -459,6 +494,125 @@ public class Crawler {
 
         return sectionList;
     }
+
+    public static List<NaverContentDto> smartBlockCralwer(String link) throws Exception {
+        List<NaverContentDto> resultList = new ArrayList<>();
+
+        String referrer = "https://www.naver.com/";
+        String encodedUrl = UrlUtil.encodeUrl(link);
+
+        Document document = Jsoup.connect(encodedUrl)
+                .referrer(referrer)
+                .headers(headerData)
+                .get();
+
+        Elements elements2 = document.select("div.fds-ugc-block-mod");
+        for (Element element2 : elements2) {
+            Elements element = element2.select("a.fds-info-inner-text");
+            Elements gl = element2.select("a.fds-comps-right-image-text-title,a.fds-comps-right-image-text-title-wrap");
+
+            String url = gl.attr("href");
+            String title = gl.select("span").text();
+            String author = element.select("span").text();
+
+            String regex = "(\\d+일 전)|(\\d+주 전)";
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(element2.select("span.fds-info-sub-inner-text").text());
+
+            String date = "";
+            if (matcher.find()) {
+                date = matcher.group();
+            } else {
+                date = element2.select("span.fds-info-sub-inner-text").text();
+            }
+
+            NaverContentDto naverContentDto = blogAnalyzeCralwer(url);
+            naverContentDto.setUrl(url);
+            naverContentDto.setTitle(title);
+            naverContentDto.setAuthor(author);
+            naverContentDto.setDate(date);
+
+            resultList.add(naverContentDto);
+        }
+
+
+
+        return resultList;
+    }
+
+    private static NaverContentDto blogAnalyzeCralwer(String url) throws Exception{
+        NaverContentDto naverContentDto = new NaverContentDto();
+
+        String referrer = "https://www.naver.com/";
+
+        if (url.contains("in.naver.com") || url.contains("blog.naver.com")) {
+            Document document = Jsoup.connect(url)
+                    .referrer(referrer)
+                    .headers(headerData)
+                    .get();
+
+            Element mainFrame = document.selectFirst("iframe[name=mainFrame]");
+            String mainFrameSrc = mainFrame.attr("src");
+
+
+
+            if (url.contains("in.naver.com")) {
+                url = url.replace("https://in.naver.com/", "https://blog.naver.com/");
+                naverContentDto.setInfluencer(true);
+            }else{
+                naverContentDto.setInfluencer(false);
+            }
+
+            URL absoluteUrl = new URL(new URL(url), mainFrameSrc);
+            String mainFrameAbsoluteUrl = absoluteUrl.toString();
+
+            String blogId = ConvertBlogUrl.extractBlogId(mainFrameAbsoluteUrl);
+
+
+            // mainFrame의 HTML 가져오기
+            Document mainFrameDoc = Jsoup.connect(mainFrameAbsoluteUrl).get();
+
+            Elements blogContent = mainFrameDoc.select("div.se-main-container");
+
+            // 글자 수 추출
+            String text = blogContent.select("p.se-text-paragraph").text();
+            int textCount = text.length();
+
+            // 사진 수 추출
+            Elements images = blogContent.select("img.se-image-resource");
+            int imageCount = images.size();
+
+            // 동영상 수 추출
+            Elements videos = blogContent.select("div.se-video");
+            int videoCount = videos.size();
+
+            // 링크 수 추출
+            Elements links = blogContent.select("div.se-module-oglink");
+            int linkCount = links.size();
+
+            // 댓글 수 추출
+            String comment = mainFrameDoc.select("em#commentCount").text();
+            int commentCount = 0;
+            if (!comment.isEmpty()) {
+                commentCount = Integer.parseInt(comment);
+            }
+
+            int visitorCount = visitorCntCrawler(blogId);
+
+
+            naverContentDto.setTextCount(textCount);
+            naverContentDto.setImageCount(imageCount);
+            naverContentDto.setVideoCount(videoCount);
+            naverContentDto.setLinkCount(linkCount);
+            naverContentDto.setVisitorCount(visitorCount);
+            naverContentDto.setCommentCount(commentCount);
+            naverContentDto.setType("blog");
+        }
+
+        return naverContentDto;
+    }
+
+
 
 
     public static void sleep(String reason) {
