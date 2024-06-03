@@ -37,35 +37,7 @@
   <link href="/css/common.css" rel="stylesheet" />
   <link href="/css/keyword-analyze.css" rel="stylesheet" />
   <style>
-    /* 테이블 스타일 */
-    .content-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9em;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
 
-    .content-table thead th {
-      background-color: #f8f9fa;
-      color: #495057;
-      font-weight: bold;
-      text-align: center;
-      padding: 12px 15px;
-      border-bottom: 2px solid #dee2e6;
-    }
-
-    .content-table tbody td {
-      padding: 12px 15px;
-      border-bottom: 1px solid #dee2e6;
-    }
-
-    .content-table tbody tr:nth-of-type(even) {
-      background-color: #f3f3f3;
-    }
-
-    .content-table tbody tr:hover {
-      background-color: #f1f1f1;
-    }
   </style>
 </head>
 
@@ -232,7 +204,12 @@
         <div class="card">
           <div class="card-header pb-0">
             <div class="d-flex justify-content-between align-items-center">
-              <h6 class="mb-0">통합검색 노출 컨텐츠</h6>
+              <div th:if="${#lists.size(smartBlockList) > 0}">
+                  <h6 class="mb-0"><span class="text-success">통합검색 노출</span> 컨텐츠(스마트블럭)</h6>
+              </div>
+              <div th:unless="${#lists.size(smartBlockList) > 0}">
+                  <h6 class="mb-0"><span class="text-success">통합검색 노출</span> 컨텐츠(인기글)</h6>
+              </div>
             </div>
           </div>
           <div class="card-body pt-4 p-3">
@@ -266,28 +243,44 @@
                 <tbody id="content-info-tbody">
                 <tr th:each="naverContent, stat : ${naverContentDtoList}">
                   <td>
-                    <a class="btn btn-link text-dark text-xs font-weight-bold mb-0" th:href="${naverContent.url}" target="_blank" th:text="${naverContent.title}"></a>
+                    <div>
+                      <span th:if="${naverContent.type == 'blog' and naverContent.isInfluencer}" class="label label-influencer ms-3 me-1">인플루언서</span>
+                      <span th:if="${naverContent.type == 'blog' and !naverContent.isInfluencer}" class="label label-blog ms-3 me-1">일반 블로그</span>
+                      <span th:if="${naverContent.type == 'cafe'}" class="label label-cafe ms-3 me-1">카페</span>
+                      <span th:if="${naverContent.type == 'post'}" class="label label-blog ms-3 me-1">포스트</span>
+                      <span class="text-xs text-secondary font-weight-bolder" th:text="${naverContent.author}"></span>
+                    </div>
+                    <div>
+                      <a class="btn btn-link text-dark text-xs font-weight-bold mb-0" th:href="${naverContent.url}" target="_blank" th:text="${naverContent.title}"></a>
+                    </div>
                   </td>
                   <td class="align-middle text-center">
-                    <p class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.textCount == 0 ? '0' : #numbers.formatInteger(naverContent.textCount, 1, 'COMMA')}"></p>
+                    <p th:if="${naverContent.type == 'blog'}" class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.textCount == 0 ? '0' : #numbers.formatInteger(naverContent.textCount, 1, 'COMMA')}"></p>
+                    <p th:unless="${naverContent.type == 'blog'}" class="text-dark text-xs font-weight-bold mb-0">-</p>
                   </td>
                   <td class="align-middle text-center">
-                    <p class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.imageCount == 0 ? '0' : #numbers.formatInteger(naverContent.imageCount, 1, 'COMMA')}"></p>
+                    <p th:if="${naverContent.type == 'blog'}" class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.imageCount == 0 ? '0' : #numbers.formatInteger(naverContent.imageCount, 1, 'COMMA')}"></p>
+                    <p th:unless="${naverContent.type == 'blog'}" class="text-dark text-xs font-weight-bold mb-0">-</p>
                   </td>
                   <td class="align-middle text-center">
-                    <p class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.videoCount == 0 ? '0' : #numbers.formatInteger(naverContent.videoCount, 1, 'COMMA')}"></p>
+                    <p th:if="${naverContent.type == 'blog'}" class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.videoCount == 0 ? '0' : #numbers.formatInteger(naverContent.videoCount, 1, 'COMMA')}"></p>
+                    <p th:unless="${naverContent.type == 'blog'}" class="text-dark text-xs font-weight-bold mb-0">-</p>
                   </td>
                   <td class="align-middle text-center">
-                    <p class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.linkCount == 0 ? '0' : #numbers.formatInteger(naverContent.linkCount, 1, 'COMMA')}"></p>
+                    <p th:if="${naverContent.type == 'blog'}" class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.linkCount == 0 ? '0' : #numbers.formatInteger(naverContent.linkCount, 1, 'COMMA')}"></p>
+                    <p th:unless="${naverContent.type == 'blog'}" class="text-dark text-xs font-weight-bold mb-0">-</p>
                   </td>
                   <td class="align-middle text-center">
-                    <p class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.date}"></p>
+                    <p th:if="${naverContent.type == 'blog'}" class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.date}"></p>
+                    <p th:unless="${naverContent.type == 'blog'}" class="text-dark text-xs font-weight-bold mb-0">-</p>
                   </td>
                   <td class="align-middle text-center">
-                    <p class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.visitorCount == 0 ? '0' : #numbers.formatInteger(naverContent.visitorCount, 1, 'COMMA')}"></p>
+                    <p th:if="${naverContent.type == 'blog'}" class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.visitorCount == 0 ? '0' : #numbers.formatInteger(naverContent.visitorCount, 1, 'COMMA')}"></p>
+                    <p th:unless="${naverContent.type == 'blog'}" class="text-dark text-xs font-weight-bold mb-0">-</p>
                   </td>
                   <td class="align-middle text-center">
-                    <p class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.commentCount == 0 ? '0' : #numbers.formatInteger(naverContent.commentCount, 1, 'COMMA')}"></p>
+                    <p th:if="${naverContent.type == 'blog'}" class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.commentCount == 0 ? '0' : #numbers.formatInteger(naverContent.commentCount, 1, 'COMMA')}"></p>
+                    <p th:unless="${naverContent.type == 'blog'}" class="text-dark text-xs font-weight-bold mb-0">-</p>
                   </td>
                 </tr>
                 </tbody>

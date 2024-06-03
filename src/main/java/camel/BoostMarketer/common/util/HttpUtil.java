@@ -12,8 +12,6 @@ public class HttpUtil {
     private final static Logger logger = LoggerFactory.getLogger(HttpUtil.class);
 
     public static String sendHttpRequest(String url) {
-        logger.debug(" ======================== HTTP Request ======================== ");
-        logger.debug(" URL: {}", url);
 
         StringBuilder result = new StringBuilder();
 

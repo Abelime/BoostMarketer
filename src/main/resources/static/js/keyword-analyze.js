@@ -335,10 +335,12 @@ function updateScrollButtons() {
     const leftBtn = document.querySelector('.left-btn');
     const rightBtn = document.querySelector('.right-btn');
 
-    setTimeout(() => {
-        leftBtn.disabled = container.scrollLeft <= 0;
-        rightBtn.disabled = container.scrollWidth <= container.clientWidth + container.scrollLeft;
-    }, 250);
+    if (container != null) {
+        setTimeout(() => {
+            leftBtn.disabled = container.scrollLeft <= 0;
+            rightBtn.disabled = container.scrollWidth <= container.clientWidth + container.scrollLeft;
+        }, 250);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', updateScrollButtons);
@@ -348,8 +350,9 @@ function populateTable(dataList) {
     tbody.innerHTML = '';  // Clear existing table rows
 
     dataList.forEach(data => {
-        const keywordNameUpper = data.keywordName.toUpperCase();
-        const label = smartBlockList.includes(keywordNameUpper)
+        const keywordNameUpper = data.keywordName.replace(/\s+/g, '').toUpperCase();
+        const smartBlockListNoSpaces = smartBlockList.map(item => item.replace(/\s+/g, '').toUpperCase());
+        const label = smartBlockListNoSpaces.includes(keywordNameUpper)
                       ? '<span class="label-green ms-3">스블</span>'
                       : '<span class="label-orange ms-3">연관</span>';
 
@@ -369,8 +372,8 @@ function populateTable(dataList) {
         </tr>`;
 
         tbody.insertAdjacentHTML('beforeend', row);
-        FunTbodyLoadingBarEnd();
     });
+    FunTbodyLoadingBarEnd();
 }
 
 function formatNumber(value) {
@@ -439,15 +442,19 @@ function sortTable(columnIndex) {
     }
 }
 
-$('.smart-block').on('click', function(){
-  $('.smart-block').removeClass('active');
-  $(this).addClass('active');
-});
-
 function getSmartBlockData(index) {
-    FunTbodyLoadingBarStart('#content-info-tbody');
     // Prevent the default action of the event
     if (event) event.preventDefault();
+
+    // Check if the clicked element already has the 'active' class
+    if ($('.smart-block').eq(index).hasClass('active')) {
+        return; // Do nothing if the link is already active
+    }
+
+    $('.smart-block').removeClass('active');
+    $('.smart-block').eq(index).addClass('active');
+
+    FunTbodyLoadingBarStart('#content-info-tbody');
 
     const url = smartBlockHrefList[index];
 
@@ -465,8 +472,7 @@ async function fetchSmartBlockData(url) {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-        const contentInfoList = await response.json();
-        return contentInfoList;
+        return await response.json();
     } catch (error) {
         console.error('데이터 가져오는 중 오류가 발생했습니다:', error);
         throw error;
@@ -478,9 +484,25 @@ function contentInfoTable(contentInfoList) {
     tbody.innerHTML = '';  // Clear existing table rows
 
     contentInfoList.forEach(data => {
+        let labelHTML = '';
+
+        if (data.type === 'blog' && data.isInfluencer) {
+            labelHTML = '<span class="label label-influencer ms-3 me-1">인플루언서</span>';
+        } else if (data.type === 'blog' && !data.isInfluencer) {
+            labelHTML = '<span class="label label-blog ms-3 me-1">일반 블로그</span>';
+        } else if (data.type === 'cafe') {
+            labelHTML = '<span class="label label-cafe ms-3 me-1">카페</span>';
+        }
+
         const row = `<tr>
                           <td>
-                            <a class="btn btn-link text-dark text-xs font-weight-bold mb-0" href="${data.url}" target="_blank">${data.title}</a>
+                            <div>
+                              ${labelHTML}
+                              <span class="text-xs text-secondary font-weight-bolder">${data.author}</span>
+                            </div>
+                            <div>
+                              <a class="btn btn-link text-dark text-xs font-weight-bold mb-0" href="${data.url}" target="_blank">${data.title}</a>
+                            </div>
                           </td>
                           <td class="align-middle text-center">
                             <p class="text-dark text-xs font-weight-bold mb-0">${formatNumber(data.textCount)}</p>

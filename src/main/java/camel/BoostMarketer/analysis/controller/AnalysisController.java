@@ -84,7 +84,6 @@ public class AnalysisController {
     @GetMapping(value = "/smart-block-contents")
     public ResponseEntity<?> smartBlockContent(@RequestParam(value = "link") String link) throws Exception {
         List<NaverContentDto> responseData = analysisService.findNaverContents(link);
-
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON) // JSON을 명확히 지정
                 .body(responseData);

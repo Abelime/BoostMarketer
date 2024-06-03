@@ -338,31 +338,32 @@ public class Crawler {
         }
 
 
-        Elements blogElements = document.select("div.fds-ugc-block-mod-list");
+//        Elements blogElements = document.select("div.fds-ugc-block-mod-list");
+//
+//        for (Element element : blogElements) {
+//            Elements elements2 = element.select("div.fds-ugc-block-mod");
+//            for (Element element2 : elements2) {
+//                HashMap<String, String> map = new HashMap<>();
+//                Elements blog = element2.select("a.fds-info-inner-text");
+//                map.put("blogUrl", blog.attr("href"));
+//                map.put("blogName", blog.select("span").text());
+//                String regex = "(\\d+일 전)|(\\d+주 전)";
+//                Pattern pattern = Pattern.compile(regex);
+//                Matcher matcher = pattern.matcher(element2.select("span.fds-info-sub-inner-text").text());
+//                if (matcher.find()) {
+//                    map.put("glTime", matcher.group());
+//                } else {
+//                    map.put("glTime", element2.select("span.fds-info-sub-inner-text").text());
+//                }
+//
+//                Elements gl = element2.select("a.fds-comps-right-image-text-title,a.fds-comps-right-image-text-title-wrap");
+//                map.put("glUrl", gl.attr("href"));
+//                map.put("glName", gl.select("span").text());
+//                blogList.add(map);
+//            }
+//        }
 
-        for (Element element : blogElements) {
-            Elements elements2 = element.select("div.fds-ugc-block-mod");
-            for (Element element2 : elements2) {
-                HashMap<String, String> map = new HashMap<>();
-                Elements blog = element2.select("a.fds-info-inner-text");
-                map.put("blogUrl", blog.attr("href"));
-                map.put("blogName", blog.select("span").text());
-                String regex = "(\\d+일 전)|(\\d+주 전)";
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(element2.select("span.fds-info-sub-inner-text").text());
-                if (matcher.find()) {
-                    map.put("glTime", matcher.group());
-                } else {
-                    map.put("glTime", element2.select("span.fds-info-sub-inner-text").text());
-                }
-
-                Elements gl = element2.select("a.fds-comps-right-image-text-title,a.fds-comps-right-image-text-title-wrap");
-                map.put("glUrl", gl.attr("href"));
-                map.put("glName", gl.select("span").text());
-                blogList.add(map);
-            }
-        }
-
+        /*스마트 블럭*/
         Elements scripts = document.select("script");
 
         for (Element script : scripts) {
@@ -378,12 +379,34 @@ public class Crawler {
                 }
             }
 
-            if (scriptContent.contains("\",\"href\":\"")) {
+            if (scriptContent.contains("chip\",\"href\":\"")) {
                 smartBlockHrefList = smartBlockHref(scriptContent);
             }
         }
 
-        if(!smartBlockHrefList.isEmpty()){
+        Elements bestContent = document.select("div.view_wrap");
+
+        if(!smartBlockHrefList.isEmpty()) { //스마트 블럭
+            naverContentDtoList = smartBlockCralwer(smartBlockHrefList.get(0));
+        }else if(!bestContent.isEmpty()){ //인기글
+            for (Element element : bestContent) {
+                String author = element.select(".name").text();
+                String date = element.select(".sub").text();
+                String title = element.select(".title_link").text();
+                String href = element.select(".title_link").attr("href");
+
+                NaverContentDto naverContentDto = blogAnalyzeCralwer(href);
+                naverContentDto.setUrl(href);
+                naverContentDto.setAuthor(author);
+                naverContentDto.setDate(date);
+                naverContentDto.setTitle(title);
+                naverContentDtoList.add(naverContentDto);
+            }
+        }else{ //스마트블럭 1개일때
+            String smartBlockTitle = document.select("span.fds-comps-header-headline").text();
+            String smartBlockHref = document.select("a.fds-comps-footer-more-button-container").attr("href");
+            smartBlockList.add(smartBlockTitle);
+            smartBlockHrefList.add(smartBlockHref);
             naverContentDtoList = smartBlockCralwer(smartBlockHrefList.get(0));
         }
 
@@ -507,6 +530,8 @@ public class Crawler {
                 .get();
 
         Elements elements2 = document.select("div.fds-ugc-block-mod");
+        int num = 0;
+
         for (Element element2 : elements2) {
             Elements element = element2.select("a.fds-info-inner-text");
             Elements gl = element2.select("a.fds-comps-right-image-text-title,a.fds-comps-right-image-text-title-wrap");
@@ -533,6 +558,8 @@ public class Crawler {
             naverContentDto.setDate(date);
 
             resultList.add(naverContentDto);
+            num++;
+            if(num == 5) break;
         }
 
 
@@ -607,6 +634,10 @@ public class Crawler {
             naverContentDto.setVisitorCount(visitorCount);
             naverContentDto.setCommentCount(commentCount);
             naverContentDto.setType("blog");
+        }else if(url.contains("cafe.naver.com")){
+            naverContentDto.setType("cafe");
+        }else if(url.contains("post.naver.com")){
+            naverContentDto.setType("post");
         }
 
         return naverContentDto;
