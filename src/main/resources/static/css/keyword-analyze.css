@@ -37,16 +37,6 @@
   color: #aaa;
 }
 
-.table {
-  table-layout: fixed;
-}
-
-.table th,
-.table td {
-  white-space: normal;  /* allows text to wrap */
-  word-wrap: break-word; /* ensures text breaks within words if needed */
-}
-
 .navigation-wrapper {
   display: flex;
   align-items: center;
@@ -130,30 +120,4 @@
 .label-blog {
   background-color: #f1f1f1;
   color: #5a5a5a;
-}
-
-/*통합검색 노출 컨텐츠 테이블*/
-.content-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9em;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.content-table thead th {
-  background-color: #f8f9fa;
-  color: #495057;
-  font-weight: bold;
-  text-align: center;
-  padding: 12px 15px;
-  border-bottom: 2px solid #dee2e6;
-}
-
-.content-table tbody td {
-  /*padding: 11px 14px;*/
-  border-bottom: 1px solid #dee2e6;
-}
-
-.content-table tbody tr:hover {
-  background-color: #f1f1f1;
 }

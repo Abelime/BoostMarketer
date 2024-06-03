@@ -244,10 +244,11 @@
                 <tr th:each="naverContent, stat : ${naverContentDtoList}">
                   <td>
                     <div>
-                      <span th:if="${naverContent.type == 'blog' and naverContent.isInfluencer}" class="label label-influencer ms-3 me-1">인플루언서</span>
-                      <span th:if="${naverContent.type == 'blog' and !naverContent.isInfluencer}" class="label label-blog ms-3 me-1">일반 블로그</span>
-                      <span th:if="${naverContent.type == 'cafe'}" class="label label-cafe ms-3 me-1">카페</span>
-                      <span th:if="${naverContent.type == 'post'}" class="label label-blog ms-3 me-1">포스트</span>
+                      <span th:if="${naverContent.type == 'blog' and naverContent.isInfluencer}" class="label label-influencer ms-2 me-1">인플루언서</span>
+                      <span th:if="${naverContent.type == 'blog' and !naverContent.isInfluencer}" class="label label-blog ms-2 me-1">일반 블로그</span>
+                      <span th:if="${naverContent.type == 'cafe'}" class="label label-cafe ms-2 me-1">카페</span>
+                      <span th:if="${naverContent.type == 'post'}" class="label label-blog ms-2 me-1">포스트</span>
+                      <span th:if="${naverContent.type == 'etc'}" class="label label-blog ms-2 me-1">기타</span>
                       <span class="text-xs text-secondary font-weight-bolder" th:text="${naverContent.author}"></span>
                     </div>
                     <div>

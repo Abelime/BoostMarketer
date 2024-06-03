@@ -638,6 +638,8 @@ public class Crawler {
             naverContentDto.setType("cafe");
         }else if(url.contains("post.naver.com")){
             naverContentDto.setType("post");
+        }else {
+            naverContentDto.setType("etc");
         }
 
         return naverContentDto;

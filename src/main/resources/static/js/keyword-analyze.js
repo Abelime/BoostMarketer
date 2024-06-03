@@ -487,11 +487,13 @@ function contentInfoTable(contentInfoList) {
         let labelHTML = '';
 
         if (data.type === 'blog' && data.isInfluencer) {
-            labelHTML = '<span class="label label-influencer ms-3 me-1">인플루언서</span>';
+            labelHTML = '<span class="label label-influencer ms-2 me-1">인플루언서</span>';
         } else if (data.type === 'blog' && !data.isInfluencer) {
-            labelHTML = '<span class="label label-blog ms-3 me-1">일반 블로그</span>';
+            labelHTML = '<span class="label label-blog ms-2 me-1">일반 블로그</span>';
         } else if (data.type === 'cafe') {
-            labelHTML = '<span class="label label-cafe ms-3 me-1">카페</span>';
+            labelHTML = '<span class="label label-cafe ms-2 me-1">카페</span>';
+        } else if (data.type === 'etc') {
+            labelHTML = '<span class="label label-blog ms-2 me-1">기타</span>';
         }
 
         const row = `<tr>
