@@ -405,9 +405,11 @@ public class Crawler {
         }else{ //스마트블럭 1개일때
             String smartBlockTitle = document.select("span.fds-comps-header-headline").text();
             String smartBlockHref = document.select("a.fds-comps-footer-more-button-container").attr("href");
-            smartBlockList.add(smartBlockTitle);
-            smartBlockHrefList.add(smartBlockHref);
-            naverContentDtoList = smartBlockCralwer(smartBlockHrefList.get(0));
+            if(!smartBlockHref.isEmpty()){
+                smartBlockList.add(smartBlockTitle);
+                smartBlockHrefList.add(smartBlockHref);
+                naverContentDtoList = smartBlockCralwer(smartBlockHrefList.get(0));
+            }
         }
 
         result.put("naverContentDtoList", naverContentDtoList);

@@ -207,8 +207,11 @@
               <div th:if="${#lists.size(smartBlockList) > 0}">
                   <h6 class="mb-0"><span class="text-success">통합검색 노출</span> 컨텐츠(스마트블럭)</h6>
               </div>
-              <div th:unless="${#lists.size(smartBlockList) > 0}">
+              <div th:if="${#lists.size(smartBlockList) == 0 and #lists.size(naverContentDtoList) > 0}">
                   <h6 class="mb-0"><span class="text-success">통합검색 노출</span> 컨텐츠(인기글)</h6>
+              </div>
+              <div th:if="${#lists.size(smartBlockList) == 0 and #lists.size(naverContentDtoList) == 0}">
+                  <h6 class="mb-0"><span class="text-danger">통합검색 노출</span>할 컨텐츠가 없습니다.</h6>
               </div>
             </div>
           </div>
