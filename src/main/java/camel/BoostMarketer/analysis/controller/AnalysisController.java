@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +55,7 @@ public class AnalysisController {
 
     @GetMapping(value = "/trendsChart")
     public ResponseEntity<?> registerTrendsChart(HttpServletRequest request) throws Exception {
-        List<HashMap<String, Object>> responseData = new ArrayList<>();
+        List<HashMap<String, Object>> responseData;
         String keyword = request.getParameter("keyword");
         String startDate = request.getParameter("startDate");
         String endDate = request.getParameter("endDate");

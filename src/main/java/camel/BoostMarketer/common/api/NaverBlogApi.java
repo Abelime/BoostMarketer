@@ -70,6 +70,17 @@ public class NaverBlogApi {
         return responseBody;
     }
 
+    public String autoCompleteKeywordListApi(String keyword) {
+        keyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+
+        String apiURL = "https://ac.search.naver.com/nx/ac?q=" + keyword + "&st=100";
+        Map<String, String> requestHeaders = new HashMap<>();
+        requestHeaders.put("Referer", "https://www.naver.com/");
+        String responseBody = get(apiURL, requestHeaders);
+
+        return responseBody;
+    }
+
     public String blogMissingCheckApi1(String keyword, String date){
         keyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
 

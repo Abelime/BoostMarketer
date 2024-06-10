@@ -15,10 +15,7 @@ import org.springframework.stereotype.Service;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +39,11 @@ public class AnalysisService {
         String startDate = sameDayLastMonth.format(formatter);    //당월
         String endDate = currentDate.format(formatter);     //당월
         List<HashMap<String, Object>> dataList = naverTrendsApi.apiAccess(text,"date",startDate,endDate);
+
+        if(dataList.isEmpty()){
+            return new ArrayList<>();
+        }
+
         double totalRatio = 0;
         int a = -1; //당월 첫날
         int b = -1;
@@ -109,20 +111,15 @@ public class AnalysisService {
 
         //이전달 ratio
         List<HashMap<String, Object>> trendsList = searchTrends(text,formattedFirstDay,formattedDate);
+        if (trendsList.isEmpty()) {
+            return new ArrayList<>();
+        }
+
         int trends_sum = 0;
         for(HashMap<String, Object> map : trendsList){
             trends_sum += (int) map.get("ratio");
         }
 
-//        // 첫 번째 날짜의 마지막 날짜 계산
-//        LocalDate startDate1 = LocalDate.of(Integer.parseInt(startYear), Integer.parseInt(startMonth), 1);
-//        LocalDate endDate1 = startDate1.withDayOfMonth(startDate1.lengthOfMonth());
-//        // 두 번째 날짜의 마지막 날짜 계산
-//        LocalDate startDate2 = LocalDate.of(Integer.parseInt(endYear), Integer.parseInt(endMonth), 1);
-//        LocalDate endDate2 = startDate2.withDayOfMonth(startDate2.lengthOfMonth());
-//
-//        String startDate = startDate1.format(formatter);    //선택한 시작월의 1일
-//        String endDate = startDate2.format(formatter);      //선택한 끝월의 1일
         //선택한 시작월 1일 부터, 현재를 기준으로 전달의 마지막일까지
         List<HashMap<String, Object>> dataList = naverTrendsApi.apiAccess(text,"month",startDate,formattedDate);
 
@@ -190,22 +187,49 @@ public class AnalysisService {
 
     public List<RelatedKeywordDto> findRelatedKeywords(String keyword) throws Exception {
         List<RelatedKeywordDto> relatedKeywordList = new ArrayList<>();
+        Set<String> keywordList = new HashSet<>();
+        Set<String> normalizedKeywordSet = new HashSet<>();
+        ObjectMapper objectMapper = new ObjectMapper();
 
         String relatedKeywordListApi = naverBlogApi.relatedKeywordListApi(keyword);
+        String autoCompleteKeywordList = naverBlogApi.autoCompleteKeywordListApi(keyword);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(relatedKeywordListApi).get("result");
+        JsonNode relatedKeywordJson = objectMapper.readTree(relatedKeywordListApi).get("result");
+        JsonNode rootNode = objectMapper.readTree(autoCompleteKeywordList);
 
-        if (jsonNode != null) {
-            for (JsonNode relatedKeywordNode : jsonNode) {
+        if (relatedKeywordJson != null) {
+            for (JsonNode relatedKeywordNode : relatedKeywordJson) {
+                String relatedKeyword = relatedKeywordNode.asText();
+                String normalizedRelatedKeyword = normalizeKeyword(relatedKeyword);
+                if (!normalizedKeywordSet.contains(normalizedRelatedKeyword)) {
+                    keywordList.add(relatedKeyword);
+                    normalizedKeywordSet.add(normalizedRelatedKeyword);
+                }
+            }
+        }
+
+        JsonNode itemsArray = rootNode.path("items").get(0);
+
+        if (itemsArray != null) {
+            for (JsonNode item : itemsArray) {
+                String itemKeyword = item.get(0).asText();
+                String normalizedItemKeyword = normalizeKeyword(itemKeyword);
+                if (!normalizedItemKeyword.equals(normalizeKeyword(keyword)) && !normalizedKeywordSet.contains(normalizedItemKeyword)) {
+                    keywordList.add(itemKeyword);
+                    normalizedKeywordSet.add(normalizedItemKeyword);
+                }
+            }
+        }
+
+        if (!keywordList.isEmpty()) {
+            for (String keywordName : keywordList) {
                 RelatedKeywordDto relatedKeywordDto = new RelatedKeywordDto();
 
-                String relatedKeyword = relatedKeywordNode.asText();
-                relatedKeywordDto.setKeywordName(relatedKeyword);
+                relatedKeywordDto.setKeywordName(keywordName);
 
                 int totalSearchCnt = 0;
 
-                HashMap<String, Integer> searchCount = naverAdApi.getSearchCount(relatedKeyword);
+                HashMap<String, Integer> searchCount = naverAdApi.getSearchCount(keywordName);
 
                 if(!searchCount.isEmpty()){
                     relatedKeywordDto.setMonthSearchPc(searchCount.get("monthSearchPc"));
@@ -214,13 +238,13 @@ public class AnalysisService {
                     relatedKeywordDto.setTotalSearch(totalSearchCnt);
                 }
 
-                String totalCountApiResult = naverBlogApi.blogTotalCountApi(relatedKeyword);
-                String monthCountApiResult = naverBlogApi.blogMonthCountApi(relatedKeyword);
+                String totalCountApiResult = naverBlogApi.blogTotalCountApi(keywordName);
+                String monthCountApiResult = naverBlogApi.blogMonthCountApi(keywordName);
 
-                JsonNode rootNode = objectMapper.readTree(totalCountApiResult);
+                JsonNode rootNode1 = objectMapper.readTree(totalCountApiResult);
                 JsonNode rootNode2 = objectMapper.readTree(monthCountApiResult);
 
-                int totalBlogCnt = rootNode.get("result").get("totalCount").asInt();
+                int totalBlogCnt = rootNode1.get("result").get("totalCount").asInt();
                 int monthBlogCnt = rootNode2.get("result").get("totalCount").asInt();
                 double blogSaturation = (((double) monthBlogCnt / totalSearchCnt) * 100);
 
@@ -237,4 +261,9 @@ public class AnalysisService {
     public List<NaverContentDto> findNaverContents(String link) throws Exception {
         return Crawler.smartBlockCralwer(link);
     }
+    // 키워드를 정규화하는 메서드 (공백 제거 및 소문자로 변환)
+    private String normalizeKeyword(String keyword) {
+        return keyword.toLowerCase().replaceAll("\\s+", "");
+    }
+
 }

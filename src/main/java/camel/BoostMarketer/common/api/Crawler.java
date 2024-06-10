@@ -15,6 +15,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -23,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.HtmlUtils;
 
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -56,10 +58,7 @@ public class Crawler {
             int cnt = jsonNode.get(i).get("cnt").asInt();
             totalCnt += cnt;
         }
-//        for (JsonNode visitor : jsonNode) {
-//            int cnt = visitor.get("cnt").asInt();
-//            totalCnt += cnt;
-//        }
+        totalCnt = totalCnt / (jsonNode.size() - 1);
 
 
         return totalCnt;
@@ -240,7 +239,7 @@ public class Crawler {
         return result;
     }
 
-    //통합검색 블로그URL 태그
+    //통합검색 블로그URL
     private static Set<String> extractHrefValues(Document document) {
         Set<String> hrefValues = new HashSet<>();
 
@@ -255,7 +254,7 @@ public class Crawler {
 
             selectedElements.forEach(element -> {
                 String hrefValue = element.attr("href");
-                if (hrefValue.startsWith("https://blog.naver.com/")) {
+                if (hrefValue.startsWith("https://blog.naver.com/") || hrefValue.startsWith("https://in.naver.com/")) {
                     hrefValues.add(hrefValue);
                 }
             });
@@ -266,7 +265,6 @@ public class Crawler {
 
     public static Map<String, Object> pcSearchCrawler(String keyword) throws Exception {
         List<HashMap<String, String>> sectionList = new ArrayList<>();
-        List<HashMap<String, String>> blogList = new ArrayList<>();
         List<String> smartBlockList = new ArrayList<>();
         List<String> smartBlockHrefList = new ArrayList<>();
         List<NaverContentDto> naverContentDtoList = new ArrayList<>();
@@ -412,11 +410,17 @@ public class Crawler {
             }
         }
 
+//        Set<String> totalBlogUrl = extractHrefValues(document);
+//        for (String blogUrl : totalBlogUrl) {
+//            NaverContentDto naverContentDto = blogAnalyzeCralwer(blogUrl);
+//
+//        }
+
+
         result.put("naverContentDtoList", naverContentDtoList);
         result.put("smartBlockHrefList", smartBlockHrefList);
         result.put("smartBlockList", smartBlockList);
         result.put("sectionList", sectionList);
-        result.put("blogList", blogList);
 
         return result;
     }
@@ -569,13 +573,15 @@ public class Crawler {
         return resultList;
     }
 
-    private static NaverContentDto blogAnalyzeCralwer(String url) throws Exception{
+        private static NaverContentDto blogAnalyzeCralwer(String url) throws Exception{
         NaverContentDto naverContentDto = new NaverContentDto();
+
+        String finalURL = getFinalURL(url);
 
         String referrer = "https://www.naver.com/";
 
-        if (url.contains("in.naver.com") || url.contains("blog.naver.com")) {
-            Document document = Jsoup.connect(url)
+        if (finalURL.contains("blog.naver.com")) {
+            Document document = Jsoup.connect(finalURL)
                     .referrer(referrer)
                     .headers(headerData)
                     .get();
@@ -583,16 +589,7 @@ public class Crawler {
             Element mainFrame = document.selectFirst("iframe[name=mainFrame]");
             String mainFrameSrc = mainFrame.attr("src");
 
-
-
-            if (url.contains("in.naver.com")) {
-                url = url.replace("https://in.naver.com/", "https://blog.naver.com/");
-                naverContentDto.setInfluencer(true);
-            }else{
-                naverContentDto.setInfluencer(false);
-            }
-
-            URL absoluteUrl = new URL(new URL(url), mainFrameSrc);
+            URL absoluteUrl = new URL(new URL(finalURL), mainFrameSrc);
             String mainFrameAbsoluteUrl = absoluteUrl.toString();
 
             String blogId = ConvertBlogUrl.extractBlogId(mainFrameAbsoluteUrl);
@@ -636,18 +633,24 @@ public class Crawler {
             naverContentDto.setVisitorCount(visitorCount);
             naverContentDto.setCommentCount(commentCount);
             naverContentDto.setType("blog");
-        }else if(url.contains("cafe.naver.com")){
+        }else if(finalURL.contains("cafe.naver.com")){
             naverContentDto.setType("cafe");
-        }else if(url.contains("post.naver.com")){
+        }else if(finalURL.contains("post.naver.com")){
             naverContentDto.setType("post");
         }else {
             naverContentDto.setType("etc");
         }
 
+        naverContentDto.setInfluencer(url.contains("in.naver.com"));
+
         return naverContentDto;
     }
 
-
+    private static String getFinalURL(String initialURL) throws IOException {
+        Connection connection = Jsoup.connect(initialURL).followRedirects(true);
+        Connection.Response response = connection.execute();
+        return response.url().toString();
+    }
 
 
     public static void sleep(String reason) {

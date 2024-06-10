@@ -288,8 +288,37 @@ $(document).ready(function () {
 
   fetchChartData(queryString)
       .then(dataList => {
-          const yConfig = getYAxisConfig(dataList);
-          drawChart(ctx, dataList, yConfig);
+          if(dataList.length > 0){
+              const yConfig = getYAxisConfig(dataList);
+              drawChart(ctx, dataList, yConfig);
+          }else{
+              // HTML 요소를 삽입할 컨테이너 선택
+              const container = document.getElementById('row-chart');
+
+              // 데이터가 없을 경우 표시할 HTML 문자열
+              const noDataHtml = `
+                  <div class="row mt-4 chart-row">
+                      <div class="col-md-12">
+                          <div class="card">
+                              <div class="card-header pb-0">
+                                  <div class="d-flex justify-content-between align-items-center">
+                                      <h6 class="mb-0">검색 트렌드</h6>
+                                  </div>
+                              </div>
+                              <div class="card-body text-center p-4">
+                                  <div class="d-flex flex-column align-items-center">
+                                      <i class="fas fa-exclamation-circle fa-3x text-warning mb-3"></i>
+                                      <p class="text-muted">검색 결과가 없습니다.</p>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              `;
+
+              // 컨테이너에 HTML 삽입
+              container.innerHTML = noDataHtml;
+          }
       });
 
     const fetchRelatedKeywordData = async () => {
@@ -346,33 +375,63 @@ function updateScrollButtons() {
 document.addEventListener('DOMContentLoaded', updateScrollButtons);
 
 function populateTable(dataList) {
-    const tbody = document.getElementById('tbody-content');
-    tbody.innerHTML = '';  // Clear existing table rows
+    if(dataList.length > 0){
+        const tbody = document.getElementById('tbody-content');
+        tbody.innerHTML = '';  // Clear existing table rows
 
-    dataList.forEach(data => {
-        const keywordNameUpper = data.keywordName.replace(/\s+/g, '').toUpperCase();
-        const smartBlockListNoSpaces = smartBlockList.map(item => item.replace(/\s+/g, '').toUpperCase());
-        const label = smartBlockListNoSpaces.includes(keywordNameUpper)
-                      ? '<span class="label-green ms-3">스블</span>'
-                      : '<span class="label-orange ms-3">연관</span>';
+        dataList.forEach(data => {
+            const keywordNameUpper = data.keywordName.replace(/\s+/g, '').toUpperCase();
+            const smartBlockListNoSpaces = smartBlockList.map(item => item.replace(/\s+/g, '').toUpperCase());
+            const label = smartBlockListNoSpaces.includes(keywordNameUpper)
+                          ? '<span class="label-green ms-3">스블</span>'
+                          : '<span class="label-orange ms-3">연관</span>';
 
-        const row = `<tr>
-            <td class="align-middle text-center d-flex align-items-center">
-                ${label}
-                <a class="btn btn-link text-dark" href="/keyword-analyze?keyword=${data.keywordName}">
-                    <p class="text-xs font-weight-bold mb-0" style="display: inline-block;">${data.keywordName}</p>
-                </a>
-            </td>
-            <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.monthSearchPc)}</p></td>
-            <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.monthSearchMobile)}</p></td>
-            <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.totalSearch)}</p></td>
-            <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.monthBlogCnt)}</p></td>
-            <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.totalBlogCnt)}</p></td>
-            <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatDecimal(data.blogSaturation)}%</p></td>
-        </tr>`;
+            const row = `<tr>
+                <td class="align-middle text-center d-flex align-items-center">
+                    ${label}
+                    <a class="btn btn-link text-dark" href="/keyword-analyze?keyword=${data.keywordName}">
+                        <p class="text-xs font-weight-bold mb-0" style="display: inline-block;">${data.keywordName}</p>
+                    </a>
+                </td>
+                <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.monthSearchPc)}</p></td>
+                <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.monthSearchMobile)}</p></td>
+                <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.totalSearch)}</p></td>
+                <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.monthBlogCnt)}</p></td>
+                <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatNumber(data.totalBlogCnt)}</p></td>
+                <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">${formatDecimal(data.blogSaturation)}%</p></td>
+            </tr>`;
 
-        tbody.insertAdjacentHTML('beforeend', row);
-    });
+            tbody.insertAdjacentHTML('beforeend', row);
+        });
+    }else{
+        const keywordRow = document.getElementById('relatedKeyword-row');
+
+        // 데이터가 없을 경우 표시할 HTML 문자열
+        const noDataHtml = `
+            <div class="row mt-4 chart-row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header pb-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">연관 키워드</h6>
+                            </div>
+                        </div>
+                        <div class="card-body text-center p-4">
+                            <div class="d-flex flex-column align-items-center">
+                                <i class="fas fa-exclamation-circle fa-3x text-warning mb-3"></i>
+                                <p class="text-muted">검색 결과가 없습니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        keywordRow.innerHTML = noDataHtml;  // Clear existing table rows
+
+    }
+
+
     FunTbodyLoadingBarEnd();
 }
 

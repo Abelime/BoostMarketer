@@ -118,7 +118,7 @@
         </div>
       </div>
     </div>
-    <div class="row mt-4">
+    <div class="row mt-4" id="row-chart">
       <div class="col-md-12">
         <div class="card">
           <div class="card-header pb-0">
@@ -247,7 +247,7 @@
                 <tr th:each="naverContent, stat : ${naverContentDtoList}">
                   <td>
                     <div>
-                      <span th:if="${naverContent.type == 'blog' and naverContent.isInfluencer}" class="label label-influencer ms-2 me-1">인플루언서</span>
+                      <span th:if="${(naverContent.type == 'blog' and naverContent.isInfluencer) or (naverContent.type == 'post' and naverContent.isInfluencer)}" class="label label-influencer ms-2 me-1">인플루언서</span>
                       <span th:if="${naverContent.type == 'blog' and !naverContent.isInfluencer}" class="label label-blog ms-2 me-1">일반 블로그</span>
                       <span th:if="${naverContent.type == 'cafe'}" class="label label-cafe ms-2 me-1">카페</span>
                       <span th:if="${naverContent.type == 'post'}" class="label label-blog ms-2 me-1">포스트</span>
@@ -294,7 +294,7 @@
         </div>
       </div>
     </div>
-    <div class="row mt-4">
+    <div class="row mt-4" id="relatedKeyword-row">
       <div class="col-md-12">
         <div class="card">
           <div class="card-header pb-0">
