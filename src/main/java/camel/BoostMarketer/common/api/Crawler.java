@@ -30,8 +30,6 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static camel.BoostMarketer.common.util.HttpUtil.sendHttpRequest;
 
@@ -336,50 +334,17 @@ public class Crawler {
         }
 
 
-//        Elements blogElements = document.select("div.fds-ugc-block-mod-list");
-//
-//        for (Element element : blogElements) {
-//            Elements elements2 = element.select("div.fds-ugc-block-mod");
-//            for (Element element2 : elements2) {
-//                HashMap<String, String> map = new HashMap<>();
-//                Elements blog = element2.select("a.fds-info-inner-text");
-//                map.put("blogUrl", blog.attr("href"));
-//                map.put("blogName", blog.select("span").text());
-//                String regex = "(\\d+일 전)|(\\d+주 전)";
-//                Pattern pattern = Pattern.compile(regex);
-//                Matcher matcher = pattern.matcher(element2.select("span.fds-info-sub-inner-text").text());
-//                if (matcher.find()) {
-//                    map.put("glTime", matcher.group());
-//                } else {
-//                    map.put("glTime", element2.select("span.fds-info-sub-inner-text").text());
-//                }
-//
-//                Elements gl = element2.select("a.fds-comps-right-image-text-title,a.fds-comps-right-image-text-title-wrap");
-//                map.put("glUrl", gl.attr("href"));
-//                map.put("glName", gl.select("span").text());
-//                blogList.add(map);
-//            }
-//        }
-
         /*스마트 블럭*/
         Elements scripts = document.select("script");
 
         for (Element script : scripts) {
             String scriptContent = script.html();
 
-            if (scriptContent.contains("\"text\":")) {
-                String[] lines = scriptContent.split(",");
-                for (String line : lines) {
-                    if (line.trim().contains("\"text\":{\"content\"")) {
-                        String smartBlockTitle = line.replace("\"text\":{\"content\":\"", "").replace("\"}}}","").replace("]","");
-                        smartBlockList.add(smartBlockTitle);
-                    }
-                }
+            if (scriptContent.contains("\"text\":{\"content\":\"") && scriptContent.contains("data-lb-trigger")) {
+                smartBlockList = UrlUtil.smartBlockMainTitle(scriptContent);
+                smartBlockHrefList = UrlUtil.smartBlockAPiUrl(scriptContent);
             }
 
-            if (scriptContent.contains("chip\",\"href\":\"")) {
-                smartBlockHrefList = smartBlockHref(scriptContent);
-            }
         }
 
         Elements bestContent = document.select("div.view_wrap");
@@ -425,21 +390,6 @@ public class Crawler {
         return result;
     }
 
-    public static List<String> smartBlockHref(String html) {
-        List<String> hrefList = new ArrayList<>();
-
-        // 정규 표현식 패턴을 정의합니다.
-        String hrefPattern = ",\"href\":\"(.*?)\"";
-        Pattern pattern = Pattern.compile(hrefPattern);
-        Matcher matcher = pattern.matcher(html);
-
-        // 매칭된 href 값을 추출하여 리스트에 추가합니다.
-        while (matcher.find()) {
-            hrefList.add(matcher.group(1));
-        }
-
-        return hrefList;
-    }
 
     public static List<HashMap<String, String>> mobileSectionSearchCrawler(String keyword) throws Exception{
         List<HashMap<String, String>> sectionList = new ArrayList<>();
@@ -524,51 +474,37 @@ public class Crawler {
         return sectionList;
     }
 
+    // 스마트 블럭 크롤링
     public static List<NaverContentDto> smartBlockCralwer(String link) throws Exception {
         List<NaverContentDto> resultList = new ArrayList<>();
 
-        String referrer = "https://www.naver.com/";
-        String encodedUrl = UrlUtil.encodeUrl(link);
+        List<String> urlList = new ArrayList<>();
+        List<String> titleList = new ArrayList<>();
+        List<String> dateList = new ArrayList<>();
+        List<String> authorList = new ArrayList<>();
 
-        Document document = Jsoup.connect(encodedUrl)
-                .referrer(referrer)
-                .headers(headerData)
-                .get();
+        String responseData = sendHttpRequest(link);
 
-        Elements elements2 = document.select("div.fds-ugc-block-mod");
-        int num = 0;
+        JSONObject jsonObject = new JSONObject(responseData);
+        JSONArray collection = jsonObject.getJSONObject("dom").getJSONArray("collection");
 
-        for (Element element2 : elements2) {
-            Elements element = element2.select("a.fds-info-inner-text");
-            Elements gl = element2.select("a.fds-comps-right-image-text-title,a.fds-comps-right-image-text-title-wrap");
-
-            String url = gl.attr("href");
-            String title = gl.select("span").text();
-            String author = element.select("span").text();
-
-            String regex = "(\\d+일 전)|(\\d+주 전)";
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(element2.select("span.fds-info-sub-inner-text").text());
-
-            String date = "";
-            if (matcher.find()) {
-                date = matcher.group();
-            } else {
-                date = element2.select("span.fds-info-sub-inner-text").text();
-            }
-
-            NaverContentDto naverContentDto = blogAnalyzeCralwer(url);
-            naverContentDto.setUrl(url);
-            naverContentDto.setTitle(title);
-            naverContentDto.setAuthor(author);
-            naverContentDto.setDate(date);
-
-            resultList.add(naverContentDto);
-            num++;
-            if(num == 5) break;
+        for (int i = 0; i < collection.length(); i++) {
+            JSONObject obj = collection.getJSONObject(i);
+            String script = obj.getString("script");
+            urlList = UrlUtil.smartBlockHref(script);
+            titleList = UrlUtil.smartBlockTitleRegex(script);
+            dateList = UrlUtil.smartBlockDateRegex(script);
+            authorList = UrlUtil.smartBlockAuthorRegex(script);
         }
 
-
+        for (int i = 0; i < 5; i++) {
+            NaverContentDto naverContentDto = blogAnalyzeCralwer(urlList.get(i));
+            naverContentDto.setUrl(urlList.get(i));
+            naverContentDto.setTitle(titleList.get(i));
+            naverContentDto.setAuthor(authorList.get(i));
+            naverContentDto.setDate(dateList.get(i));
+            resultList.add(naverContentDto);
+        }
 
         return resultList;
     }
@@ -647,10 +583,32 @@ public class Crawler {
     }
 
     private static String getFinalURL(String initialURL) throws IOException {
-        Connection connection = Jsoup.connect(initialURL).followRedirects(true);
-        Connection.Response response = connection.execute();
-        return response.url().toString();
+        int attempts = 3;
+        IOException lastException = null;
+
+        for (int i = 0; i < attempts; i++) {
+            try {
+                Connection connection = Jsoup.connect(initialURL)
+                                             .followRedirects(true)
+                                             .timeout(10000); // 10초 타임아웃 설정
+                Connection.Response response = connection.execute();
+                return response.url().toString();
+            } catch (java.net.SocketException e) {
+                lastException = e;
+                logger.error("Connection reset by peer on attempt : {}", i + 1);
+                // 재시도 전에 짧은 대기 시간 추가
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException("Thread interrupted", ie);
+                }
+            }
+        }
+
+        throw lastException; // 모든 재시도 실패 시 마지막 예외를 던짐
     }
+
 
 
     public static void sleep(String reason) {
