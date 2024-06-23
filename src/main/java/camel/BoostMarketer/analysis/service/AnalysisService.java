@@ -246,7 +246,14 @@ public class AnalysisService {
 
                 int totalBlogCnt = rootNode1.get("result").get("totalCount").asInt();
                 int monthBlogCnt = rootNode2.get("result").get("totalCount").asInt();
-                double blogSaturation = (((double) monthBlogCnt / totalSearchCnt) * 100);
+
+                double blogSaturation;
+
+                if(totalSearchCnt != 0){
+                    blogSaturation = (((double) monthBlogCnt / totalSearchCnt) * 100);
+                }else{
+                    blogSaturation = 0;
+                }
 
                 relatedKeywordDto.setMonthBlogCnt(monthBlogCnt);
                 relatedKeywordDto.setTotalBlogCnt(totalBlogCnt);

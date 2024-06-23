@@ -97,14 +97,14 @@
             <div class="row">
               <div class="col-md-4 mb-2">
                 <div class="border-0 p-4 bg-light rounded">
-                  <h6 class="mb-3 text-sm">블로그 발행량(총)</h6>
-                  <span class="text-dark font-weight-bold" th:text="${totalBlogCnt == 0 ? '0' : #numbers.formatInteger(totalBlogCnt, 1, 'COMMA')}"></span>
+                  <h6 class="mb-3 text-sm">블로그 발행량(월)</h6>
+                  <span class="text-dark font-weight-bold" th:text="${monthBlogCnt == 0 ? '0' : #numbers.formatInteger(monthBlogCnt, 1, 'COMMA')}"></span>
                 </div>
               </div>
               <div class="col-md-4 mb-2">
                 <div class="border-0 p-4 bg-light rounded">
-                  <h6 class="mb-3 text-sm">블로그 발행량(월)</h6>
-                  <span class="text-dark font-weight-bold" th:text="${monthBlogCnt == 0 ? '0' : #numbers.formatInteger(monthBlogCnt, 1, 'COMMA')}"></span>
+                  <h6 class="mb-3 text-sm">블로그 발행량(총)</h6>
+                  <span class="text-dark font-weight-bold" th:text="${totalBlogCnt == 0 ? '0' : #numbers.formatInteger(totalBlogCnt, 1, 'COMMA')}"></span>
                 </div>
               </div>
               <div class="col-md-4 mb-2">
@@ -332,13 +332,13 @@
                   </th>
                   <th class="text-center text-uppercase font-weight-bolder text-xs">
                       <button class="btn btn-link" onclick="sortTable(4)">
-                          <span class="text-secondary">발행량(총)</span>
+                          <span class="text-secondary">발행량(월)</span>
                           <i class="fas fa-sort sort-icon text-secondary" aria-hidden="true"></i>
                       </button>
                   </th>
                   <th class="text-center text-uppercase font-weight-bolder text-xs">
                       <button class="btn btn-link" onclick="sortTable(5)">
-                          <span class="text-secondary">발행량(월)</span>
+                          <span class="text-secondary">발행량(총)</span>
                           <i class="fas fa-sort sort-icon text-secondary" aria-hidden="true"></i>
                       </button>
                   </th>

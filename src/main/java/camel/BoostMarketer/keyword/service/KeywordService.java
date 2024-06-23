@@ -39,7 +39,6 @@ public class KeywordService {
 
     private final NaverAdApi naverAdApi;
 
-
     @Qualifier("customTaskExecutor")
     private final TaskExecutor taskExecutor;
 
@@ -66,20 +65,41 @@ public class KeywordService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         int attempts = 0;
 
-        keywordRegister(keywordDto, email); //키워드 등록
+        List<KeywordDto> keywordDtoList = new ArrayList<>();
 
-        List<String> blogIdList = blogMapper.selectBlogIdList(email);//등록한 blogId 조회
+        if(keywordDto.getKeywordName().contains("#")) {
+            String[] splitKeywordName = keywordDto.getKeywordName().split("#");
+
+            // 빈칸을 필터링하여 새로운 배열을 생성
+            String[] filteredKeywords = Arrays.stream(splitKeywordName)
+                    .filter(keyword -> !keyword.trim().isEmpty())
+                    .toArray(String[]::new);
+
+            for(int i = 0; i < filteredKeywords.length && i < 5; i++) {
+                KeywordDto newKeywordDto = new KeywordDto();
+                newKeywordDto.setKeywordName(filteredKeywords[i]);
+                keywordRegister(newKeywordDto, email); // 키워드 등록
+                keywordDtoList.add(newKeywordDto);
+            }
+        } else {
+            keywordRegister(keywordDto, email); // 키워드 등록
+        }
+
+        List<String> blogIdList = blogMapper.selectBlogIdList(email); // 등록한 blogId 조회
 
         taskExecutor.execute(() -> {
             try {
-                cralwerProcess(Collections.singletonList(keywordDto), blogIdList, attempts);
+                if(keywordDtoList.isEmpty()){
+                    cralwerProcess(Collections.singletonList(keywordDto), blogIdList, attempts);
+                }else{
+                    cralwerProcess(keywordDtoList, blogIdList, attempts);
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e);
+            } finally {
+                Crawler.headerData.clear();
             }
         });
-
-        Crawler.headerData.clear();
-
     }
 
     public void keywordExcelUpload(MultipartFile file) throws Exception {
@@ -109,10 +129,10 @@ public class KeywordService {
                 keywordExcelBackgroundTask(keywordDtoList, email);
             } catch (Exception e) {
                 throw new RuntimeException(e);
+            } finally {
+                Crawler.headerData.clear();
             }
         });
-
-        Crawler.headerData.clear();
 
     }
 

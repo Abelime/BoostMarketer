@@ -340,10 +340,10 @@ public class Crawler {
         for (Element script : scripts) {
             String scriptContent = script.html();
 
-            if (scriptContent.contains("\"text\":{\"content\":\"") && scriptContent.contains("data-lb-trigger")) {
-                smartBlockList = UrlUtil.smartBlockMainTitle(scriptContent);
-                smartBlockHrefList = UrlUtil.smartBlockAPiUrl(scriptContent);
-            }
+//            if (scriptContent.contains("\"text\":{\"content\":\"")) {
+//                smartBlockList = UrlUtil.smartBlockMainTitle(scriptContent);
+//                smartBlockHrefList = UrlUtil.smartBlockAPiUrl(scriptContent);
+//            }
 
         }
 
@@ -483,28 +483,28 @@ public class Crawler {
         List<String> dateList = new ArrayList<>();
         List<String> authorList = new ArrayList<>();
 
-        String responseData = sendHttpRequest(link);
-
-        JSONObject jsonObject = new JSONObject(responseData);
-        JSONArray collection = jsonObject.getJSONObject("dom").getJSONArray("collection");
-
-        for (int i = 0; i < collection.length(); i++) {
-            JSONObject obj = collection.getJSONObject(i);
-            String script = obj.getString("script");
-            urlList = UrlUtil.smartBlockHref(script);
-            titleList = UrlUtil.smartBlockTitleRegex(script);
-            dateList = UrlUtil.smartBlockDateRegex(script);
-            authorList = UrlUtil.smartBlockAuthorRegex(script);
-        }
-
-        for (int i = 0; i < 5; i++) {
-            NaverContentDto naverContentDto = blogAnalyzeCralwer(urlList.get(i));
-            naverContentDto.setUrl(urlList.get(i));
-            naverContentDto.setTitle(titleList.get(i));
-            naverContentDto.setAuthor(authorList.get(i));
-            naverContentDto.setDate(dateList.get(i));
-            resultList.add(naverContentDto);
-        }
+//        String responseData = sendHttpRequest(link);
+//
+//        JSONObject jsonObject = new JSONObject(responseData);
+//        JSONArray collection = jsonObject.getJSONObject("dom").getJSONArray("collection");
+//
+//        for (int i = 0; i < collection.length(); i++) {
+//            JSONObject obj = collection.getJSONObject(i);
+//            String script = obj.getString("script");
+//            urlList = UrlUtil.smartBlockHref(script);
+//            titleList = UrlUtil.smartBlockTitleRegex(script);
+//            dateList = UrlUtil.smartBlockDateRegex(script);
+//            authorList = UrlUtil.smartBlockAuthorRegex(script);
+//        }
+//
+//        for (int i = 0; i < 5; i++) {
+//            NaverContentDto naverContentDto = blogAnalyzeCralwer(urlList.get(i));
+//            naverContentDto.setUrl(urlList.get(i));
+//            naverContentDto.setTitle(titleList.get(i));
+//            naverContentDto.setAuthor(authorList.get(i));
+//            naverContentDto.setDate(dateList.get(i));
+//            resultList.add(naverContentDto);
+//        }
 
         return resultList;
     }
