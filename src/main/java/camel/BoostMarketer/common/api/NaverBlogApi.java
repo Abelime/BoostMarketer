@@ -1,19 +1,22 @@
 package camel.BoostMarketer.common.api;// 네이버 검색 API 예제 - 블로그 검색
 
+import camel.BoostMarketer.common.util.DateUtil;
+import camel.BoostMarketer.experience.dto.ExperienceLinkDto;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.HtmlUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -104,6 +107,57 @@ public class NaverBlogApi {
         responseBody = responseBody.replace(")]}',", "");
         return responseBody;
     }
+
+    public ExperienceLinkDto blogPostInfoApi(String blogId, String postNo) {
+        ExperienceLinkDto experienceLinkDto = new ExperienceLinkDto();
+        String apiURL = "https://blog.naver.com/PostViewBottomTitleListAsync.naver?blogId=" + blogId + "&logNo=" + postNo + "&isThumbnailViewType=true";
+        Map<String, String> requestHeaders = new HashMap<>();
+        String responseBody = get(apiURL, requestHeaders);
+
+        JSONObject jsonObject = new JSONObject(responseBody);
+        JSONArray postList = jsonObject.getJSONArray("postList");
+
+        for (int i = 0; i < postList.length(); i++) {
+            JSONObject post = postList.getJSONObject(i);
+            String logNo = String.valueOf(post.get("logNo"));
+            if (postNo.equals(logNo)) {
+                String tagName = blogPostTagApi(blogId, postNo);
+
+                String title = post.getString("title");
+                title = HtmlUtils.htmlUnescape(title);
+
+                String addDate = post.getString("addDate");
+                Date date = DateUtil.convertToLocalDate(addDate);
+                addDate = DateUtil.formatDate(date);
+
+                experienceLinkDto.setPostTitle(title);
+                experienceLinkDto.setPostDate(addDate);
+                experienceLinkDto.setHashtag(tagName);
+                break;
+            }
+        }
+
+        return experienceLinkDto;
+    }
+
+    public String blogPostTagApi(String blogId, String postNo){
+        String apiURL = "https://blog.naver.com/BlogTagListInfo.naver?blogId=" + blogId + "&logNoList=" + postNo;
+        Map<String, String> requestHeaders = new HashMap<>();
+        String responseBody = get(apiURL, requestHeaders);
+        String tagName = "";
+        JSONObject tagJsonObject = new JSONObject(responseBody);
+        JSONArray tagList = tagJsonObject.getJSONArray("taglist");
+        for(int i = 0; i < tagList.length(); i++){
+            JSONObject tag = tagList.getJSONObject(i);
+            String logNo = tag.getString("logno");
+            if (postNo.equals(logNo)) {
+                tagName = URLDecoder.decode(tag.getString("tagName"), StandardCharsets.UTF_8);
+                break;
+            }
+        }
+        return tagName;
+    }
+
 
 
     private String get(String apiUrl, Map<String, String> requestHeaders) {

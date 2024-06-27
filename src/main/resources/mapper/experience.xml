@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="camel.BoostMarketer.experience.mapper.ExperienceMapper">
+    <sql id="selectUserIdByEmail">
+        SELECT id FROM user WHERE email = #{email}
+    </sql>
+
+    <!-- 체험단 등록  -->
+    <insert id="save" parameterType="map" useGeneratedKeys="true" keyProperty="experienceDto.id">
+        INSERT INTO experience (user_id, title, thumbnail, type)
+        SELECT (<include refid="selectUserIdByEmail"/>),
+               #{experienceDto.title},
+               #{experienceDto.thumbnail},
+               #{experienceDto.type}
+        FROM DUAL
+    </insert>
+
+    <!--  체험단 링크 등록  -->
+    <insert id="saveLink" parameterType="java.util.List">
+        INSERT INTO experience_link (experience_id, link, post_title, post_date, hashtag)
+        <foreach item="item" collection="list" separator="UNION ALL">
+            SELECT #{item.experienceId}, #{item.link}, #{item.postTitle}, #{item.postDate}, #{item.hashtag}
+            FROM DUAL
+        </foreach>
+    </insert>
+
+    <!--  체험단 키워드 등록  -->
+    <insert id="saveKeyword" parameterType="java.util.List">
+        INSERT INTO experience_keyword (experience_id, keyword_id)
+        <foreach item="item" collection="list" separator="UNION ALL">
+            SELECT #{item.experienceId}, #{item.keywordId}
+            FROM DUAL
+        </foreach>
+    </insert>
+
+    <!--  체험단 수  -->
+    <select id="selectExperienceCntInfo" parameterType="String" resultType="Integer">
+        SELECT COUNT(*)
+          FROM EXPERIENCE E
+         WHERE USER_ID = (<include refid="selectUserIdByEmail"/>)
+        <if test="searchKeyword != ''">
+            AND title LIKE CONCAT('%', #{searchKeyword}, '%'))
+        </if>
+    </select>
+
+    <!--  키워드 정보 조회  -->
+    <select id="selectExperienceInfo" parameterType="String" resultType="ExperienceResponseDto">
+        SELECT e.title,
+               e.type,
+               e.thumbnail,
+               DATE(e.created_at)           AS created_at,
+               COALESCE(k.keyword_count, 0) AS keyword_count,
+               COALESCE(l.link_count, 0)    AS link_count
+        FROM experience e
+                 LEFT JOIN (SELECT experience_id, COUNT(DISTINCT keyword_id) AS keyword_count
+                            FROM experience_keyword
+                            GROUP BY experience_id) k ON e.id = k.experience_id
+                 LEFT JOIN (SELECT experience_id, COUNT(DISTINCT link) AS link_count
+                            FROM experience_link
+                            GROUP BY experience_id) l ON e.id = l.experience_id
+        WHERE e.user_id = (<include refid="selectUserIdByEmail"/>)
+          AND e.use_flg = 'Y'
+        <if test="searchKeyword != ''">
+            AND title LIKE CONCAT('%', #{searchKeyword}, '%'))
+        </if>
+        order by e.updated_at desc
+    </select>
+
+
+
+</mapper>

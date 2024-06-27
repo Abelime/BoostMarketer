@@ -1,0 +1,304 @@
+<!--
+=========================================================
+* Soft UI Dashboard - v1.0.7
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/soft-ui-dashboard
+* Copyright 2023 Creative Tim (https://www.creative-tim.com)
+* Licensed under MIT (https://www.creative-tim.com/license)
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="/assets/img/favicon.png">
+  <title>
+    BoostMarketer - 마케팅을 위한 플랫폼
+  </title>
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <!-- Nucleo Icons -->
+  <link href="/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <link href="/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <!-- CSS Files -->
+  <link id="pagestyle" href="/assets/css/soft-ui-dashboard.css?v=1.0.7" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css">
+  <link href="/css/common.css" rel="stylesheet" />
+  <!-- Nepcha Analytics (nepcha.com) -->
+  <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
+  <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+  <style>
+      .form-check-inline {
+          margin-right: 1rem;
+      }
+
+      .keyword-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          margin-top: 0.5rem;
+      }
+      .keyword-item {
+          background-color: #e7f1ff;
+          border: 1px solid #b8daff;
+          color: #004085;
+          padding: 0.25rem 0.5rem;
+          border-radius: 0.25rem;
+          display: flex;
+          align-items: center;
+      }
+      .keyword-item .remove-keyword {
+          margin-left: 0.5rem;
+          color: #004085;
+          cursor: pointer;
+          font-weight: bold;
+      }
+      .link-list {
+          margin-top: 0.5rem;
+          background-color: #f8f9fa;
+      }
+      .link-item {
+          text-decoration: underline;
+          padding: 0.5rem;
+          margin-bottom: 0.5rem;
+          border-radius: 0.25rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+      }
+
+      .link-item .remove-link {
+          color: #dc3545;
+          cursor: pointer;
+          font-weight: bold;
+      }
+      .thumbnail-preview {
+          margin-top: 1rem;
+          max-width: 200px;
+          max-height: 200px;
+      }
+  </style>
+</head>
+
+<body class="g-sidenav-show  bg-gray-100">
+<div th:replace="~{common/aside}"></div>
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    <!-- Navbar -->
+    <div th:replace="~{common/navbar}"></div>
+    <!-- End Navbar -->
+    <div class="container-fluid py-4">
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">체험단 프로젝트 등록</h5>
+            </div>
+            <div class="card-body">
+              <form>
+                <div class="form-group">
+                  <label for="title">체험단 프로젝트명</label>
+                  <input type="text" id="title" class="form-control" placeholder="프로젝트명을 입력해 주세요">
+                </div>
+                  <div class="form-group">
+                    <label for="thumbnail">썸네일</label>
+                    <input type="file" class="form-control" id="thumbnail" accept="image/*">
+                    <img id="thumbnailPreview" class="thumbnail-preview">
+                  </div>
+                  <div class="form-group">
+                      <label>체험단 유형</label>
+                      <div>
+                          <div class="form-check form-check-inline">
+                              <input class="form-check-input" type="radio" name="experienceType" id="visitType" value="visit">
+                              <label class="form-check-label" for="visitType">방문형</label>
+                          </div>
+                          <div class="form-check form-check-inline">
+                              <input class="form-check-input" type="radio" name="experienceType" id="purchaseType" value="purchase">
+                              <label class="form-check-label" for="purchaseType">구매형</label>
+                          </div>
+                          <div class="form-check form-check-inline">
+                              <input class="form-check-input" type="radio" name="experienceType" id="deliveryType" value="delivery">
+                              <label class="form-check-label" for="deliveryType">배송형</label>
+                          </div>
+                          <div class="form-check form-check-inline">
+                              <input class="form-check-input" type="radio" name="experienceType" id="pressType" value="press">
+                              <label class="form-check-label" for="pressType">기자단</label>
+                          </div>
+                          <div class="form-check form-check-inline">
+                              <input class="form-check-input" type="radio" name="experienceType" id="otherType" value="other">
+                              <label class="form-check-label" for="otherType">기타</label>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="form-group">
+                      <label>등록하실 게시글 링크를 입력해주세요</label>
+                      <div class="input-group mb-2">
+                          <input type="text" class="form-control" id="linkInput" placeholder="https:// 링크를 입력해 주세요">
+                          <button class="btn btn-outline-secondary" type="button" id="addLinkBtn">+</button>
+                      </div>
+                      <div id="linkList" class="link-list"></div>
+                  </div>
+                  <div class="form-group">
+                      <label>목표 키워드를 입력해주세요</label>
+                      <div class="input-group">
+                          <input type="text" class="form-control" id="keywordInput" placeholder="키워드 입력후 엔터 또는 추가">
+                          <button class="btn btn-outline-secondary" type="button" id="addKeywordBtn">+</button>
+                      </div>
+                      <div id="keywordList" class="keyword-list"></div>
+                  </div>
+                <div class="form-group">
+                  <button id="experienceRegister" class="btn btn-primary">체험단 정보 등록</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+        <div class="d-flex justify-content-end mt-3">
+            <a href="/experience" class="btn-custom btn-custom-blue">목록으로</a>
+        </div>
+    </div>
+  </main>
+
+  <!--   Core JS Files   -->
+  <script src="/assets/js/core/popper.min.js"></script>
+  <script src="/assets/js/core/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+</script>
+  <script src="/js/common.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const linkInput = document.getElementById('linkInput');
+        const addLinkBtn = document.getElementById('addLinkBtn');
+        const linkList = document.getElementById('linkList');
+        const keywordInput = document.getElementById('keywordInput');
+        const addKeywordBtn = document.getElementById('addKeywordBtn');
+        const keywordList = document.getElementById('keywordList');
+        const thumbnailInput = document.getElementById('thumbnail');
+        const thumbnailPreview = document.getElementById('thumbnailPreview');
+        const experienceRegisterBtn = document.getElementById('experienceRegister');
+
+
+        function addLink() {
+            const link = linkInput.value.trim();
+            if (link && !isDuplicate(linkList, link)) {
+                const linkItem = document.createElement('div');
+                linkItem.className = 'link-item';
+                linkItem.innerHTML = `
+                    <a href="${link}" class="text-sm text-dark" target="_blank">${link}</a>
+                    <span class="remove-link"><i class="bi bi-x"></i></span>
+                `;
+                linkList.appendChild(linkItem);
+                linkInput.value = '';
+
+                linkItem.querySelector('.remove-link').addEventListener('click', function() {
+                    linkList.removeChild(linkItem);
+                });
+            }
+        }
+
+        function addKeyword() {
+            const keyword = keywordInput.value.trim();
+            if (keyword && !isDuplicate(keywordList, keyword)) {
+                const keywordItem = document.createElement('span');
+                keywordItem.className = 'keyword-item';
+                keywordItem.innerHTML = `
+                    ${keyword}
+                    <span class="remove-keyword"><i class="bi bi-x"></i></span>
+                `;
+                keywordList.appendChild(keywordItem);
+                keywordInput.value = '';
+
+                keywordItem.querySelector('.remove-keyword').addEventListener('click', function() {
+                    keywordList.removeChild(keywordItem);
+                });
+            }
+        }
+
+        function isDuplicate(list, value) {
+            const items = list.querySelectorAll('a, span');
+            for (const item of items) {
+                if (item.textContent.trim() === value) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        addLinkBtn.addEventListener('click', addLink);
+        linkInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addLink();
+            }
+        });
+
+        addKeywordBtn.addEventListener('click', addKeyword);
+        keywordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addKeyword();
+            }
+        });
+
+        thumbnailInput.addEventListener('change', function() {
+            const file = thumbnailInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    thumbnailPreview.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            } else {
+                thumbnailPreview.src = '';
+            }
+        });
+
+        experienceRegisterBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('title').value;
+            const thumbnail = document.getElementById('thumbnail').files[0];
+            const experienceType = document.querySelector('input[name="experienceType"]:checked').value;
+            const links = Array.from(document.querySelectorAll('#linkList a')).map(a => a.href);
+            const keywords = Array.from(document.querySelectorAll('.keyword-item')).map(span => span.textContent.trim());
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('thumbnail', thumbnail);
+            formData.append('experienceType', experienceType);
+            links.forEach(link => formData.append('links', link));
+            keywords.forEach(keyword => formData.append('keywords', keyword));
+
+            fetch('/experience', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Server responded with an error!');
+                }
+                alert('체험단 정보가 성공적으로 등록되었습니다.');
+                location.replace('/experience');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('체험단 정보 등록 중 오류가 발생했습니다.');
+            });
+        });
+    });
+</script>
+</body>
+
+</html>

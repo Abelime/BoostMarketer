@@ -38,7 +38,7 @@ public class KeywordController {
                            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
                            @RequestParam(value = "filterCategory", defaultValue = "0") int filterCategory,
                            @RequestParam(value = "inputCategory", defaultValue = "0") int inputCategory,
-                           @RequestParam(value = "sort", defaultValue = "category") String sort,
+                           @RequestParam(value = "sort", defaultValue = "general") String sort,
                            @RequestParam(value = "searchKeyword", defaultValue = "") String searchKeyword) throws Exception {
 
 

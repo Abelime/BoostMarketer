@@ -98,10 +98,10 @@
         <if test="searchKeyword != ''">
             WHERE kd.keyword_name LIKE CONCAT('%', #{searchKeyword}, '%')
         </if>
-        order by uk.keyword_fix , uk.updated_at desc
+        order by uk.keyword_fix
         <choose>
-            <when test="sort == 'category'">
-                ,uk.category_id
+            <when test="sort == 'general'">
+                , uk.updated_at desc
             </when>
             <when test="sort == 'highSearch'">
                 ,total_search desc
@@ -122,7 +122,7 @@
                 ,total_search_exposure
             </when>
         </choose>
-        </select>
+    </select>
 
     <!--  키워드 사전 삭제  -->
     <delete id="deleteKeyDict" parameterType="map">

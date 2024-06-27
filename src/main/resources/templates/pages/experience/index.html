@@ -1,0 +1,170 @@
+<!--
+=========================================================
+* Soft UI Dashboard - v1.0.7
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/soft-ui-dashboard
+* Copyright 2023 Creative Tim (https://www.creative-tim.com)
+* Licensed under MIT (https://www.creative-tim.com/license)
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="/assets/img/favicon.png">
+  <title>
+    BoostMarketer - 마케팅을 위한 플랫폼
+  </title>
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <!-- Nucleo Icons -->
+  <link href="/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <link href="/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <!-- CSS Files -->
+  <link id="pagestyle" href="/assets/css/soft-ui-dashboard.css?v=1.0.7" rel="stylesheet" />
+  <link href="/css/common.css" rel="stylesheet" />
+  <!-- Nepcha Analytics (nepcha.com) -->
+  <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
+  <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.10/dist/sweetalert2.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.10/dist/sweetalert2.min.js"></script>
+  <style>
+    .hover-underline {
+      position: relative;
+    }
+    .hover-underline .title-text {
+      position: relative;
+      display: inline-block;
+    }
+    .hover-underline .title-text::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      transform: scaleX(0);
+      height: 2px;
+      bottom: 0;
+      left: 0;
+      background-color: #0087ca;
+      transform-origin: bottom right;
+      transition: transform 0.25s ease-out;
+    }
+    .hover-underline:hover .title-text::after {
+      transform: scaleX(1);
+      transform-origin: bottom left;
+    }
+  </style>
+</head>
+
+<body class="g-sidenav-show  bg-gray-100">
+<div th:replace="~{common/aside}"></div>
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    <!-- Navbar -->
+    <div th:replace="~{common/navbar}"></div>
+    <!-- End Navbar -->
+    <div class="container-fluid py-4">
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="card mb-4">
+            <div class="card-header pb-0">
+              <div class="d-flex bd-highlight">
+                <div class="p-2 flex-grow-1 bd-highlight">
+<!--                  <h6>(최신화 일자 : <span style="color: #00c73c;" th:text="${lastUpdateDt}"></span>)</h6>-->
+                </div>
+                <div th:insert="~{common/pageSelect}"></div>
+              </div>
+            </div>
+            <div class="card-body px-0 pt-0 pb-2">
+              <div class="table-responsive p-0">
+                <table class="table align-items-center mb-0">
+                  <thead>
+                    <tr>
+                      <th class="text-uppercase text-secondary text-xs font-weight-bolder">체험단 정보</th>
+                      <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">구분</th>
+                      <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">게시글 수</th>
+                      <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">키워드 수</th>
+                      <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">등록일자</th>
+                      <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="experience : ${experienceResponseDtoList}">
+                      <td class="hover-underline">
+                        <a th:href="'https://blog.naver.com/'" class="text-decoration-none">
+                          <div class="d-flex px-2 py-1">
+                            <div>
+                              <img th:src="${!#strings.isEmpty(experience.thumbnailBase64) ? experience.thumbnailBase64 : 'assets/img/logo-ct-dark.png'}" class="avatar avatar-content me-3" alt="user1">
+                            </div>
+                            <div class="d-flex flex-column justify-content-center">
+                              <h6 class="mb-0 text-sm title-text" th:text="${experience.title}"></h6>
+                            </div>
+                          </div>
+                        </a>
+                      </td>
+                      <td class="align-middle text-center text-sm">
+                        <p class="text-xs font-weight-bold mb-0" th:switch="${experience.type}">
+                          <span th:case="'visit'">방문형</span>
+                          <span th:case="'purchase'">구매형</span>
+                          <span th:case="'delivery'">배송형</span>
+                          <span th:case="'press'">기자단</span>
+                          <span th:case="'other'">기타</span>
+                        </p>
+                      </td>
+                      <td class="align-middle text-center text-sm">
+                        <p class="text-xs font-weight-bold mb-0" th:text="${experience.linkCount}"></p>
+                      </td>
+                      <td class="align-middle text-center text-sm">
+                        <p class="text-xs font-weight-bold mb-0" th:text="${experience.keywordCount}"></p>
+                      </td>
+                      <td class="align-middle text-center text-sm">
+                        <p class="text-xs font-weight-bold mb-0" th:text="${experience.createdAt}"></p>
+                      </td>
+                      <td class="align-middle text-center">
+                        <a class="btn btn-link text-danger text-gradient px-3 mb-0" th:onclick="deleteExperience([[${experience.id}]]);"><i class="far fa-trash-alt me-2"></i>삭제</a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <nav id="pagination" aria-label="Page navigation example"></nav>
+        <div class="d-flex justify-content-end">
+          <a href="/experience/new" id="openModal" class="btn-custom btn-custom-blue"><i class="icon-left fas fa-pencil-alt"></i>체험단 등록하기</a>
+        </div>
+      </div>
+      <div th:insert="~{common/mainfooter.html :: footer}"></div>
+    </div>
+  </main>
+
+  <!--   Core JS Files   -->
+  <script src="/assets/js/core/popper.min.js"></script>
+  <script src="/assets/js/core/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+</script>
+  <script src="/js/common.js"></script>
+  <script src="/js/blog.js"></script>
+  <script src="/js/paging.js"></script>
+  <script>
+    /*<![CDATA[*/
+        const totalCount = [[${totalCount}]];
+        const page = [[${page}]];
+        const pageSize = [[${pageSize}]];
+        const sort = '[[${sort}]]';
+    /*]]>*/
+  </script>
+</body>
+
+</html>

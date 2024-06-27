@@ -26,17 +26,37 @@ public class ConvertBlogUrl {
         return blogInfo;
     }
 
-    public static String urlToPostNo(String blogUrl) {
+    public static Map<String, String> convertCafeUrl(String blogUrl) {
+        Map<String, String> cafeInfo = new HashMap<>();
+
         // 정규표현식 패턴
-        String pattern = "https://blog.naver.com/(\\w+)/(\\d+)";
+        String pattern = "https://cafe.naver.com/(\\w+)/(\\d+)";
         Pattern r = Pattern.compile(pattern);
 
         // Matcher 객체 생성
         Matcher m = r.matcher(blogUrl);
-        String postNo = "";
+
         // 매칭된 경우 값 추출
         if (m.find()) {
-            postNo = m.group(2);
+            cafeInfo.put("cafeId", m.group(1));
+            cafeInfo.put("postNo", m.group(2));
+        }
+
+        return cafeInfo;
+    }
+
+    public static String urlToPostNo(String url) {
+        // 정규표현식 패턴
+        String pattern = "https?://(blog|cafe)\\.naver\\.com/([\\w-]+)/(\\d+)";
+        Pattern r = Pattern.compile(pattern);
+
+        // Matcher 객체 생성
+        Matcher m = r.matcher(url);
+        String postNo = "";
+
+        // 매칭된 경우 값 추출
+        if (m.find()) {
+            postNo = m.group(3);
         }
 
         return postNo;

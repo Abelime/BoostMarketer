@@ -5,7 +5,6 @@ import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.dto.BlogPostDto;
 import camel.BoostMarketer.common.ConvertBlogUrl;
 import camel.BoostMarketer.common.util.DateUtil;
-import camel.BoostMarketer.common.util.UrlUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import generator.RandomUserAgentGenerator;
@@ -30,6 +29,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static camel.BoostMarketer.common.util.HttpUtil.sendHttpRequest;
 
@@ -237,6 +237,98 @@ public class Crawler {
         return result;
     }
 
+    public static List<String> experienceTotalSearchCrawler(List<String> linkList, String keyword) throws Exception {
+        logger.info("통합검색 크롤링(체험단) : " + "[" + keyword + "]");
+        List<String> result = new ArrayList<>();
+
+        String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+        String url = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword;
+        String referrer = "https://www.naver.com/";
+
+        Document document = Jsoup.connect(url)
+                .referrer(referrer)
+                .headers(headerData)
+                .get();
+
+        // 모든 블로그 주소
+        Set<String> blogLinkSet = extractHrefValues(document);
+
+        Set<String> cafeLinkSet = new HashSet<>();
+        if (linkList.stream().anyMatch(link -> link.contains("cafe.naver.com"))) {
+            cafeLinkSet = extractCafeLinks(document);
+        }
+
+        // linkList의 값들에서 특정 URL 부분을 공백으로 변경
+        List<String> modifiedLinkList = linkList.stream()
+                .map(link -> link.replace("https://cafe.naver.com/", "")
+                                 .replace("https://blog.naver.com/", ""))
+                .toList();
+
+        // blogLinkSet에서 modifiedLinkList의 값들이 포함된 항목 추출
+        Set<String> filteredBlogLinks = blogLinkSet.stream()
+                .filter(blogLink -> modifiedLinkList.stream().anyMatch(blogLink::contains))
+                .collect(Collectors.toSet());
+
+        // cafeLinkSet에서 modifiedLinkList의 값들이 포함된 항목 추출
+        Set<String> filteredCafeLinks = cafeLinkSet.stream()
+                .filter(cafeLink -> modifiedLinkList.stream().anyMatch(cafeLink::contains))
+                .collect(Collectors.toSet());
+
+        // 필터링된 링크들을 result에 추가
+        result.addAll(filteredBlogLinks);
+        result.addAll(filteredCafeLinks);
+
+        return result;
+    }
+
+    public static Map<String, Integer> experienceBlogTabCrawler(List<String> linkList, String keyword) throws Exception {
+        logger.info("블로그탭 크롤링(체험단) : " + "[" + keyword + "]");
+        Map<String, Integer> resultMap = new HashMap<>();
+
+        String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+        String url = "https://search.naver.com/search.naver?ssc=tab.blog.all&sm=tab_jum&query=" + encodedKeyword;
+        String referrer = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=" + encodedKeyword;
+
+
+        Document document = Jsoup.connect(url)
+                .referrer(referrer)
+                .headers(headerData)
+                .get();
+
+        Elements aTags = document.select(".title_area a");
+
+        // linkList의 값들에서 특정 URL 부분을 공백으로 변경
+        List<String> modifiedLinkList = linkList.stream()
+                .map(link -> link.replace("https://blog.naver.com/", ""))
+                .toList();
+
+        for (Element aTag : aTags) {
+            String crawlerUrl = aTag.attr("href");
+            crawlerUrl = crawlerUrl.replace("m.blog", "blog");
+            for (String blogUrl : modifiedLinkList) {
+                if (crawlerUrl.contains(blogUrl)) {
+                    resultMap.put(crawlerUrl, aTags.indexOf(aTag) + 1);
+                }
+            }
+            if (aTags.indexOf(aTag) == 9) break; //10등까지 순위 확인
+        }
+
+        return resultMap;
+    }
+
+    //통합검색 카페URL
+    private static Set<String> extractCafeLinks(Document document) {
+        Set<String> cafeLinks = new HashSet<>();
+        Elements links = document.select("a[href]");
+        for (Element link : links) {
+            String href = link.attr("href");
+            if (href.contains("cafe.naver.com")) {
+                cafeLinks.add(href);
+            }
+        }
+        return cafeLinks;
+    }
+
     //통합검색 블로그URL
     private static Set<String> extractHrefValues(Document document) {
         Set<String> hrefValues = new HashSet<>();
@@ -252,8 +344,14 @@ public class Crawler {
 
             selectedElements.forEach(element -> {
                 String hrefValue = element.attr("href");
-                if (hrefValue.startsWith("https://blog.naver.com/") || hrefValue.startsWith("https://in.naver.com/")) {
+                if (hrefValue.startsWith("https://blog.naver.com/")) {
                     hrefValues.add(hrefValue);
+                }else if(hrefValue.startsWith("https://in.naver.com/")){
+                    try {
+                        hrefValues.add(getFinalURL(hrefValue));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             });
         }

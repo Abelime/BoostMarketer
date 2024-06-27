@@ -137,12 +137,9 @@ public class KeywordService {
     }
 
     private void keywordRegister(KeywordDto keywordDto, String email) throws Exception {
-        //검색량 조회
-        naverAdApi.apiAccess(keywordDto);
-        //키워드 등록(사전)
-        keywordMapper.registerKeywordDict(keywordDto);
-        //키워드 등록(유저)
-        keywordMapper.registerUserKeyword(keywordDto, email);
+        naverAdApi.apiAccess(keywordDto); //검색량 조회
+        keywordMapper.registerKeywordDict(keywordDto); //키워드 등록(사전)
+        keywordMapper.registerUserKeyword(keywordDto, email); //키워드 등록(유저)
     }
 
     @Async
@@ -240,13 +237,20 @@ public class KeywordService {
     private void cralwerStart(List<String> blogIdList, KeywordDto keywordDto) throws Exception {
         String keyword = keywordDto.getKeywordName();
 
-        //통합검색 크롤링
-        List<String> totalSearchResult = Crawler.totalSearchCrawler(blogIdList, keyword);
-        Crawler.sleep("random");
+        List<String> totalSearchResult;
+        Map<String, Integer> blogTabResult;
 
-        //블로그탭 크롤링
-        Map<String, Integer> blogTabResult = Crawler.blogTabCrawler(blogIdList, keyword);
-        Crawler.sleep("random");
+        if (blogIdList.stream().anyMatch(link -> link.contains("naver.com"))) {
+            totalSearchResult = Crawler.experienceTotalSearchCrawler(blogIdList, keyword);
+            Crawler.sleep("random");
+            blogTabResult = Crawler.experienceBlogTabCrawler(blogIdList, keyword);
+            Crawler.sleep("random");
+        }else{
+            totalSearchResult = Crawler.totalSearchCrawler(blogIdList, keyword);
+            Crawler.sleep("random");
+            blogTabResult = Crawler.blogTabCrawler(blogIdList, keyword);
+            Crawler.sleep("random");
+        }
 
         //데이터 가공 및 저장
         if (!totalSearchResult.isEmpty() || !blogTabResult.isEmpty()) {
