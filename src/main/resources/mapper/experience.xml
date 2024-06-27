@@ -39,7 +39,7 @@
     <!--  체험단 수  -->
     <select id="selectExperienceCntInfo" parameterType="String" resultType="Integer">
         SELECT COUNT(*)
-          FROM EXPERIENCE E
+          FROM experience e
          WHERE USER_ID = (<include refid="selectUserIdByEmail"/>)
         <if test="searchKeyword != ''">
             AND title LIKE CONCAT('%', #{searchKeyword}, '%'))

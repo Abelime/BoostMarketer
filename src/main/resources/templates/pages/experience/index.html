@@ -40,14 +40,24 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.10/dist/sweetalert2.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.10/dist/sweetalert2.min.js"></script>
   <style>
-    .hover-underline {
+    .hover-effect {
       position: relative;
     }
-    .hover-underline .title-text {
+    .hover-effect .image-container {
+      overflow: hidden;
+      border-radius: 50%;  /* avatar 클래스가 원형이라고 가정 */
+    }
+    .hover-effect .image-container img {
+      transition: transform 0.3s ease;
+    }
+    .hover-effect:hover .image-container img {
+      transform: scale(1.1);  /* 10% 확대 */
+    }
+    .hover-effect .title-text {
       position: relative;
       display: inline-block;
     }
-    .hover-underline .title-text::after {
+    .hover-effect .title-text::after {
       content: '';
       position: absolute;
       width: 100%;
@@ -59,7 +69,7 @@
       transform-origin: bottom right;
       transition: transform 0.25s ease-out;
     }
-    .hover-underline:hover .title-text::after {
+    .hover-effect:hover .title-text::after {
       transform: scaleX(1);
       transform-origin: bottom left;
     }
@@ -99,10 +109,10 @@
                   </thead>
                   <tbody>
                     <tr th:each="experience : ${experienceResponseDtoList}">
-                      <td class="hover-underline">
+                      <td class="hover-effect">
                         <a th:href="'https://blog.naver.com/'" class="text-decoration-none">
                           <div class="d-flex px-2 py-1">
-                            <div>
+                            <div class="image-container">
                               <img th:src="${!#strings.isEmpty(experience.thumbnailBase64) ? experience.thumbnailBase64 : 'assets/img/logo-ct-dark.png'}" class="avatar avatar-content me-3" alt="user1">
                             </div>
                             <div class="d-flex flex-column justify-content-center">
