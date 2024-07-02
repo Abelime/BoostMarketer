@@ -44,9 +44,9 @@ public class BlogController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @PutMapping(value = "/blog/{blogId}")
-    public ResponseEntity<?> updateBlog(@PathVariable("blogId") String blogId) throws Exception {
-        blogService.updateBlog(blogId);
+    @PutMapping(value = "/blog")
+    public ResponseEntity<?> updateBlog() throws Exception {
+        blogService.updateBlog();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

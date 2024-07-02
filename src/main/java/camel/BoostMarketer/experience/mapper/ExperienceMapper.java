@@ -19,5 +19,9 @@ public interface ExperienceMapper {
 
     int selectExperienceCntInfo(@Param("email") String email, @Param("searchKeyword") String searchKeyword) throws Exception;
 
-    List<ExperienceResponseDto> selectExperienceInfo(@Param("email") String email, RowBounds rowBounds, @Param("searchKeyword") String searchKeyword);
+    List<ExperienceResponseDto> selectExperienceInfo(@Param("email") String email, RowBounds rowBounds, @Param("searchKeyword") String searchKeyword) throws Exception;
+
+    ExperienceResponseDto selectExperienceById(@Param("id") Long id, @Param("email") String email) throws Exception;
+
+    List<String> selectExperienceKeywordById(Long id) throws Exception;
 }

@@ -4,7 +4,6 @@ import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.dto.BlogPostDto;
 import camel.BoostMarketer.blog.mapper.BlogMapper;
 import camel.BoostMarketer.common.api.NaverBlogApi;
-import camel.BoostMarketer.common.dto.CommonBlogDto;
 import camel.BoostMarketer.keyword.mapper.KeywordMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.session.RowBounds;
@@ -16,9 +15,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
-import static camel.BoostMarketer.common.api.Crawler.allPostCrawler;
-import static camel.BoostMarketer.common.api.Crawler.blogInfoCrawler;
+import static camel.BoostMarketer.common.api.Crawler.*;
 
 @Service
 @RequiredArgsConstructor
@@ -145,30 +144,17 @@ public class BlogService {
 
     }
 
-    public void updateBlog(String blogId) throws Exception {
-        List<String> blogIdList = new ArrayList<>();
-        Map<String, String> map = new HashMap<>();
+    public void updateBlog() throws Exception {
 
-        if (blogId.equals("ALL")) {
-            String email = SecurityContextHolder.getContext().getAuthentication().getName();
-            List<CommonBlogDto> commonBlogDtos = blogMapper.selectLastPostNoList(email);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<BlogPostDto> lastPostNoList = blogMapper.selectLastPostNoList(email);
 
-            for (CommonBlogDto commonBlogDto : commonBlogDtos) {
-                blogIdList.add(commonBlogDto.getBlogId());
-                map.put(commonBlogDto.getBlogId(), commonBlogDto.getPostNo());
-            }
+        List<String> blogIdList = lastPostNoList.stream()
+                .map(BlogPostDto::getBlogId)
+                .collect(Collectors.toList());
 
-            blogMapper.allBlogUpdatedAt(email);
 
-        } else {
-            String lastPostNo = blogMapper.selectLastPostNo(blogId);
-            blogIdList.add(blogId);
-            map.put(blogId, lastPostNo);
-
-            blogMapper.blogUpdatedAt(blogId);
-        }
-
-        List<BlogPostDto> blogPostDtoList = allPostCrawler(blogIdList, map);
+        List<BlogPostDto> blogPostDtoList = allPostCrawler(blogIdList, lastPostNoList);
 
         for (int i = 0; i < blogPostDtoList.size(); i++) {
             BlogPostDto blogPostDto = blogPostDtoList.get(i);
@@ -193,13 +179,13 @@ public class BlogService {
                     if (postUrl.contains(postNo)) {
                         missingFlag = 0;
                         break;
-                    }else{
+                    } else {
                         missingFlag = 1;
                     }
                 }
             }
 
-            if(missingFlag == 1){
+            if (missingFlag == 1) {
                 String responseData2 = naverBlogApi.blogMissingCheckApi2(postTitle, date);
 
                 JSONObject jsonObject2 = new JSONObject(responseData2);
@@ -223,6 +209,18 @@ public class BlogService {
         if (!blogPostDtoList.isEmpty()) {
             blogMapper.registerPosts(blogPostDtoList);
         }
+
+        //삭제된 게시글 DB에서 삭제
+        for (BlogPostDto lastPostNoDto : lastPostNoList) {
+            List<String> naverPostNoList = checkDeletePost(lastPostNoDto);
+            if(!naverPostNoList.isEmpty()){
+                List<String> dbPostNoList = blogMapper.selectPostNoByBlogId(lastPostNoDto.getBlogId());
+                dbPostNoList.removeAll(naverPostNoList);
+            }
+
+        }
+
+        blogMapper.allBlogUpdatedAt(email);
 
     }
 

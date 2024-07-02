@@ -2,7 +2,6 @@ package camel.BoostMarketer.blog.mapper;
 
 import camel.BoostMarketer.blog.dto.BlogDto;
 import camel.BoostMarketer.blog.dto.BlogPostDto;
-import camel.BoostMarketer.common.dto.CommonBlogDto;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
@@ -17,8 +16,6 @@ public interface BlogMapper {
 
     public List<BlogDto> selectBlogInfo(@Param("email") String email, @Param("sort") String sort, RowBounds rowBounds) throws Exception;
 
-    public String selectLastPostNo(String blogId) throws Exception;
-
     public void blogUpdatedAt(String blogId) throws Exception;
 
     public void allBlogUpdatedAt(String email) throws Exception;
@@ -27,7 +24,7 @@ public interface BlogMapper {
 
     public void deleteBlogPost(String blogId) throws Exception;
 
-    public List<CommonBlogDto> selectLastPostNoList(String email) throws Exception;
+    public List<BlogPostDto> selectLastPostNoList(String email) throws Exception;
 
     BlogDto checkIfBlogExists(String blogId) throws Exception;
 
@@ -53,5 +50,7 @@ public interface BlogMapper {
 
     int selectRecentPostCnt(String email) throws Exception;
 
-    List<BlogPostDto> selectMissingPostByBlogId(String blogId);
+    List<BlogPostDto> selectMissingPostByBlogId(String blogId) throws Exception;
+
+    List<String> selectPostNoByBlogId(String blogId) throws Exception;
 }

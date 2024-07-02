@@ -110,7 +110,7 @@
                   <tbody>
                     <tr th:each="experience : ${experienceResponseDtoList}">
                       <td class="hover-effect">
-                        <a th:href="'https://blog.naver.com/'" class="text-decoration-none">
+                        <a href="/experience/1" class="text-decoration-none">
                           <div class="d-flex px-2 py-1">
                             <div class="image-container">
                               <img th:src="${!#strings.isEmpty(experience.thumbnailBase64) ? experience.thumbnailBase64 : 'assets/img/logo-ct-dark.png'}" class="avatar avatar-content me-3" alt="user1">

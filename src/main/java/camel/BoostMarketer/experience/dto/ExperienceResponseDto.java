@@ -3,6 +3,8 @@ package camel.BoostMarketer.experience.dto;
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
 
+import java.util.List;
+
 @Data
 @Alias("ExperienceResponseDto")
 public class ExperienceResponseDto {
@@ -11,6 +13,7 @@ public class ExperienceResponseDto {
     private byte[] thumbnail; // 썸네일 이미지 (byte 배열로 저장)
     private String thumbnailBase64;
     private String type; // 체험단 유형 (visit, purchase, delivery, press, other)
+    private List<String> keyword;
     private int linkCount;
     private int keywordCount;
     private String createdAt;

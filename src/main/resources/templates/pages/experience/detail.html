@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="/assets/img/favicon.png">
+  <title>
+    BoostMarketer - 체험단 상세 정보
+  </title>
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <!-- Nucleo Icons -->
+  <link href="/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <link href="/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <!-- CSS Files -->
+  <link id="pagestyle" href="/assets/css/soft-ui-dashboard.css?v=1.0.7" rel="stylesheet" />
+  <link href="/css/common.css" rel="stylesheet" />
+  <style>
+    .url-info:hover { background-color: #f8f9fa; }
+  </style>
+</head>
+
+<body class="g-sidenav-show bg-gray-100">
+  <div th:replace="~{common/aside}"></div>
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
+    <!-- Navbar -->
+    <div th:replace="~{common/navbar}"></div>
+    <!-- End Navbar -->
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0">체험단 상세 정보</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3 mb-md-0">
+                                <img src="/assets/img/logo-ct-dark.png" alt="체험단 썸네일" class="thumbnail">
+                            </div>
+                            <div class="col-md-9">
+                                <h5 class="mb-3">방문형 체험단 프로젝트</h5>
+                                <div class="row">
+                                    <div class="col-sm-6 mb-2">
+                                        <p class="mb-0 small"><i class="fas fa-tag me-2"></i>
+                                            <strong>구분:</strong>
+                                            <span class="badge bg-secondary">방문형</span>
+                                        </p>
+                                    </div>
+                                    <div class="col-sm-6 mb-2">
+                                        <p class="mb-0 small"><i class="far fa-calendar-alt me-2"></i>
+                                            <strong>등록일:</strong> 2023-07-01
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <h6><i class="fas fa-hashtag text-secondary me-2"></i>키워드</h6>
+                                    <div>
+                                        <span class="badge bg-light text-dark me-1">맛집</span>
+                                        <span class="badge bg-light text-dark me-1">서울</span>
+                                        <span class="badge bg-light text-dark me-1">카페</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fs-6">등록된 URL 및 노출 상태</h6>
+                        <span class="text-muted small"><i class="fas fa-sync-alt me-2"></i>최신화 일자: 2023-07-15</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="border-start border-3 ps-3 mb-4 pb-3 url-info">
+                            <div class="d-flex align-items-center mb-2"><i class="fas fa-link text-secondary me-2"></i>
+                                <h6 class="mb-0 fs-6">서울 맛집 탐방기</h6>
+                            </div>
+                            <p class="text-muted mb-2 small">https://blog.naver.com/user/post1</p>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-muted">
+                                    <i class="far fa-calendar-alt me-2"></i>작성일: 2023-07-01
+                                </small>
+                            </div>
+                            <div class="mt-2 mb-3">
+                                <span class="badge bg-light text-dark me-1">#맛집</span>
+                                <span class="badge bg-light text-dark me-1">#서울</span>
+                                <span class="badge bg-light text-dark">#카페</span>
+                            </div>
+                            <div class="bg-light p-3 rounded">
+                                <h6 class="mb-3">키워드별 노출 정보</h6>
+                                <div id="keywordCarousel" class="carousel slide" data-bs-ride="carousel"
+                                     data-bs-interval="false">
+                                    <div class="carousel-inner">
+                                        <div class="carousel-item active">
+                                            <div class="row row-cols-1 row-cols-md-5 g-4">
+                                                <div class="col">
+                                                    <div class="card h-100 border-0 shadow-sm">
+                                                        <div class="card-body">
+                                                            <h5 class="card-title mb-3">맛집</h5>
+                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                <span class="text-secondary"><i class="fas fa-search me-1"></i> 통합검색</span>
+                                                                <span class="badge bg-success">노출</span>
+                                                            </div>
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <span class="text-secondary"><i class="fas fa-blog me-1"></i> 블로그 탭</span>
+                                                                <span class="badge bg-primary">3위</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+      <div th:insert="~{common/footer}"></div>
+    </div>
+  </main>
+
+  <!--   Core JS Files   -->
+  <script src="/assets/js/core/popper.min.js"></script>
+  <script src="/assets/js/core/bootstrap.min.js"></script>
+  <script src="/assets/js/plugins/perfect-scrollbar.min.js"></script>
+  <script src="/assets/js/plugins/smooth-scrollbar.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="/js/common.js"></script>
+</body>
+
+</html>

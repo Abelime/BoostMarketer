@@ -97,7 +97,7 @@ public class Crawler {
     }
 
     //전체 글 정보 크롤링
-    public static List<BlogPostDto> allPostCrawler(List<String> blogIdList, Map<String, String> map) {
+    public static List<BlogPostDto> allPostCrawler(List<String> blogIdList, List<BlogPostDto> lastPostNoList) {
         List<BlogPostDto> postDtoList = new ArrayList<>();
 
         blogIdList.parallelStream().forEach(blogId -> {
@@ -149,8 +149,14 @@ public class Crawler {
                         JSONObject post = postList.getJSONObject(y);
                         String logNo = post.getString("logNo");
 
-                        if (map != null && map.get(blogId).equals(logNo)) {
-                            break a;
+                        if (lastPostNoList != null) {
+                            for (BlogPostDto lastPostNoDto : lastPostNoList) {
+                                if(lastPostNoDto.getBlogId().equals(blogId)){
+                                    if(lastPostNoDto.getPostNo().equals(logNo)){
+                                        break a;
+                                    }
+                                }
+                            }
                         }
 
                         String title = URLDecoder.decode(post.getString("title"), StandardCharsets.UTF_8);
@@ -176,6 +182,53 @@ public class Crawler {
             }
         });
         return postDtoList;
+    }
+
+
+    public static List<String> checkDeletePost(BlogPostDto lastPostNoDto) {
+        List<String> resultList = new ArrayList<>();
+
+        int page = 1;
+        for (int i = 1; i <= page; i++) {
+
+            String url = "https://blog.naver.com/PostTitleListAsync.naver?blogId=" + lastPostNoDto.getBlogId() + "&currentPage=" + i + "&countPerPage=30";
+
+            try (CloseableHttpClient client = HttpClients.createDefault()) {
+                HttpGet request = new HttpGet(url);
+                String responseBody = client.execute(request, httpResponse ->
+                        EntityUtils.toString(httpResponse.getEntity()));
+
+                JSONObject jsonObject = new JSONObject(responseBody);
+
+                int totalCount = jsonObject.getInt("totalCount");
+
+                if (lastPostNoDto.getPostCount() == totalCount) {
+                    break;
+                }
+
+                if (totalCount > 30) {
+                    page = totalCount / 30;
+                    if (totalCount % 30 != 0) {
+                        page = (totalCount / 30) + 1;
+                    }
+                }
+
+                JSONArray postList = jsonObject.getJSONArray("postList");
+
+                Map<String, String> map = new HashMap<>();
+                for (int y = 0; y < postList.length(); y++) {
+                    BlogPostDto blogPostDto = new BlogPostDto();
+
+                    JSONObject post = postList.getJSONObject(y);
+                    String logNo = post.getString("logNo");
+                    resultList.add(logNo);
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return resultList;
     }
 
     //블로그 탭 순위 크롤링(Jsoup)

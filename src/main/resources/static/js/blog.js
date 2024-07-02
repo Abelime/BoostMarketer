@@ -66,10 +66,10 @@ $('#blogUrl').keypress(function (event) {
 });
 
 
-function updateBlog(blogId) {
+function updateBlog() {
     FunLoadingBarStart();
     // Fetch API를 사용하여 요청 보내기
-    fetch('/blog/' + blogId, {
+    fetch('/blog',{
         method: 'PUT',
     })
         .then(response => {

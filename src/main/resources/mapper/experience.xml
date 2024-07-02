@@ -46,7 +46,7 @@
         </if>
     </select>
 
-    <!--  키워드 정보 조회  -->
+    <!--  등록한 체험단 조회  -->
     <select id="selectExperienceInfo" parameterType="String" resultType="ExperienceResponseDto">
         SELECT e.title,
                e.type,
@@ -67,6 +67,23 @@
             AND title LIKE CONCAT('%', #{searchKeyword}, '%'))
         </if>
         order by e.updated_at desc
+    </select>
+
+    <!--  체험단 상세 조회  -->
+    <select id="selectExperienceById" parameterType="map" resultType="ExperienceResponseDto">
+        select id, title, thumbnail, type, created_at
+          from experience
+         where id = #{id}
+           and user_id = (<include refid="selectUserIdByEmail"/>)
+           and use_flg = 'Y'
+    </select>
+
+    <!--  체험단 키워드 조회  -->
+    <select id="selectExperienceKeywordById" parameterType="Long" resultType="String">
+        select kd.keyword_name
+        from experience_keyword ek
+                 join keyword_dict kd on ek.keyword_id = kd.keyword_id
+        where ek.experience_id = #{id}
     </select>
 
 

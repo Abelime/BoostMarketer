@@ -1,6 +1,7 @@
 package camel.BoostMarketer.experience.controller;
 
 import camel.BoostMarketer.experience.dto.ExperienceDto;
+import camel.BoostMarketer.experience.dto.ExperienceResponseDto;
 import camel.BoostMarketer.experience.service.ExperienceService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -63,6 +65,14 @@ public class ExperienceController {
         experienceService.saveExperience(experienceDto);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @GetMapping("/experience/{id}")
+    public String getExperienceDetail(@PathVariable("id") Long id, Model model)  throws Exception{
+        ExperienceResponseDto experienceResponseDto = experienceService.getExperienceDetail(id);
+
+        model.addAttribute("experienceResponseDto", experienceResponseDto);
+        return "pages/experience/detail";
     }
 }
 

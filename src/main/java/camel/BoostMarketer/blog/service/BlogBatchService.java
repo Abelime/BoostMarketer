@@ -9,10 +9,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,17 +20,14 @@ public class BlogBatchService {
     private final NaverBlogApi naverBlogApi;
 
     public void updateBlogPost() throws Exception {
-        List<BlogPostDto> blogDtoList = blogMapper.selectAllLastPostNo();
+        List<BlogPostDto> lastPostNoList = blogMapper.selectAllLastPostNo();
 
-        List<String> blogIdList = new ArrayList<>();
-        Map<String, String> map = new HashMap<>();
+        List<String> blogIdList = lastPostNoList.stream()
+                      .map(BlogPostDto::getBlogId)
+                      .collect(Collectors.toList());
 
-        for (BlogPostDto blogPostDto : blogDtoList) {
-            blogIdList.add(blogPostDto.getBlogId());
-            map.put(blogPostDto.getBlogId(), blogPostDto.getPostNo());
-        }
 
-        List<BlogPostDto> blogPostDtoList = Crawler.allPostCrawler(blogIdList, map);
+        List<BlogPostDto> blogPostDtoList = Crawler.allPostCrawler(blogIdList, lastPostNoList);
 
         if (!blogPostDtoList.isEmpty()) {
             for (int i = 0; i < blogPostDtoList.size(); i++) {

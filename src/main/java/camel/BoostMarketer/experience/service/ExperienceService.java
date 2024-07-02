@@ -121,4 +121,16 @@ public class ExperienceService {
     }
 
 
+    public ExperienceResponseDto getExperienceDetail(Long id) throws Exception {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        ExperienceResponseDto experienceResponseDto = experienceMapper.selectExperienceById(id, email);
+        if (experienceResponseDto.getThumbnail() != null) {
+            String base64Image = Base64.getEncoder().encodeToString(experienceResponseDto.getThumbnail());
+            experienceResponseDto.setThumbnailBase64("data:image/jpeg;base64," + base64Image);
+        }
+        List<String> experienceKeywordList = experienceMapper.selectExperienceKeywordById(id);
+        experienceResponseDto.setKeyword(experienceKeywordList );
+
+        return experienceResponseDto;
+    }
 }

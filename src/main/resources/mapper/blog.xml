@@ -84,17 +84,9 @@
         </choose>
     </select>
 
-    <!--  블로그 마지막 글번호 조회  -->
-    <select id="selectLastPostNo" parameterType="String" resultType="String">
-        SELECT MAX(post_no) AS max_post_no
-        FROM blog_post
-        WHERE blog_id = #{blogId}
-        GROUP BY blog_id;
-    </select>
-
     <!--  블로그 마지막 글번호 조회(다수) -->
-    <select id="selectLastPostNoList" parameterType="String" resultType="CommonBlogDto">
-        SELECT blog_id, MAX(post_no) AS post_no
+    <select id="selectLastPostNoList" parameterType="String" resultType="BlogPostDto">
+        SELECT blog_id as blogId, MAX(post_no) AS post_no, count(post_no) AS post_count
         FROM blog_post
         where blog_id in (select blog_id
                           from blog
@@ -299,7 +291,7 @@
 
     <!-- 모든 블로그 마지막 글번호 조회(배치)  -->
     <select id="selectAllLastPostNo" resultType="BlogPostDto">
-        SELECT blog_id, MAX(post_no) AS post_no
+        SELECT blog_id, MAX(post_no) AS post_no, count(post_no) AS post_count
         FROM blog_post
         group by blog_id
     </select>
@@ -309,6 +301,12 @@
         select blog_id
         from blog
         where user_id = #{userId}
+    </select>
+
+    <select id="selectPostNoByBlogId" parameterType="String" resultType="String">
+        select post_no
+        from blog_post
+        where blog_id = #{blogId}
     </select>
 
 </mapper>

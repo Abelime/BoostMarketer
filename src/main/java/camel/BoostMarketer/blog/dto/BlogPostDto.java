@@ -14,8 +14,9 @@ public class BlogPostDto extends CommonBlogDto {
     //게시글 번호
     private String postTitle; //게시물 제목
     private String postDate; //게시물 날짜
-    private String hashtag; //게시물 해시태그
-    private int commentCnt; //게시물 해시태그
+    private String hashtag;
+    private int commentCnt;
     private int missingFlag; //누락여부
+    private int postCount;
 
 }
