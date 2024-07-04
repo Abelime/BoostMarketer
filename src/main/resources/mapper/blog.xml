@@ -67,7 +67,7 @@
         order by
         <choose>
             <when test="sort == 'general'">
-                bg.created_at
+                bg.created_at desc
             </when>
             <when test="sort == 'highPost'">
                 post_cnt desc

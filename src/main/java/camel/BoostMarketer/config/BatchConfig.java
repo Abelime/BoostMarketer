@@ -1,6 +1,7 @@
 package camel.BoostMarketer.config;
 
 import camel.BoostMarketer.config.tasklet.BlogTasklet;
+import camel.BoostMarketer.config.tasklet.DeleteCheckBlogPostTasklet;
 import camel.BoostMarketer.config.tasklet.KeywordCrawlerTasklet;
 import camel.BoostMarketer.config.tasklet.KeywordSearchTasklet;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,8 @@ public class BatchConfig {
 
     private final BlogTasklet blogTasklet;
 
+    private final DeleteCheckBlogPostTasklet deleteCheckBlogPostTasklet;
+
     private final KeywordSearchTasklet keywordSearchTasklet;
 
     private final KeywordCrawlerTasklet keywordCrawlerTasklet;
@@ -30,6 +33,7 @@ public class BatchConfig {
     public Job blogDataJob(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager) {
         return new JobBuilder("blogDataJob", jobRepository)
                 .start(blogUpdateStep(jobRepository, platformTransactionManager))
+                .next(deleteCheckBlogPostStep(jobRepository, platformTransactionManager))
                 .next(keywordSearchUpdateStep(jobRepository, platformTransactionManager))
                 .next(keywordCrawlerStep(jobRepository, platformTransactionManager))
                 .build();
@@ -39,6 +43,13 @@ public class BatchConfig {
     public Step blogUpdateStep(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager){
         return new StepBuilder("blogUpdateStep", jobRepository)
                 .tasklet(blogTasklet, platformTransactionManager)
+                .build();
+    }
+
+    @Bean
+    public Step deleteCheckBlogPostStep(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager){
+        return new StepBuilder("deleteCheckBlogPostStep", jobRepository)
+                .tasklet(deleteCheckBlogPostTasklet, platformTransactionManager)
                 .build();
     }
 

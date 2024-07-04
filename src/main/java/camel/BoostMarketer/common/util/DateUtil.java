@@ -46,6 +46,12 @@ public class DateUtil {
         return format.format(date);
     }
 
+    public static String getPreviousDay(String dateString) {
+        LocalDate date = LocalDate.parse(dateString);
+        LocalDate previousDay = date.minusDays(1);
+        return previousDay.format(DateTimeFormatter.ISO_LOCAL_DATE);
+    }
+
     public static String formatBlogDate(String originalDate) {
         int lastDotIndex = originalDate.lastIndexOf('.');
         if (lastDotIndex != -1) {

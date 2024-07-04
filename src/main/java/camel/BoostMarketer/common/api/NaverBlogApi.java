@@ -86,8 +86,8 @@ public class NaverBlogApi {
 
     public String blogMissingCheckApi1(String keyword, String date){
         keyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
-
-        String apiURL = "https://section.blog.naver.com/ajax/SearchList.naver?orderBy=sim&countPerPage=49&endDate=" + date + "&startDate=" + date + "&type=post&keyword=\"" + keyword +"\"";
+        String previousDay = DateUtil.getPreviousDay(date);
+        String apiURL = "https://section.blog.naver.com/ajax/SearchList.naver?orderBy=sim&countPerPage=49&startDate=" + previousDay + "&endDate=" + date + "&type=post&keyword=\"" + keyword +"\"";
         Map<String, String> requestHeaders = new HashMap<>();
         requestHeaders.put("Referer", "https://section.blog.naver.com/BlogHome.naver?");
 
@@ -98,8 +98,8 @@ public class NaverBlogApi {
 
     public String blogMissingCheckApi2(String keyword, String date){
         keyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
-
-        String apiURL = "https://section.blog.naver.com/ajax/SearchList.naver?orderBy=sim&countPerPage=49&endDate=" + date + "&startDate=" + date + "&type=post&keyword=" + keyword;
+        String previousDay = DateUtil.getPreviousDay(date);
+        String apiURL = "https://section.blog.naver.com/ajax/SearchList.naver?orderBy=sim&countPerPage=49&startDate=" + previousDay + "&endDate=" + date + "&type=post&keyword=" + keyword;
         Map<String, String> requestHeaders = new HashMap<>();
         requestHeaders.put("Referer", "https://section.blog.naver.com/BlogHome.naver?");
 

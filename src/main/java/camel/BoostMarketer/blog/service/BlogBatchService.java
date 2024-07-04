@@ -4,6 +4,7 @@ import camel.BoostMarketer.blog.dto.BlogPostDto;
 import camel.BoostMarketer.blog.mapper.BlogMapper;
 import camel.BoostMarketer.common.api.Crawler;
 import camel.BoostMarketer.common.api.NaverBlogApi;
+import camel.BoostMarketer.keyword.mapper.KeywordMapper;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -12,11 +13,14 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static camel.BoostMarketer.common.api.Crawler.checkDeletePost;
+
 @Service
 @RequiredArgsConstructor
 public class BlogBatchService {
 
     private final BlogMapper blogMapper;
+    private final KeywordMapper keywordMapper;
     private final NaverBlogApi naverBlogApi;
 
     public void updateBlogPost() throws Exception {
@@ -85,6 +89,21 @@ public class BlogBatchService {
 
         blogMapper.allBlogUpdatedAt("");
 
+    }
+
+    public void deleteCheckBlogPost() throws Exception {
+        List<BlogPostDto> lastPostNoList = blogMapper.selectAllLastPostNo();
+
+        //삭제된 게시글 DB에서 삭제
+        for (BlogPostDto lastPostNoDto : lastPostNoList) {
+            List<String> naverPostNoList = checkDeletePost(lastPostNoDto);
+            if(!naverPostNoList.isEmpty()){
+                List<String> dbPostNoList = blogMapper.selectPostNoByBlogId(lastPostNoDto.getBlogId());
+                dbPostNoList.removeAll(naverPostNoList);
+                blogMapper.deleteBlogPostByPostId(dbPostNoList);
+                keywordMapper.deleteKeywordRankByPostId(dbPostNoList);
+            }
+        }
     }
 
 }

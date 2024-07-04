@@ -296,43 +296,4 @@ public class BlogService {
         }
     }
 
-//    public void updateBlogMissingPost() {
-//        List<String> blogIds = blogMapper.adminTest1();
-//        for (String blogId : blogIds) {
-//            List<BlogPostDto> blogPostDtos = blogMapper.adminTest(blogId);
-//
-//            for (int i = 0; i < blogPostDtos.size(); i++) {
-//                BlogPostDto blogPostDto = blogPostDtos.get(i);
-//                String postNo = blogPostDto.getPostNo();
-//                String postTitle = blogPostDto.getPostTitle();
-//
-//                String responseData = naverBlogApi.blogMissingCheckApi(postTitle);
-//
-//                JSONObject jsonObject = new JSONObject(responseData);
-//                JSONObject result = jsonObject.getJSONObject("result");
-//                JSONArray searchList = result.getJSONArray("searchList");
-//
-//                int missingFlag = 0;
-//
-//                if (searchList.isEmpty()) {
-//                    missingFlag = 1;
-//                } else {
-//                    for (int y = 0; y < searchList.length(); y++) {
-//                        JSONObject item = searchList.getJSONObject(y);
-//                        String postUrl = item.getString("postUrl");
-//                        if (postUrl.contains(postNo)) {
-//                            break;
-//                        }else{
-//                            missingFlag = 1;
-//                        }
-//                    }
-//                }
-//
-//                blogPostDto.setMissingFlag(missingFlag);
-//            }
-//
-//            blogMapper.adminTest3(blogPostDtos);
-//        }
-//
-//    }
 }

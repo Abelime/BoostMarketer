@@ -217,10 +217,7 @@ public class Crawler {
 
                 JSONArray postList = jsonObject.getJSONArray("postList");
 
-                Map<String, String> map = new HashMap<>();
                 for (int y = 0; y < postList.length(); y++) {
-                    BlogPostDto blogPostDto = new BlogPostDto();
-
                     JSONObject post = postList.getJSONObject(y);
                     String logNo = post.getString("logNo");
                     resultList.add(logNo);
