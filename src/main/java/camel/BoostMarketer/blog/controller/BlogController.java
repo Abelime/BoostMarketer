@@ -47,6 +47,7 @@ public class BlogController {
     @PutMapping(value = "/blog")
     public ResponseEntity<?> updateBlog() throws Exception {
         blogService.updateBlog();
+        blogService.deleteCheckBlogPost();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

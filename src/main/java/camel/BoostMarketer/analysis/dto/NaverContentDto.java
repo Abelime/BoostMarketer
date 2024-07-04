@@ -21,4 +21,5 @@ public class NaverContentDto {
     private int visitorCount;
     private int likeCount;
     private int commentCount;
+    private int keywordCount;
 }

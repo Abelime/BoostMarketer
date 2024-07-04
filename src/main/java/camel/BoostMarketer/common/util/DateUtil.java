@@ -45,4 +45,13 @@ public class DateUtil {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         return format.format(date);
     }
+
+    public static String formatBlogDate(String originalDate) {
+        int lastDotIndex = originalDate.lastIndexOf('.');
+        if (lastDotIndex != -1) {
+            return originalDate.substring(0, lastDotIndex).trim();
+        }
+        return originalDate.trim();
+    }
+
 }

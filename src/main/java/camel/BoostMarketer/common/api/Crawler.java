@@ -29,6 +29,8 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static camel.BoostMarketer.common.util.HttpUtil.sendHttpRequest;
@@ -84,10 +86,10 @@ public class Crawler {
 
 
         //프로필 이미지 추출
-        String imgSrc = mainFrameDoc.select("img[alt=프로필]").attr("src").replace("type=s40", "type=w161");
+        String imgSrc = mainFrameDoc.select("img[alt=프로필]").attr("src") .replace("type=s40", "type=w161");
 
         // 사용자 이름 추출
-        String blogName = mainFrameDoc.select("strong.nick").text();
+        String blogName = mainFrameDoc.select("span.dsc").text();
 
         blogDto.setBlogId(blogId);
         blogDto.setBlogName(blogName);
@@ -486,51 +488,48 @@ public class Crawler {
 
 
         /*스마트 블럭*/
-        Elements scripts = document.select("script");
-
-        for (Element script : scripts) {
-            String scriptContent = script.html();
-
+//        Elements scripts = document.select("script");
+//        for (Element script : scripts) {
+//            String scriptContent = script.html();
 //            if (scriptContent.contains("\"text\":{\"content\":\"")) {
 //                smartBlockList = UrlUtil.smartBlockMainTitle(scriptContent);
 //                smartBlockHrefList = UrlUtil.smartBlockAPiUrl(scriptContent);
 //            }
-
-        }
-
-        Elements bestContent = document.select("div.view_wrap");
-
-        if(!smartBlockHrefList.isEmpty()) { //스마트 블럭
-            naverContentDtoList = smartBlockCralwer(smartBlockHrefList.get(0));
-        }else if(!bestContent.isEmpty()){ //인기글
-            for (Element element : bestContent) {
-                String author = element.select(".name").text();
-                String date = element.select(".sub").text();
-                String title = element.select(".title_link").text();
-                String href = element.select(".title_link").attr("href");
-
-                NaverContentDto naverContentDto = blogAnalyzeCralwer(href);
-                naverContentDto.setUrl(href);
-                naverContentDto.setAuthor(author);
-                naverContentDto.setDate(date);
-                naverContentDto.setTitle(title);
-                naverContentDtoList.add(naverContentDto);
-            }
-        }else{ //스마트블럭 1개일때
-            String smartBlockTitle = document.select("span.fds-comps-header-headline").text();
-            String smartBlockHref = document.select("a.fds-comps-footer-more-button-container").attr("href");
-            if(!smartBlockHref.isEmpty()){
-                smartBlockList.add(smartBlockTitle);
-                smartBlockHrefList.add(smartBlockHref);
-                naverContentDtoList = smartBlockCralwer(smartBlockHrefList.get(0));
-            }
-        }
-
-//        Set<String> totalBlogUrl = extractHrefValues(document);
-//        for (String blogUrl : totalBlogUrl) {
-//            NaverContentDto naverContentDto = blogAnalyzeCralwer(blogUrl);
-//
 //        }
+
+//        Elements bestContent = document.select("div.view_wrap");
+//
+//        if(!smartBlockHrefList.isEmpty()) { //스마트 블럭
+//            naverContentDtoList = smartBlockCralwer(smartBlockHrefList.get(0));
+//        }else if(!bestContent.isEmpty()){ //인기글
+//            for (Element element : bestContent) {
+//                String author = element.select(".name").text();
+//                String date = element.select(".sub").text();
+//                String title = element.select(".title_link").text();
+//                String href = element.select(".title_link").attr("href");
+//
+//                NaverContentDto naverContentDto = blogAnalyzeCralwer(href);
+//                naverContentDto.setUrl(href);
+//                naverContentDto.setAuthor(author);
+//                naverContentDto.setDate(date);
+//                naverContentDto.setTitle(title);
+//                naverContentDtoList.add(naverContentDto);
+//            }
+//        }else{ //스마트블럭 1개일때
+//            String smartBlockTitle = document.select("span.fds-comps-header-headline").text();
+//            String smartBlockHref = document.select("a.fds-comps-footer-more-button-container").attr("href");
+//            if(!smartBlockHref.isEmpty()){
+//                smartBlockList.add(smartBlockTitle);
+//                smartBlockHrefList.add(smartBlockHref);
+//                naverContentDtoList = smartBlockCralwer(smartBlockHrefList.get(0));
+//            }
+//        }
+
+        Set<String> totalBlogUrl = extractHrefValues(document);
+        for (String blogUrl : totalBlogUrl) {
+            NaverContentDto naverContentDto = blogAnalyzeCralwer(blogUrl, keyword);
+            naverContentDtoList.add(naverContentDto);
+        }
 
 
         result.put("naverContentDtoList", naverContentDtoList);
@@ -660,15 +659,13 @@ public class Crawler {
         return resultList;
     }
 
-        private static NaverContentDto blogAnalyzeCralwer(String url) throws Exception{
+        private static NaverContentDto blogAnalyzeCralwer(String url, String keyword) throws Exception{
         NaverContentDto naverContentDto = new NaverContentDto();
-
-        String finalURL = getFinalURL(url);
 
         String referrer = "https://www.naver.com/";
 
-        if (finalURL.contains("blog.naver.com")) {
-            Document document = Jsoup.connect(finalURL)
+        if (url.contains("blog.naver.com")) {
+            Document document = Jsoup.connect(url)
                     .referrer(referrer)
                     .headers(headerData)
                     .get();
@@ -676,20 +673,45 @@ public class Crawler {
             Element mainFrame = document.selectFirst("iframe[name=mainFrame]");
             String mainFrameSrc = mainFrame.attr("src");
 
-            URL absoluteUrl = new URL(new URL(finalURL), mainFrameSrc);
+            URL absoluteUrl = new URL(new URL(url), mainFrameSrc);
             String mainFrameAbsoluteUrl = absoluteUrl.toString();
 
             String blogId = ConvertBlogUrl.extractBlogId(mainFrameAbsoluteUrl);
-
+            BlogDto blogDto = blogInfoCrawler(blogId);
 
             // mainFrame의 HTML 가져오기
             Document mainFrameDoc = Jsoup.connect(mainFrameAbsoluteUrl).get();
 
             Elements blogContent = mainFrameDoc.select("div.se-main-container");
 
+            String title = mainFrameDoc.select("div.se-title-text p.se-text-paragraph").text();
+            String date = DateUtil.formatBlogDate(mainFrameDoc.select("span.se_publishDate").text());
+
             // 글자 수 추출
             String text = blogContent.select("p.se-text-paragraph").text();
             int textCount = text.length();
+
+            // 대소문자 구분 없이 검색하기 위해 모두 소문자로 변환
+            text = text.toLowerCase();
+            keyword = keyword.toLowerCase();
+
+            // 입력된 단어에서 모든 공백 제거
+            String wordWithoutSpaces = keyword.replaceAll("\\s+", "");
+
+            // 단어 사이에 0개 이상의 공백이 있을 수 있는 패턴 생성
+            StringBuilder patternBuilder = new StringBuilder();
+            for (char c : wordWithoutSpaces.toCharArray()) {
+                patternBuilder.append(c).append("\\s*");
+            }
+            String patternString = patternBuilder.toString().trim();
+
+            Pattern pattern = Pattern.compile(patternString);
+            Matcher matcher = pattern.matcher(text);
+
+            int keywordCount = 0;
+            while (matcher.find()) {
+                keywordCount++;
+            }
 
             // 사진 수 추출
             Elements images = blogContent.select("img.se-image-resource");
@@ -712,7 +734,11 @@ public class Crawler {
 
             int visitorCount = visitorCntCrawler(blogId);
 
-
+            naverContentDto.setAuthor(blogDto.getBlogName());
+            naverContentDto.setUrl(url);
+            naverContentDto.setTitle(title);
+            naverContentDto.setDate(date);
+            naverContentDto.setKeywordCount(keywordCount);
             naverContentDto.setTextCount(textCount);
             naverContentDto.setImageCount(imageCount);
             naverContentDto.setVideoCount(videoCount);
@@ -720,15 +746,15 @@ public class Crawler {
             naverContentDto.setVisitorCount(visitorCount);
             naverContentDto.setCommentCount(commentCount);
             naverContentDto.setType("blog");
-        }else if(finalURL.contains("cafe.naver.com")){
+        }else if(url.contains("cafe.naver.com")){
             naverContentDto.setType("cafe");
-        }else if(finalURL.contains("post.naver.com")){
+        }else if(url.contains("post.naver.com")){
             naverContentDto.setType("post");
         }else {
             naverContentDto.setType("etc");
         }
 
-        naverContentDto.setInfluencer(url.contains("in.naver.com"));
+        naverContentDto.setInfluencer(url.contains("isInf=true"));
 
         return naverContentDto;
     }

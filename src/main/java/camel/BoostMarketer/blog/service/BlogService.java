@@ -145,14 +145,12 @@ public class BlogService {
     }
 
     public void updateBlog() throws Exception {
-
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         List<BlogPostDto> lastPostNoList = blogMapper.selectLastPostNoList(email);
 
         List<String> blogIdList = lastPostNoList.stream()
                 .map(BlogPostDto::getBlogId)
                 .collect(Collectors.toList());
-
 
         List<BlogPostDto> blogPostDtoList = allPostCrawler(blogIdList, lastPostNoList);
 
@@ -208,18 +206,6 @@ public class BlogService {
 
         if (!blogPostDtoList.isEmpty()) {
             blogMapper.registerPosts(blogPostDtoList);
-        }
-
-        //삭제된 게시글 DB에서 삭제
-        for (BlogPostDto lastPostNoDto : lastPostNoList) {
-            List<String> naverPostNoList = checkDeletePost(lastPostNoDto);
-            if(!naverPostNoList.isEmpty()){
-                List<String> dbPostNoList = blogMapper.selectPostNoByBlogId(lastPostNoDto.getBlogId());
-                dbPostNoList.removeAll(naverPostNoList);
-                blogMapper.deleteBlogPostByPostId(dbPostNoList);
-                keywordMapper.deleteKeywordRankByPostId(dbPostNoList);
-            }
-
         }
 
         blogMapper.allBlogUpdatedAt(email);
@@ -291,6 +277,23 @@ public class BlogService {
 
     public BlogPostDto selectPostInfo(String postNo) throws Exception {
         return blogMapper.selectPostByPostNo(postNo);
+    }
+
+    public void deleteCheckBlogPost() throws Exception {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        List<BlogPostDto> lastPostNoList = blogMapper.selectLastPostNoList(email);
+
+        //삭제된 게시글 DB에서 삭제
+        for (BlogPostDto lastPostNoDto : lastPostNoList) {
+            List<String> naverPostNoList = checkDeletePost(lastPostNoDto);
+            if(!naverPostNoList.isEmpty()){
+                List<String> dbPostNoList = blogMapper.selectPostNoByBlogId(lastPostNoDto.getBlogId());
+                dbPostNoList.removeAll(naverPostNoList);
+                blogMapper.deleteBlogPostByPostId(dbPostNoList);
+                keywordMapper.deleteKeywordRankByPostId(dbPostNoList);
+            }
+        }
     }
 
 //    public void updateBlogMissingPost() {
