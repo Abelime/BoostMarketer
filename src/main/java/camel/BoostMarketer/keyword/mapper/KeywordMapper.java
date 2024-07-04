@@ -51,4 +51,5 @@ public interface KeywordMapper {
 
     String selectCompleteDate() throws Exception;
 
+    void deleteKeywordRankByPostId(List<String> dbPostNoList) throws Exception;
 }

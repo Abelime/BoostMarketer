@@ -136,6 +136,15 @@
         WHERE blog_id = #{blogId}
     </delete>
 
+    <!--  블로그 글 삭제(삭제된 게시글)  -->
+    <delete id="deleteBlogPostByPostId" parameterType="java.util.List">
+        delete from blog_post
+        WHERE post_no in
+        <foreach item="item" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
     <!--  최신글 COUNT [1달] -->
     <select id="selectRecentPostCnt" parameterType="String" resultType="Integer">
         SELECT COUNT(*) cnt

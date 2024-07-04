@@ -53,4 +53,6 @@ public interface BlogMapper {
     List<BlogPostDto> selectMissingPostByBlogId(String blogId) throws Exception;
 
     List<String> selectPostNoByBlogId(String blogId) throws Exception;
+
+    void deleteBlogPostByPostId(List<String> dbPostNoList) throws Exception;
 }

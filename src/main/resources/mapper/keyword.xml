@@ -335,4 +335,13 @@
         LIMIT 1;
     </select>
 
+    <!--  블로그 글 삭제(삭제된 게시글)  -->
+    <delete id="deleteBlogPostByPostId" parameterType="java.util.List">
+        delete from keyword_rank
+        WHERE post_no in
+        <foreach item="item" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
 </mapper>
