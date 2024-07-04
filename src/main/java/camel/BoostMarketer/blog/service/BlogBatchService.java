@@ -100,8 +100,11 @@ public class BlogBatchService {
             if(!naverPostNoList.isEmpty()){
                 List<String> dbPostNoList = blogMapper.selectPostNoByBlogId(lastPostNoDto.getBlogId());
                 dbPostNoList.removeAll(naverPostNoList);
-                blogMapper.deleteBlogPostByPostId(dbPostNoList);
-                keywordMapper.deleteKeywordRankByPostId(dbPostNoList);
+                if(!dbPostNoList.isEmpty()){
+                    blogMapper.deleteBlogPostByPostId(dbPostNoList);
+                    keywordMapper.deleteKeywordRankByPostId(dbPostNoList);
+                }
+
             }
         }
     }
