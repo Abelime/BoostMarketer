@@ -48,7 +48,8 @@
 
     <!--  등록한 체험단 조회  -->
     <select id="selectExperienceInfo" parameterType="String" resultType="ExperienceResponseDto">
-        SELECT e.title,
+        SELECT e.id,
+               e.title,
                e.type,
                e.thumbnail,
                DATE(e.created_at)           AS created_at,
