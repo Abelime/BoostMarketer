@@ -344,4 +344,16 @@
         </foreach>
     </delete>
 
+    <!--  체험단 링크 조회  -->
+    <select id="selectExperienceKeywordRank" parameterType="map" resultType="KeywordDto">
+        select post_no, kd.keyword_name, kr.keyword_id, rank_pc, total_search_exposure
+        from keyword_rank kr
+        join keyword_dict kd on kr.keyword_id = kd.keyword_id
+        where post_no in
+        <foreach item="item" collection="postNoList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and kr.keyword_id in (select keyword_id from experience_keyword ek where experience_id = #{experienceId})
+    </select>
+
 </mapper>

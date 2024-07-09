@@ -74,3 +74,24 @@
 .btn-custom-blue:hover {
   background-color: #e7f3ff; /* Lighter blue background on hover */
 }
+
+.post-hashtag {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: start; /* Keeps tags aligned to the start */
+}
+
+.hashtag {
+    background-color: #f0f0f0; /* Even lighter gray */
+    color: black; /* Lighter text color */
+    padding: 4px 9px; /* Slightly smaller padding */
+    border-radius: 15px; /* Less pronounced border-radius */
+    margin: 4px; /* Slightly reduced space between tags */
+    font-size: 12px; /* Slightly smaller text */
+    border: 1px solid #e0e0e0; /* Lighter border */
+    opacity: 0.8; /* Slightly transparent */
+    overflow: hidden; /* Ensures content doesn't spill out */
+    text-overflow: ellipsis; /* Adds an ellipsis for text that overflows */
+    white-space: nowrap; /* Prevents text from wrapping to a new line */
+}

@@ -121,16 +121,34 @@ public class ExperienceService {
     }
 
 
-    public ExperienceResponseDto getExperienceDetail(Long id) throws Exception {
+    public Map<String, Object> getExperienceDetail(Long id) throws Exception {
+        Map<String, Object> resultMap = new HashMap<>();
+
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         ExperienceResponseDto experienceResponseDto = experienceMapper.selectExperienceById(id, email);
-        if (experienceResponseDto.getThumbnail() != null) {
-            String base64Image = Base64.getEncoder().encodeToString(experienceResponseDto.getThumbnail());
-            experienceResponseDto.setThumbnailBase64("data:image/jpeg;base64," + base64Image);
-        }
-        List<String> experienceKeywordList = experienceMapper.selectExperienceKeywordById(id);
-        experienceResponseDto.setKeyword(experienceKeywordList );
 
-        return experienceResponseDto;
+        if(experienceResponseDto!= null) {
+            if (experienceResponseDto.getThumbnail() != null) {
+                String base64Image = Base64.getEncoder().encodeToString(experienceResponseDto.getThumbnail());
+                experienceResponseDto.setThumbnailBase64("data:image/jpeg;base64," + base64Image);
+            }
+            List<String> experienceKeywordList = experienceMapper.selectExperienceKeywordById(id);
+            experienceResponseDto.setKeyword(experienceKeywordList);
+
+            List<ExperienceLinkDto> experienceLinkDtoList = experienceMapper.selectExperienceLinkById(id);
+
+            List<String> postNoList = experienceLinkDtoList.stream()
+                .map(ExperienceLinkDto::getPostNo)
+                .toList();
+
+            List<KeywordDto> keywordDtoList = keywordMapper.selectExperienceKeywordRank(postNoList, id);
+
+            resultMap.put("experienceResponseDto", experienceResponseDto);
+            resultMap.put("experienceLinkDtoList", experienceLinkDtoList);
+            resultMap.put("keywordDtoList", keywordDtoList);
+        }
+
+
+        return resultMap;
     }
 }

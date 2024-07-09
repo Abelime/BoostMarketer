@@ -39,28 +39,7 @@
   <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
   <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
 </head>
-<style>
-    .post-hashtag {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: start; /* Keeps tags aligned to the start */
-    }
 
-    .hashtag {
-        background-color: #f0f0f0; /* Even lighter gray */
-        color: black; /* Lighter text color */
-        padding: 4px 9px; /* Slightly smaller padding */
-        border-radius: 15px; /* Less pronounced border-radius */
-        margin: 4px; /* Slightly reduced space between tags */
-        font-size: 12px; /* Slightly smaller text */
-        border: 1px solid #e0e0e0; /* Lighter border */
-        opacity: 0.8; /* Slightly transparent */
-        overflow: hidden; /* Ensures content doesn't spill out */
-        text-overflow: ellipsis; /* Adds an ellipsis for text that overflows */
-        white-space: nowrap; /* Prevents text from wrapping to a new line */
-    }
-</style>
 
 <body class="g-sidenav-show  bg-gray-100">
 <div th:replace="~{common/aside}"></div>
@@ -265,7 +244,7 @@
               </thead>
               <tbody id="modal-body-content">
               </tbody>
-            </table>
+         </table>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

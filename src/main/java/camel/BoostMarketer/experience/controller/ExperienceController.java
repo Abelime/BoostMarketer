@@ -1,7 +1,6 @@
 package camel.BoostMarketer.experience.controller;
 
 import camel.BoostMarketer.experience.dto.ExperienceDto;
-import camel.BoostMarketer.experience.dto.ExperienceResponseDto;
 import camel.BoostMarketer.experience.service.ExperienceService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -69,9 +68,11 @@ public class ExperienceController {
 
     @GetMapping("/experience/{id}")
     public String getExperienceDetail(@PathVariable("id") Long id, Model model)  throws Exception{
-        ExperienceResponseDto experienceResponseDto = experienceService.getExperienceDetail(id);
+        Map<String, Object> resultMap = experienceService.getExperienceDetail(id);
 
-        model.addAttribute("experienceResponseDto", experienceResponseDto);
+        model.addAttribute("experienceResponseDto", resultMap.get("experienceResponseDto"));
+        model.addAttribute("experienceLinkDtoList", resultMap.get("experienceLinkDtoList"));
+        model.addAttribute("keywordDtoList", resultMap.get("keywordDtoList"));
         return "pages/experience/detail";
     }
 }

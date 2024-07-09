@@ -52,4 +52,6 @@ public interface KeywordMapper {
     String selectCompleteDate() throws Exception;
 
     void deleteKeywordRankByPostId(List<String> dbPostNoList) throws Exception;
+
+    List<KeywordDto> selectExperienceKeywordRank(@Param("postNoList") List<String> postNoList, @Param("experienceId") Long id) throws Exception;
 }

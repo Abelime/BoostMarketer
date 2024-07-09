@@ -24,4 +24,6 @@ public interface ExperienceMapper {
     ExperienceResponseDto selectExperienceById(@Param("id") Long id, @Param("email") String email) throws Exception;
 
     List<String> selectExperienceKeywordById(Long id) throws Exception;
+
+    List<ExperienceLinkDto> selectExperienceLinkById(Long id) throws Exception;
 }

@@ -12,29 +12,9 @@
   <!-- CSS Files -->
   <link id="pagestyle" href="/assets/css/soft-ui-dashboard.css?v=1.0.7" rel="stylesheet" />
   <link href="/css/table.css" rel="stylesheet" />
+  <link href="/css/common.css" rel="stylesheet" />
 </head>
 <style>
-  .post-hashtag {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: start; /* Keeps tags aligned to the start */
-  }
-
-  .hashtag {
-    background-color: #f0f0f0; /* Even lighter gray */
-    color: black; /* Lighter text color */
-    padding: 4px 9px; /* Slightly smaller padding */
-    border-radius: 15px; /* Less pronounced border-radius */
-    margin: 4px; /* Slightly reduced space between tags */
-    font-size: 12px; /* Slightly smaller text */
-    border: 1px solid #e0e0e0; /* Lighter border */
-    opacity: 0.8; /* Slightly transparent */
-    overflow: hidden; /* Ensures content doesn't spill out */
-    text-overflow: ellipsis; /* Adds an ellipsis for text that overflows */
-    white-space: nowrap; /* Prevents text from wrapping to a new line */
-  }
-
   td {
     min-width: 100px; /* Minimum width */
     max-width: 300px; /* Maximum width */
@@ -117,14 +97,6 @@
                         </p>
                       </a>
                     </td>
-<!--                    <td class="align-middle text-center" th:styleappend="${list.totalSearchExposure != 0} ? 'background-color: #fffff5;' : ''">-->
-<!--                      <span th:if="${list.totalSearchExposure != 0}" class="text-success">-->
-<!--                          <i class="fa fa-check"></i>-->
-<!--                      </span>-->
-<!--                      <span th:if="${list.totalSearchExposure == 0}" class="text-danger">-->
-<!--                          <i class="fa fa-times"></i>-->
-<!--                      </span>-->
-<!--                    </td>-->
                   </tr>
                   </tbody>
                 </table>

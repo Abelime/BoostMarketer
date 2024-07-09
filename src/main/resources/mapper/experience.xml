@@ -72,7 +72,7 @@
 
     <!--  체험단 상세 조회  -->
     <select id="selectExperienceById" parameterType="map" resultType="ExperienceResponseDto">
-        select id, title, thumbnail, type, created_at
+        select id, title, thumbnail, type, DATE(created_at) AS created_at
           from experience
          where id = #{id}
            and user_id = (<include refid="selectUserIdByEmail"/>)
@@ -85,6 +85,18 @@
         from experience_keyword ek
                  join keyword_dict kd on ek.keyword_id = kd.keyword_id
         where ek.experience_id = #{id}
+    </select>
+
+    <!--  체험단 링크 조회  -->
+    <select id="selectExperienceLinkById" parameterType="Long" resultType="ExperienceLinkDto">
+        SELECT experience_id,
+               link,
+               SUBSTRING_INDEX(link, '/', -1) AS post_no,
+               post_title,
+               post_date,
+               hashtag
+        FROM experience_link el
+        WHERE el.experience_id = #{id};
     </select>
 
 
