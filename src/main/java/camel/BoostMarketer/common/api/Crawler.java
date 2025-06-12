@@ -47,7 +47,9 @@ public class Crawler {
         String url = "https://blog.naver.com/NVisitorgp4Ajax.naver?blogId=" + blogId;
 
         String result = sendHttpRequest(url);
-
+        if (result.trim().isEmpty()) {
+            return 0;
+        }
         // XML을 JsonNode로 변환
         XmlMapper xmlMapper = new XmlMapper();
         JsonNode xmlJSONObj = xmlMapper.readTree(result);

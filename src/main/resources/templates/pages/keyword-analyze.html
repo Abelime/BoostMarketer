@@ -280,7 +280,7 @@
                     <p th:unless="${naverContent.type == 'blog'}" class="text-dark text-xs font-weight-bold mb-0">-</p>
                   </td>
                   <td class="align-middle text-center">
-                    <p th:if="${naverContent.type == 'blog'}" class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.visitorCount == 0 ? '0' : #numbers.formatInteger(naverContent.visitorCount, 1, 'COMMA')}"></p>
+                    <p th:if="${naverContent.type == 'blog'}" class="text-dark text-xs font-weight-bold mb-0" th:text="${naverContent.visitorCount == 0 ? '-' : #numbers.formatInteger(naverContent.visitorCount, 1, 'COMMA')}"></p>
                     <p th:unless="${naverContent.type == 'blog'}" class="text-dark text-xs font-weight-bold mb-0">-</p>
                   </td>
                 </tr>
